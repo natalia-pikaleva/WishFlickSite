@@ -8,9 +8,9 @@ from typing import List, Optional
 import shutil
 import os
 import uuid
-from app.models import User, Wish, Comment, Activity, ActivityType, Like, ActivityLike
-from app.auth import get_password_hash
-import app.schemas as schemas
+from models import User, Wish, Comment, Activity, ActivityType, Like, ActivityLike
+from auth import get_password_hash
+import schemas as schemas
 
 
 async def get_user_by_email(db: AsyncSession, email: str):
@@ -80,6 +80,7 @@ async def update_user_profile(
         db: AsyncSession,
         user: User,
         *,
+        UPLOAD_DIR: str,
         name: Optional[str] = None,
         email: Optional[str] = None,
         description: Optional[str] = None,
@@ -93,11 +94,11 @@ async def update_user_profile(
     if avatar_file:
         ext = avatar_file.filename.split(".")[-1]
         filename = f"{uuid.uuid4()}.{ext}"
-        file_path = f"static/avatars/{filename}"
+        file_path = os.path.join(UPLOAD_DIR, filename)
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(avatar_file.file, buffer)
-        avatar_url = f"/static/avatars/{filename}"
+        avatar_url = f"/uploads/avatars/{filename}"
 
     if name is not None:
         user.name = name

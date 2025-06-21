@@ -5,9 +5,9 @@ from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.database import get_db
-from app.models import User
-import app.crud as crud
+from database import get_db
+from models import User
+import crud as crud
 
 # TODO прописать получение секретного ключа из переменных окружения
 SECRET_KEY = "your-secret-key"  # Замените на свой секрет

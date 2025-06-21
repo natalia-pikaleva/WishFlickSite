@@ -15,6 +15,7 @@ class WishBase(BaseModel):
     description: Optional[str] = None
     image_url: Optional[HttpUrl] = None
     goal: float = Field(..., gt=0)
+    is_public: bool
 
 
 class WishCreate(WishBase):

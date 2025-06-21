@@ -9,18 +9,17 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from httpx import URL
 from sqlalchemy import select, func
-from sqlalchemy.orm import aliased
 
 import os
 import uuid
 import logging
 import httpx
 
-from app.database import Base, engine, get_db
-import app.models as models
-import app.schemas as schemas
-import app.crud as crud
-import app.auth as auth
+from database import Base, engine, get_db
+import models as models
+import schemas as schemas
+import crud as crud
+import auth as auth
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +38,8 @@ app = FastAPI(title="WishFlick API")
 origins = [
     "http://localhost:5173",  # адрес фронтенда
     "http://127.0.0.1:5173",
+    "http://0.0.0.0:5173",
+
 ]
 
 app.add_middleware(
@@ -49,8 +50,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/uploads",
+          StaticFiles(directory=os.path.join(os.path.dirname(__file__), "uploads")),
+          name="uploads")
 
+UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads", "avatars")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # Создание таблиц (запускайте один раз)
 @app.on_event("startup")
@@ -130,6 +135,9 @@ async def delete_wish(
     return None  # 204 No Content
 
 
+
+
+
 @app.put("/profile", response_model=schemas.UserProfileResponse)
 async def update_profile(
         request: Request,
@@ -147,6 +155,7 @@ async def update_profile(
     user = await crud.update_user_profile(
         db,
         current_user,
+        UPLOAD_DIR=UPLOAD_DIR,
         name=name,
         email=email,
         description=description,
@@ -157,7 +166,7 @@ async def update_profile(
         avatar_file=avatar,
     )
 
-    # Формируем абсолютный URL для аватара
+    # Формируем полный URL для фронтенда
     if user.avatar_url and user.avatar_url.startswith('/'):
         base_url = str(request.base_url).rstrip('/')
         user.avatar_url = f"{base_url}{user.avatar_url}"
