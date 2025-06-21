@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
@@ -25,6 +25,14 @@ function Home() {
       <Features />
       <HowItWorks />
       <PopularWishes />
+      <div className="my-8 text-center">
+        <Link
+          to="/influencer-wishlists"
+          className="inline-block px-6 py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg"
+        >
+          View Influencer Wishlists
+        </Link>
+      </div>
       <CTA />
     </>
   );

@@ -5,6 +5,8 @@ from sqlalchemy.orm import selectinload, joinedload
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
+from datetime import datetime, timedelta, timezone
+
 import shutil
 import os
 import uuid
@@ -42,14 +44,19 @@ async def create_user(db: AsyncSession, user_create):
     return db_user
 
 
-async def create_wish(db: AsyncSession, wish_create: schemas.WishCreate, owner_id: int):
+async def create_wish(db: AsyncSession, wish_create: schemas.WishCreate, owner: User):
+    is_influencer_public = False
+    if owner.is_influencer and wish_create.is_public:
+        is_influencer_public = True
+
     db_wish = Wish(
         title=wish_create.title,
         description=wish_create.description,
         image_url=str(wish_create.image_url) if wish_create.image_url else None,
         goal=wish_create.goal,
-        owner_id=owner_id,
-        is_public=wish_create.is_public
+        owner_id=owner.id,
+        is_public=wish_create.is_public,
+        is_influencer_public=is_influencer_public,
     )
     db.add(db_wish)
     await db.commit()
@@ -88,6 +95,7 @@ async def update_user_profile(
         social_facebook: Optional[str] = None,
         social_twitter: Optional[str] = None,
         social_instagram: Optional[str] = None,
+        is_influencer: Optional[bool] = None,
         avatar_file=None,
 ) -> User:
     avatar_url = user.avatar_url
@@ -114,6 +122,8 @@ async def update_user_profile(
         user.social_twitter = social_twitter
     if social_instagram is not None:
         user.social_instagram = social_instagram
+    if is_influencer is not None:
+        user.is_influencer = is_influencer
     user.avatar_url = avatar_url
 
     db.add(user)
@@ -189,14 +199,10 @@ async def get_activities(db: AsyncSession, limit: int = 20):
     return activities
 
 
-
-
-
-
 async def like_activity(
-    db: AsyncSession,
-    activity_id: int,
-    user_id: int
+        db: AsyncSession,
+        activity_id: int,
+        user_id: int
 ):
     # Проверяем существование активности
     result = await db.execute(select(Activity).filter(Activity.id == activity_id))
@@ -230,3 +236,26 @@ async def like_activity(
         raise HTTPException(status_code=400, detail="Failed to like activity")
 
     return new_like
+
+
+async def get_influencer_wishes(db: AsyncSession, public=True, influencer=True):
+    query = (
+        select(Wish)
+        .options(selectinload(Wish.owner), selectinload(Wish.supporters))
+        .where(Wish.is_public == public, Wish.is_influencer_public == influencer)
+    )
+    result = await db.execute(query)
+    wishes = result.scalars().all()
+
+    enriched_wishes = []
+    for wish in wishes:
+        supporters_count = len(wish.supporters) if wish.supporters else 0
+
+        enriched_wishes.append({
+            **wish.__dict__,
+            "supporters": supporters_count,
+            "time_left": wish.time_left,
+        })
+
+    return enriched_wishes
+

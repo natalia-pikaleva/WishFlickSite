@@ -78,6 +78,7 @@ class UserProfileUpdate(BaseModel):
     social_facebook: Optional[HttpUrl]
     social_twitter: Optional[HttpUrl]
     social_instagram: Optional[HttpUrl]
+    is_influencer: Optional[bool] = False
 
 
 class UserProfileResponse(UserProfileUpdate):
@@ -108,9 +109,6 @@ class FacebookToken(BaseModel):
 class CommentCreate(BaseModel):
     wish_id: int
     content: str
-
-
-from pydantic import BaseModel
 
 
 class CommentUser(BaseModel):
@@ -191,6 +189,22 @@ class WishWithStats(BaseModel):
     likes_count: int
     comments_count: int
     is_public: bool
+
+    class Config:
+        orm_mode = True
+
+
+class UserResponse(UserBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+class WishWithOwner(Wish):
+    owner: Optional[UserResponse]
+    supporters: int
+    time_left: str
+    category: Optional[str] = None
 
     class Config:
         orm_mode = True
