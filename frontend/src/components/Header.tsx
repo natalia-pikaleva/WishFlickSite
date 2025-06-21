@@ -33,7 +33,12 @@ const Header = () => {
   // Переключение между входом и регистрацией
   const toggleAuthMode = () => {
     setAuthMode(authMode === 'login' ? 'register' : 'login');
-    setFormData({ email: '', password: '' });
+	setFormData({
+	  email: '',
+	  password: '',
+	  name: '',
+	  privacy: 'public',
+	});
   };
 
   // Обработка изменений в форме

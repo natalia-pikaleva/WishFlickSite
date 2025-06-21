@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: wishflick_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/wishflick_db
+      # другие переменные окружения, например секреты
+    ports:
+      - "8000:8000"
+    command: >
+      uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./backend/uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "5173:5173"
+    command: >
+      sh -c "npm install && npm run dev -- --host 0.0.0.0"
+
+volumes:
+  postgres_data:
