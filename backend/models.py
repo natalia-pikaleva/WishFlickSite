@@ -3,6 +3,7 @@ from sqlalchemy import (Column, Integer, String, Text, Enum, ForeignKey, Float,
 from sqlalchemy.orm import relationship
 from database import Base
 from enum import Enum as PyEnum
+from datetime import datetime, timedelta, timezone
 
 
 class PrivacyEnum(PyEnum):
@@ -21,12 +22,22 @@ class User(Base):
     avatar_url = Column(String, nullable=True)
     description = Column(Text, nullable=True)
     privacy = Column(Enum(PrivacyEnum), default=PrivacyEnum.public)
+    is_influencer = Column(Boolean, default=False)
 
     social_facebook = Column(String, nullable=True)
     social_twitter = Column(String, nullable=True)
     social_instagram = Column(String, nullable=True)
 
     wishes = relationship("Wish", back_populates="owner", lazy="selectin")
+
+
+class WishSupporter(Base):
+    __tablename__ = "wish_supporters"
+
+    id = Column(Integer, primary_key=True)
+    wish_id = Column(Integer, ForeignKey("wishes.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    supported_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
 class Wish(Base):
@@ -40,10 +51,24 @@ class Wish(Base):
     raised = Column(Float, default=0.0)
     owner_id = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-
-    owner = relationship("User", back_populates="wishes")
     is_public = Column(Boolean, default=False)
     is_influencer_public = Column(Boolean, default=False)
+    duration_days = Column(Integer, default=30)
+    category = Column(String, nullable=True)
+
+    owner = relationship("User", back_populates="wishes")
+    supporters = relationship("WishSupporter", backref="wish", lazy="selectin")
+
+    @property
+    def time_left(self) -> str:
+        if not hasattr(self, "duration_days") or not self.created_at:
+            return "N/A"
+        end_date = self.created_at + timedelta(days=self.duration_days)
+        remaining = end_date - datetime.now(timezone.utc)
+        if remaining.total_seconds() <= 0:
+            return "Ended"
+        days = remaining.days
+        return f"{days} day{'s' if days != 1 else ''} left"
 
 
 class ActivityType(PyEnum):

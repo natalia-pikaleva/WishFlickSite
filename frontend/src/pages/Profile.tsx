@@ -15,6 +15,7 @@ interface UserProfileData {
     instagram?: string;
   };
   privacy: PrivacySetting;
+  isInfluencer: boolean;  // новое поле
 }
 
 const defaultProfile: UserProfileData = {
@@ -24,7 +25,9 @@ const defaultProfile: UserProfileData = {
   description: '',
   socialLinks: {},
   privacy: 'public',
+  isInfluencer: false,  // по умолчанию false
 };
+
 
 const Profile = () => {
   const [profile, setProfile] = useState<UserProfileData>(defaultProfile);
@@ -45,18 +48,19 @@ const Profile = () => {
         const data = response.data;
 
         setProfile({
-          name: data.name || '',
-          email: data.email || '',
-          avatarUrl: data.avatar_url || '',
-          description: data.description || '',
-          socialLinks: {
-    facebook: data.social_facebook || '',
-    twitter: data.social_twitter || '',
-    instagram: data.social_instagram || '',
-  },
+		  name: data.name || '',
+		  email: data.email || '',
+		  avatarUrl: data.avatar_url || '',
+		  description: data.description || '',
+		  socialLinks: {
+		    facebook: data.social_facebook || '',
+		    twitter: data.social_twitter || '',
+		    instagram: data.social_instagram || '',
+		  },
+		  privacy: data.privacy || 'public',
+		  isInfluencer: data.is_influencer || false,  // предполагаем, что бэкенд возвращает это поле
+		});
 
-          privacy: data.privacy || 'public',
-        });
       } catch (error) {
         alert('Failed to load profile');
       }
@@ -129,6 +133,7 @@ const Profile = () => {
     if (avatarFile) {
       formDataToSend.append('avatar', avatarFile);
     }
+	formDataToSend.append('is_influencer', profile.isInfluencer ? 'true' : 'false');
 
     try {
   const response = await axios.put(`${API_BASE_URL}/profile`, formDataToSend, {
@@ -313,6 +318,21 @@ const Profile = () => {
               <span className="ml-2">Private</span>
             </label>
           </fieldset>
+		  <div className="flex items-center space-x-2">
+			  <input
+			    id="isInfluencer"
+			    name="isInfluencer"
+			    type="checkbox"
+			    checked={profile.isInfluencer}
+			    onChange={(e) =>
+			      setProfile(prev => ({ ...prev, isInfluencer: e.target.checked }))
+			    }
+			    className="form-checkbox h-5 w-5 text-[#6A49C8]"
+			  />
+			  <label htmlFor="isInfluencer" className="font-medium text-gray-700">
+			    I am an influencer
+			  </label>
+			</div>
 
           <div>
             <label className="block font-medium mb-1" htmlFor="facebook">

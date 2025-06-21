@@ -57,6 +57,7 @@ app.mount("/uploads",
 UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads", "avatars")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+
 # Создание таблиц (запускайте один раз)
 @app.on_event("startup")
 async def startup():
@@ -106,7 +107,7 @@ async def create_wish_endpoint(
         current_user: models.User = Depends(auth.get_current_user),
         db: AsyncSession = Depends(get_db)
 ):
-    wish = await crud.create_wish(db, wish_create, owner_id=current_user.id)
+    wish = await crud.create_wish(db, wish_create, owner=current_user)
     return wish
 
 
@@ -135,9 +136,6 @@ async def delete_wish(
     return None  # 204 No Content
 
 
-
-
-
 @app.put("/profile", response_model=schemas.UserProfileResponse)
 async def update_profile(
         request: Request,
@@ -148,6 +146,7 @@ async def update_profile(
         social_facebook: Optional[str] = Form(None),
         social_twitter: Optional[str] = Form(None),
         social_instagram: Optional[str] = Form(None),
+        is_influencer: Optional[bool] = Form(False),
         avatar: UploadFile = File(None),
         current_user: models.User = Depends(auth.get_current_user),
         db: AsyncSession = Depends(get_db),
@@ -163,6 +162,7 @@ async def update_profile(
         social_facebook=social_facebook,
         social_twitter=social_twitter,
         social_instagram=social_instagram,
+        is_influencer=is_influencer,
         avatar_file=avatar,
     )
 
@@ -410,6 +410,17 @@ async def get_activities_feed(db: AsyncSession = Depends(get_db)):
     return activities
 
 
+@app.get("/wishes/influencer", response_model=List[schemas.WishWithOwner])
+async def get_public_influencer_wishes(
+        db: AsyncSession = Depends(get_db),
+):
+    wishes = await crud.get_influencer_wishes(db,
+                                              public=True,
+                                              influencer=True
+                                              )
+    return wishes
+
+
 @app.get("/wishes/{wish_id}", response_model=schemas.Wish)
 async def get_wish(wish_id: int, db: AsyncSession = Depends(get_db)):
     wish = await crud.get_wish_by_id(db, wish_id)
@@ -482,3 +493,14 @@ async def get_public_wishes(db: AsyncSession = Depends(get_db)):
             "is_public": wish.is_public,
         })
     return wishes_with_stats
+
+
+@app.get("/wishes/influencer", response_model=List[schemas.WishWithOwner])
+async def get_public_influencer_wishes(
+        db: AsyncSession = Depends(get_db),
+):
+    wishes = await crud.get_influencer_wishes(db,
+                                              public=True,
+                                              influencer=True
+                                              )
+    return wishes

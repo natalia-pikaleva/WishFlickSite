@@ -167,6 +167,9 @@ return (
             <Link to="/community" className="text-gray-700 hover:text-[#6A49C8] transition-colors">
               Community
             </Link>
+            <Link to="/influencer-wishlists" className="text-gray-700 hover:text-[#6A49C8] transition-colors">
+			  Influencer Wishlists
+			</Link>
           </nav>
 
           {/* Поиск и иконки */}
@@ -382,13 +385,13 @@ return (
 		 {/*} <FacebookLoginButton /> */}
 
 		  {/* Кнопка гостевого входа, если нужна */}
-		  {/* <button
+		  <button
 		    type="button"
 		    onClick={handleGuestLogin}
 		    className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
 		  >
 		    Continue as Guest
-		  </button> */}
+		  </button>
 		</div>
         </div>
       </div>
