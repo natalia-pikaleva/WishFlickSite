@@ -258,6 +258,13 @@ return (
               >
                 Community
               </Link>
+	      <Link 
+		to="/influencer-wishlists"
+		className="text-gray-700 hover:text-[#6A49C8] transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+	      >
+		Influencer Wishlists
+	      </Link>	
             </div>
           </div>
         )}
