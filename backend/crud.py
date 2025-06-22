@@ -259,3 +259,18 @@ async def get_influencer_wishes(db: AsyncSession, public=True, influencer=True):
 
     return enriched_wishes
 
+
+async def update_wish(db: AsyncSession, db_wish: Wish, wish_update: schemas.WishUpdate):
+    update_data = wish_update.dict(exclude_unset=True)
+
+    # Если есть поле image_url и оно типа HttpUrl, преобразуем в строку
+    if 'image_url' in update_data and update_data['image_url'] is not None:
+        update_data['image_url'] = str(update_data['image_url'])
+
+    for key, value in update_data.items():
+        setattr(db_wish, key, value)
+
+    db.add(db_wish)
+    await db.commit()
+    await db.refresh(db_wish)
+    return db_wish

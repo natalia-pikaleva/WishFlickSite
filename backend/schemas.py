@@ -8,6 +8,7 @@ class PrivacyEnum(str, Enum):
     public = "public"
     friends = "friends"
     private = "private"
+    anonymous = "anonymous"
 
 
 class WishBase(BaseModel):
@@ -200,11 +201,23 @@ class UserResponse(UserBase):
     class Config:
         orm_mode = True
 
+
 class WishWithOwner(Wish):
     owner: Optional[UserResponse]
     supporters: int
     time_left: str
     category: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+
+class WishUpdate(BaseModel):
+    title: Optional[str]
+    description: Optional[str]
+    image_url: Optional[HttpUrl]
+    goal: Optional[float] = Field(None, gt=0)
+    is_public: Optional[bool]
 
     class Config:
         orm_mode = True
