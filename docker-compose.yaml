@@ -2,8 +2,8 @@ services:
   postgres:
     image: postgres:15
     dns:
-      - 8.8.8.8
-      - 8.8.4.4
+      - 31.31.194.32
+      - 31.31.196.15
     restart: always
     environment:
       POSTGRES_USER: postgres
@@ -27,8 +27,8 @@ services:
 
   backend:
     dns:
-      - 8.8.8.8
-      - 8.8.4.4
+      - 31.31.194.32
+      - 31.31.196.15
     build:
       context: .
       dockerfile: backend/Dockerfile
@@ -48,8 +48,8 @@ services:
 
   frontend:
     dns:
-      - 8.8.8.8
-      - 8.8.4.4
+      - 31.31.194.32
+      - 31.31.196.15
     build:
       context: ./frontend
       dockerfile: Dockerfile
