@@ -36,10 +36,10 @@ FACEBOOK_REDIRECT_URI = "http://localhost:8000/auth/facebook/callback"  # ваш
 app = FastAPI(title="WishFlick API")
 
 origins = [
-    "http://localhost:5173",  # адрес фронтенда
+    "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://0.0.0.0:5173",
-
+    "http://80.78.243.30:5173"
 ]
 
 app.add_middleware(
