@@ -48,17 +48,20 @@ const Header = () => {
 
   // Получение профиля пользователя по токену
   const fetchUserProfile = async (token: string) => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/users/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const user = response.data;
-      setUserAvatar(user.avatar_url || '/default-avatar.png');
-    } catch (error) {
-      console.error('Failed to fetch user profile', error);
-      handleLogout();
-    }
-  };
+  try {
+    const response = await axios.get(`${API_BASE_URL}/users/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const user = response.data;
+    setUserAvatar(user.avatar_url || '/default-avatar.png');
+
+    // Сохраняем user_id в localStorage
+    localStorage.setItem('user_id', user.id.toString());
+  } catch (error) {
+    console.error('Failed to fetch user profile', error);
+    handleLogout();
+  }
+};
 
   // Проверка токена при загрузке компонента
   useEffect(() => {
@@ -388,7 +391,7 @@ return (
 		  <button
 		    type="button"
 		    onClick={handleGuestLogin}
-		    className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+		    className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
 		  >
 		    Continue as Guest
 		  </button>

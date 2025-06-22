@@ -4,12 +4,13 @@ from sqlalchemy.orm import relationship
 from database import Base
 from enum import Enum as PyEnum
 from datetime import datetime, timedelta, timezone
-
+from sqlalchemy import Enum as SqlEnum
 
 class PrivacyEnum(PyEnum):
     public = "public"
     friends = "friends"
     private = "private"
+    anonymous = "anonymous"
 
 
 class User(Base):
@@ -21,7 +22,8 @@ class User(Base):
     name = Column(String, nullable=True)
     avatar_url = Column(String, nullable=True)
     description = Column(Text, nullable=True)
-    privacy = Column(Enum(PrivacyEnum), default=PrivacyEnum.public)
+    privacy = Column(SqlEnum(PrivacyEnum, name="privacyenum"),
+                     default=PrivacyEnum.public, nullable=False)
     is_influencer = Column(Boolean, default=False)
 
     social_facebook = Column(String, nullable=True)

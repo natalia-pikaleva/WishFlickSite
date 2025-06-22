@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
+import WishEditForm from './WishEditForm';
 
 const WishDetails = () => {
   const { wishId } = useParams<{ wishId: string }>();
@@ -11,6 +12,15 @@ const WishDetails = () => {
   const [loading, setLoading] = useState(true);
   const [newComment, setNewComment] = useState('');
   const [likeLoading, setLikeLoading] = useState(false);
+
+  const [isEditing, setIsEditing] = useState(false);
+
+  const currentUserId = Number(localStorage.getItem('user_id'));
+
+  // Функция обновления состояния желания после редактирования
+  const handleWishUpdated = (updatedData: any) => {
+    setWish(prev => ({ ...prev, ...updatedData }));
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -92,61 +102,89 @@ const WishDetails = () => {
     <div className="max-w-4xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">{wish.title}</h1>
 
-      {/* Фото желания */}
-      {wish.image_url && (
-        <img
-          src={wish.image_url}
-          alt={wish.title}
-          className="w-full max-h-96 object-contain mb-6 rounded-lg shadow-md"
-          onError={e => {
-            e.currentTarget.onerror = null;
-            e.currentTarget.src = '/fallback-image.png'; // запасное изображение
-          }}
-        />
-      )}
+      {!isEditing ? (
+	  <>
+	    {/* Существующий контент */}
+	    {wish.image_url && (
+	      <img
+	        src={wish.image_url}
+	        alt={wish.title}
+	        className="w-full max-h-96 object-contain mb-6 rounded-lg shadow-md"
+	        onError={e => {
+	          e.currentTarget.onerror = null;
+	          e.currentTarget.src = '/fallback-image.png';
+	        }}
+	      />
+	    )}
+	    <p className="mb-4">{wish.description}</p>
 
-      <p className="mb-4">{wish.description}</p>
+	    <div className="flex items-center space-x-4 mb-4">
+			  {wish.owner_id === currentUserId && (
+			    <button
+			      onClick={() => setIsEditing(true)}
+			      className="px-4 py-2 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full whitespace-nowrap"
+			    >
+			      Edit Wish
+			    </button>
+			  )}
 
-      <div className="mb-4">
-        <button
-          onClick={handleLike}
-          disabled={likeLoading}
-          className={`px-4 py-2 rounded-full font-semibold text-white transition-colors ${
-            likeLoading
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] hover:brightness-110'
-          }`}
-        >
-          ❤️ {likesCount} {likeLoading ? '...' : ''}
-        </button>
-      </div>
+			  <button
+			    onClick={handleLike}
+			    disabled={likeLoading}
+			    className={`px-4 py-2 rounded-full font-semibold text-white transition-colors whitespace-nowrap ${
+			      likeLoading
+			        ? 'bg-gray-400 cursor-not-allowed'
+			        : 'bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] hover:brightness-110'
+			    }`}
+			  >
+			    ❤️ {likesCount} {likeLoading ? '...' : ''}
+			  </button>
+		</div>
 
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-2">Комментарии</h2>
-        {comments.length === 0 && <p>Комментариев пока нет.</p>}
-        <ul>
-          {comments.map(comment => (
-            <li key={comment.id} className="border-b py-2">
-              <p>{comment.content}</p>
-              <small className="text-gray-500">От: {comment.user?.name || 'Unknown'}</small>
-            </li>
-          ))}
-        </ul>
 
-        <textarea
-          className="w-full border rounded p-2 mt-4 mb-2"
-          rows={3}
-          value={newComment}
-          onChange={e => setNewComment(e.target.value)}
-          placeholder="Добавьте комментарий"
-        />
-        <button
-          onClick={handleAddComment}
-          className="px-4 py-2 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full"
-        >
-          Отправить
-        </button>
-      </div>
+
+	    <div className="mt-8">
+	      <h2 className="text-xl font-semibold mb-2">Комментарии</h2>
+	      {comments.length === 0 && <p>Комментариев пока нет.</p>}
+	      <ul>
+	        {comments.map(comment => (
+	          <li key={comment.id} className="border-b py-2">
+	            <p>{comment.content}</p>
+	            <small className="text-gray-500">От: {comment.user?.name || 'Unknown'}</small>
+	          </li>
+	        ))}
+	      </ul>
+
+	      <textarea
+	        className="w-full border rounded p-2 mt-4 mb-2"
+	        rows={3}
+	        value={newComment}
+	        onChange={e => setNewComment(e.target.value)}
+	        placeholder="Добавьте комментарий"
+	      />
+	      <button
+	        onClick={handleAddComment}
+	        className="px-4 py-2 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full"
+	      >
+	        Отправить
+	      </button>
+	    </div>
+	  </>
+	) : (
+	  <WishEditForm
+	    wishId={wish.id}
+	    initialData={{
+	      title: wish.title,
+	      description: wish.description,
+	      image_url: wish.image_url,
+	      goal: wish.goal,
+	      is_public: wish.is_public,
+	    }}
+	    onClose={() => setIsEditing(false)}
+	    onUpdated={handleWishUpdated}
+	  />
+	)}
+
     </div>
   );
 };
