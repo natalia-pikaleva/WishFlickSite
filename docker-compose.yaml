@@ -1,6 +1,9 @@
 services:
   postgres:
     image: postgres:15
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     restart: always
     environment:
       POSTGRES_USER: postgres
@@ -23,6 +26,9 @@ services:
       - "shared_buffers=256MB"
 
   backend:
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     build:
       context: .
       dockerfile: backend/Dockerfile
@@ -41,6 +47,9 @@ services:
       - ./backend/uploads:/app/uploads
 
   frontend:
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     build:
       context: ./frontend
       dockerfile: Dockerfile
