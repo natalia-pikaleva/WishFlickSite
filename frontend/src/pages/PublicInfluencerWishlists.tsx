@@ -22,8 +22,18 @@ interface Wish {
   owner: User;
 }
 
-const baseUrl = 'http://localhost:8000';
-const backendBaseUrl = 'http://localhost:8000';
+const baseUrl = API_BASE_URL;
+const backendBaseUrl = API_BASE_URL;
+
+const getAvatarUrl = (avatarUrl?: string) => {
+  if (!avatarUrl) return '/default-avatar.png';
+  if (avatarUrl.startsWith('http') || avatarUrl.startsWith('https')) {
+    return avatarUrl;
+  }
+  return `${backendBaseUrl}${avatarUrl}`;
+};
+
+
 const PublicInfluencerWishlists = () => {
   const [wishlists, setWishlists] = useState<Wish[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,10 +94,11 @@ const PublicInfluencerWishlists = () => {
                 {wish.owner && (
                   <div className="flex items-center mt-4 space-x-3">
                     <img
-					  src={wish.owner.avatar_url ? `${backendBaseUrl}${wish.owner.avatar_url}` : '/default-avatar.png'}
+					  src={getAvatarUrl(wish.owner.avatar_url)}
 					  alt={wish.owner.name || 'Influencer'}
 					  className="w-10 h-10 rounded-full object-cover"
 					/>
+
                     <span className="font-medium">{wish.owner.name}</span>
                   </div>
                 )}
