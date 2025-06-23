@@ -1,14 +1,15 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+
 import Header from './components/Header';
 import Footer from './components/Footer';
-
-// Импортируйте компоненты страниц (пока Hero будет на главной)
 import Hero from './components/Hero';
 import Features from './components/Features';
 import HowItWorks from './components/HowItWorks';
 import PopularWishes from './components/PopularWishes';
 import CTA from './components/CTA';
+
+import { AuthModalProvider, useAuthModal } from './contexts/AuthModalContext';
 
 import Community from './pages/Community';
 import Wishlist from './pages/Wishlist';
@@ -40,22 +41,22 @@ function Home() {
 
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen bg-white">
+    <AuthModalProvider>
+      <Router>
         <Header />
         <Routes>
           <Route path="/" element={<Home />} />
-		  <Route path="/wishlist" element={<Wishlist />} />
-		  <Route path="/community" element={<Community />} />
-		  <Route path="/campaigns" element={<Campaign />} />
-		  <Route path="/profile" element={<Profile />} />
-		  <Route path="/oauth-callback" element={<OAuthCallback />} />
-		  <Route path="/wishes/:wishId" element={<WishDetails />} />
-		  <Route path="/influencer-wishlists" element={<PublicInfluencerWishlists />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/campaigns" element={<Campaign />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/oauth-callback" element={<OAuthCallback />} />
+          <Route path="/wishes/:wishId" element={<WishDetails />} />
+          <Route path="/influencer-wishlists" element={<PublicInfluencerWishlists />} />
         </Routes>
         <Footer />
-      </div>
-    </Router>
+      </Router>
+    </AuthModalProvider>
   );
 }
 

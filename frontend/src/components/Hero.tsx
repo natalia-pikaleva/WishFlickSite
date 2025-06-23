@@ -1,11 +1,26 @@
 import React from 'react';
-import { ArrowRight, Play, Users, Heart, Target } from 'lucide-react';
+import { ArrowRight, Play, Users, Heart } from 'lucide-react';
+import { useAuthModal } from '../contexts/AuthModalContext';
+import { useNavigate } from 'react-router-dom';
 
-const Hero = () => {
+const Hero: React.FC = () => {
+  const { openAuthModal } = useAuthModal();
+  const navigate = useNavigate();
+
+  const isLoggedIn = Boolean(localStorage.getItem('access_token'));
+
+  const handleGetStartedClick = () => {
+    if (isLoggedIn) {
+      navigate('/wishlist');
+    } else {
+      openAuthModal('login');
+    }
+  };
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-[#B48DFE] via-[#6A49C8] to-[#98E2D5] text-white">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
+	 {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-10 pointer-events-none">
         <div className="absolute top-10 left-10 w-20 h-20 border-2 border-white rounded-full animate-pulse"></div>
         <div className="absolute top-32 right-20 w-16 h-16 border-2 border-white rounded-full animate-pulse delay-1000"></div>
         <div className="absolute bottom-20 left-32 w-12 h-12 border-2 border-white rounded-full animate-pulse delay-2000"></div>
@@ -24,22 +39,25 @@ const Hero = () => {
                 Reality
               </h1>
               <p className="text-lg sm:text-xl text-purple-100 leading-relaxed">
-                Join the community where wishes come true through social funding, 
+                Join the community where wishes come true through social funding,
                 shared dreams, and collective support.
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="bg-white text-[#6A49C8] px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center justify-center group">
-                Get Started
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-              
+		        <button
+		          className="bg-white text-[#6A49C8] px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center justify-center group"
+		          onClick={handleGetStartedClick} >
+		          Get Started
+		          <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+		        </button>
+
               <button className="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-[#6A49C8] transition-all duration-300 flex items-center justify-center group">
                 <Play className="mr-2 w-5 h-5" />
                 Watch Demo
               </button>
             </div>
+
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 pt-8">
@@ -73,7 +91,7 @@ const Hero = () => {
                       <div className="text-sm text-purple-200">by Sarah M.</div>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
                       <span>Progress</span>
