@@ -58,7 +58,7 @@ const Profile = () => {
 		    instagram: data.social_instagram || '',
 		  },
 		  privacy: data.privacy || 'public',
-		  isInfluencer: data.is_influencer || false,  // предполагаем, что бэкенд возвращает это поле
+		  isInfluencer: data.is_influencer || false,
 		});
 
       } catch (error) {
@@ -233,7 +233,20 @@ const Profile = () => {
                 No Avatar
               </div>
             )}
-            <input type="file" accept="image/*" onChange={handleAvatarChange} />
+
+            <input
+		        type="file"
+		        accept="image/*"
+		        id="avatarFile"
+		        onChange={handleAvatarChange}
+		        className="hidden"
+		      />
+		      <label
+		        htmlFor="avatarFile"
+                className="mt-6 px-6 py-2 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full hover:shadow-lg transition"
+				>
+		        Выберите файл
+		      </label>
           </div>
 
           <div>
@@ -381,7 +394,7 @@ const Profile = () => {
 
           <button
             type="submit"
-            className="w-full py-3 mt-4 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition"
+            className="mt-6 px-6 py-2 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full hover:shadow-lg transition"
           >
             Save Profile
           </button>

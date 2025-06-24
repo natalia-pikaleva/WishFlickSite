@@ -20,9 +20,11 @@ const WishEditForm: React.FC<WishEditFormProps> = ({ wishId, initialData, onClos
     title: initialData.title,
     description: initialData.description,
     image_url: initialData.image_url || '',
-    goal: initialData.goal.toString(),
+    goal: initialData.goal,
     is_public: initialData.is_public,
   });
+
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -33,28 +35,44 @@ const WishEditForm: React.FC<WishEditFormProps> = ({ wishId, initialData, onClos
     }));
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setAvatarFile(e.target.files[0]);
+      setFormData(prev => ({ ...prev, image_url: '' })); // очищаем URL, если выбран файл
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
       const token = localStorage.getItem('access_token');
-      await axios.patch(
-        `${API_BASE_URL}/wishes/${wishId}`,
-        {
-          title: formData.title,
-          description: formData.description,
-          image_url: formData.image_url,
-          goal: Number(formData.goal),
-          is_public: formData.is_public,
+      if (!token) {
+        alert('Please login first');
+        setLoading(false);
+        return;
+      }
+
+      const dataToSend = new FormData();
+      dataToSend.append('title', formData.title);
+      dataToSend.append('description', formData.description);
+      dataToSend.append('goal', formData.goal.toString());
+      dataToSend.append('is_public', formData.is_public ? 'true' : 'false');
+
+      if (avatarFile) {
+        dataToSend.append('image_file', avatarFile);
+      } else if (formData.image_url) {
+        dataToSend.append('image_url', formData.image_url);
+      }
+
+      const response = await axios.patch(`${API_BASE_URL}/wishes/${wishId}`, dataToSend, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      onUpdated(formData);
+      });
+
+      onUpdated(response.data);
       onClose();
     } catch (error: any) {
       alert(error.response?.data?.detail || 'Failed to update wish');
@@ -90,15 +108,26 @@ const WishEditForm: React.FC<WishEditFormProps> = ({ wishId, initialData, onClos
         />
       </label>
 
-      <label className="block mb-3">
-        <span className="text-gray-700">Image URL</span>
+      <label className="block mb-4">
+        <span className="text-gray-700 font-medium">Image URL</span>
         <input
-          name="image_url"
           type="url"
+          name="image_url"
           value={formData.image_url}
           onChange={handleChange}
-          className="w-full border rounded px-3 py-2"
+          disabled={!!avatarFile}
+          className="mt-1 block w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
           placeholder="https://example.com/image.jpg"
+        />
+      </label>
+
+      <label className="block mb-4">
+        <span className="text-gray-700 font-medium">Or upload image</span>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="mt-1 block w-full"
         />
       </label>
 

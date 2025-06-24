@@ -53,6 +53,7 @@ const Wishlist = () => {
 	  is_public: false,  // по умолчанию — не публичное
 	});
 
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   useEffect(() => {
     const fetchWishes = async () => {
@@ -82,58 +83,70 @@ const Wishlist = () => {
     fetchWishes();
   }, []);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	  if (e.target.files && e.target.files[0]) {
+	    setAvatarFile(e.target.files[0]);
+	    setFormData(prev => ({ ...prev, image: '' }));
+	  }
+	};
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const token = localStorage.getItem('access_token');
-      if (!token) {
-        alert('Please login first');
-        return;
-      }
-
-      const response = await axios.post(
-        `${API_BASE_URL}/wishes`,
-        {
-          title: formData.title,
-          description: formData.description,
-          image_url: formData.image,
-          goal: Number(formData.goal),
-          is_public: formData.is_public,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      alert('Wish created successfully!');
-      setIsFormOpen(false);
-      setFormData({ title: '', description: '', image: '', goal: '' });
-
-      const newWish = response.data;
-      setWishes(prev => [
-        ...prev,
-        {
-          id: newWish.id,
-          title: newWish.title,
-          description: newWish.description,
-          image: newWish.image_url,
-          goal: newWish.goal,
-          raised: newWish.raised,
-          progress: newWish.goal > 0 ? Math.round((newWish.raised / newWish.goal) * 100) : 0,
-        },
-      ]);
-    } catch (error: any) {
-      alert(error.response?.data?.detail || 'Failed to create wish');
+  try {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      alert('Please login first');
+      return;
     }
-  };
+
+    const formDataToSend = new FormData();
+    formDataToSend.append('title', formData.title);
+    formDataToSend.append('description', formData.description);
+    formDataToSend.append('goal', formData.goal);
+    formDataToSend.append('is_public', formData.is_public ? 'true' : 'false');
+
+    if (avatarFile) {
+      formDataToSend.append('image_file', avatarFile);
+    } else if (formData.image) {
+      formDataToSend.append('image_url', formData.image);
+    }
+
+    const response = await axios.post(`${API_BASE_URL}/wishes`, formDataToSend, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    alert('Wish created successfully!');
+    setIsFormOpen(false);
+    setFormData({ title: '', description: '', image: '', goal: '', is_public: false });
+    setAvatarFile(null);
+
+    // Обновление списка желаний
+    const newWish = response.data;
+    setWishes(prev => [
+      ...prev,
+      {
+        id: newWish.id,
+        title: newWish.title,
+        description: newWish.description,
+        image: newWish.image_url,
+        goal: newWish.goal,
+        raised: newWish.raised,
+        progress: newWish.goal > 0 ? Math.round((newWish.raised / newWish.goal) * 100) : 0,
+      },
+    ]);
+  } catch (error: any) {
+    alert(error.response?.data?.detail || 'Failed to create wish');
+  }
+};
+
 
   const handleRemove = async (id: number) => {
   try {
@@ -221,16 +234,30 @@ const Wishlist = () => {
           </label>
 
           <label className="block mb-4">
-            <span className="text-gray-700 font-medium">Image URL</span>
-            <input
-              type="url"
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
-              placeholder="https://example.com/image.jpg"
-            />
-          </label>
+			  <span className="text-gray-700 font-medium">Image URL</span>
+			  <input
+			    type="url"
+			    name="image"
+			    value={formData.image}
+			    onChange={handleChange}
+			    disabled={!!avatarFile} // блокируем, если выбран файл
+			    className="mt-1 block w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
+			    placeholder="https://example.com/image.jpg"
+			  />
+			</label>
+
+			<label className="block mb-4">
+			  <span
+			  className="text-gray-700 font-medium"
+			  >Or upload image</span>
+			  <input
+			    type="file"
+			    accept="image/*"
+			    onChange={handleFileChange}
+			    className="mt-1 block w-full"
+			  />
+			</label>
+
 
           <label className="block mb-6">
             <span className="text-gray-700 font-medium">Goal Amount ($)</span>

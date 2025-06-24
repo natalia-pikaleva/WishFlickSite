@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 from fastapi import (FastAPI, Request, Depends, UploadFile, File,
                      Form, HTTPException, status)
 from fastapi.security import OAuth2PasswordRequestForm
@@ -20,26 +19,21 @@ import models as models
 import schemas as schemas
 import crud as crud
 import auth as auth
+from router_wishes import router as router_wishes
+from backend_conf import (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
+                          GOOGLE_REDIRECT_URI, FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
+                          FACEBOOK_REDIRECT_URI)
 
 logger = logging.getLogger(__name__)
 
-load_dotenv()
-
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
-GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-GOOGLE_REDIRECT_URI = "http://localhost:8000/auth/google/callback"  # ваш redirect URI
-
-FACEBOOK_CLIENT_ID = os.getenv("FACEBOOK_CLIENT_ID")
-FACEBOOK_CLIENT_SECRET = os.getenv("FACEBOOK_CLIENT_SECRET")
-FACEBOOK_REDIRECT_URI = "http://localhost:8000/auth/facebook/callback"  # ваш redirect URI
-
 app = FastAPI(title="WishFlick API")
+app.include_router(router_wishes, prefix="/wishes", tags=["wishes"])
 
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "http://0.0.0.0:5173",
-    "http://80.78.243.30:5173"
+    "http://80.78.243.30",
+    "http://80.78.243.30:5173",
 ]
 
 app.add_middleware(
@@ -54,8 +48,11 @@ app.mount("/uploads",
           StaticFiles(directory=os.path.join(os.path.dirname(__file__), "uploads")),
           name="uploads")
 
-UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads", "avatars")
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+UPLOAD_DIR_AVATARS = os.path.join(os.path.dirname(__file__), "uploads", "avatars")
+UPLOAD_DIR_WISHES = os.path.join(os.path.dirname(__file__), "uploads", "wishes")
+
+os.makedirs(UPLOAD_DIR_AVATARS, exist_ok=True)
+os.makedirs(UPLOAD_DIR_WISHES, exist_ok=True)
 
 
 # Создание таблиц (запускайте один раз)
@@ -113,60 +110,6 @@ async def read_users_me(
         raise HTTPException(status_code=500, detail="Failed to get user info")
 
 
-@app.post("/wishes",
-          response_model=schemas.Wish,
-          status_code=status.HTTP_201_CREATED,
-          tags=["wishes"])
-async def create_wish_endpoint(
-        wish_create: schemas.WishCreate,
-        current_user: models.User = Depends(auth.get_current_user),
-        db: AsyncSession = Depends(get_db)
-):
-    try:
-        wish = await crud.create_wish(db, wish_create, owner=current_user)
-        return wish
-    except Exception as e:
-        logging.error("Failed to create wish: %s", e)
-        raise HTTPException(status_code=500, detail="Failed to create wish")
-
-
-@app.get("/wishes",
-         response_model=List[schemas.Wish],
-         tags=["wishes"])
-async def get_user_wishes(
-        current_user: models.User = Depends(auth.get_current_user),
-        db: AsyncSession = Depends(get_db)
-):
-    try:
-        wishes = await crud.get_wishes_by_owner(db, owner_id=current_user.id)
-        return wishes
-    except Exception as e:
-        logging.error("Failed to get user wishes: %s", e)
-        raise HTTPException(status_code=500, detail="Failed to get user wishes")
-
-
-@app.delete("/wishes/{wish_id}",
-            status_code=status.HTTP_204_NO_CONTENT,
-            tags=["wishes"])
-async def delete_wish(
-        wish_id: int,
-        current_user: models.User = Depends(auth.get_current_user),
-        db: AsyncSession = Depends(get_db)
-):
-    try:
-        wish = await crud.get_wish_by_id(db, wish_id)
-        if not wish:
-            raise HTTPException(status_code=404, detail="Wish not found")
-        if wish.owner_id != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized to delete this wish")
-
-        await crud.delete_wish(db, wish)
-        return None
-    except Exception as e:
-        logging.error("Failed to delete wish: %s", e)
-        raise HTTPException(status_code=500, detail="Failed to delete wish")
-
-
 @app.put("/profile", response_model=schemas.UserProfileResponse)
 async def update_profile(
         request: Request,
@@ -186,7 +129,7 @@ async def update_profile(
         user = await crud.update_user_profile(
             db,
             current_user,
-            UPLOAD_DIR=UPLOAD_DIR,
+            UPLOAD_DIR=UPLOAD_DIR_AVATARS,
             name=name,
             email=email,
             description=description,
@@ -291,7 +234,7 @@ async def google_oauth_callback(
                 email=email,
                 name=name,
                 avatar_url=avatar_url,
-                password=os.urandom(16).hex(),  # случайный пароль, т.к. OAuth
+                password=os.urandom(16).hex(),
                 privacy="public",
             )
             user = await crud.create_user(db, user_create)
@@ -375,14 +318,14 @@ async def facebook_oauth_callback(
                 email=email,
                 name=name,
                 avatar_url=avatar_url,
-                password=os.urandom(16).hex(),  # случайный пароль, т.к. OAuth
+                password=os.urandom(16).hex(),
                 privacy="public",
             )
             user = await crud.create_user(db, user_create)
 
         access_token_jwt = auth.create_access_token(data={"sub": user.email})
 
-        frontend_url = f"http://localhost:3000/oauth-callback?token={access_token_jwt}"
+        frontend_url = f"http://80.78.243.30:5173/oauth-callback?token={access_token_jwt}"
         return RedirectResponse(frontend_url)
     except Exception as e:
         logging.error("Failed to callbak with facebook: %s", e)
@@ -443,18 +386,6 @@ async def post_comment(
         raise HTTPException(status_code=500, detail="Failed to create comment")
 
 
-@app.get("/wishes/{wish_id}/comments",
-         response_model=List[schemas.CommentResponse],
-         tags=["wishes"])
-async def get_comments(wish_id: int, db: AsyncSession = Depends(get_db)):
-    try:
-        comments = await crud.get_comments_by_wish(db, wish_id)
-        return comments
-    except Exception as e:
-        logging.error("Failed to get comments: %s", e)
-        raise HTTPException(status_code=500, detail="Failed to get comments")
-
-
 @app.post("/likes", response_model=schemas.LikeResponse)
 async def post_like(
         like_create: schemas.LikeCreate,
@@ -471,17 +402,6 @@ async def post_like(
         raise HTTPException(status_code=500, detail="Failed to create like")
 
 
-@app.get("/wishes/{wish_id}/likes/count",
-         tags=["wishes"])
-async def get_likes_count_endpoint(wish_id: int, db: AsyncSession = Depends(get_db)):
-    try:
-        count = await crud.get_likes_count(db, wish_id)
-        return {"count": count}
-    except Exception as e:
-        logging.error("Failed to get count likes: %s", e)
-        raise HTTPException(status_code=500, detail="Failed to get count likes")
-
-
 @app.get("/activities", response_model=List[schemas.ActivityResponse])
 async def get_activities_feed(db: AsyncSession = Depends(get_db)):
     try:
@@ -490,60 +410,6 @@ async def get_activities_feed(db: AsyncSession = Depends(get_db)):
     except Exception as e:
         logging.error("Failed to get activities: %s", e)
         raise HTTPException(status_code=500, detail="Failed to get activities")
-
-
-@app.get("/wishes/influencer",
-         response_model=List[schemas.WishWithOwner],
-         tags=["wishes"])
-async def get_public_influencer_wishes(
-        db: AsyncSession = Depends(get_db),
-):
-    try:
-        wishes = await crud.get_influencer_wishes(db,
-                                                  public=True,
-                                                  influencer=True
-                                                  )
-        return wishes
-    except Exception as e:
-        logging.error("Failed to get influencers wishes: %s", e)
-        raise HTTPException(status_code=500, detail="Failed to get influencers wishes")
-
-
-@app.get("/wishes/{wish_id}",
-         response_model=schemas.Wish,
-         tags=["wishes"])
-async def get_wish(wish_id: int, db: AsyncSession = Depends(get_db)):
-    try:
-        wish = await crud.get_wish_by_id(db, wish_id)
-        if not wish:
-            raise HTTPException(status_code=404, detail="Wish not found")
-        return wish
-    except Exception as e:
-        logging.error("Failed to get wish by id: %s", e)
-        raise HTTPException(status_code=500, detail="Failed to get wish by id")
-
-
-@app.patch("/wishes/{wish_id}",
-           response_model=schemas.Wish,
-           tags=["wishes"])
-async def update_wish(
-        wish_id: int,
-        wish_update: schemas.WishUpdate,
-        current_user: models.User = Depends(auth.get_current_user),
-        db: AsyncSession = Depends(get_db),
-):
-    try:
-        wish = await crud.get_wish_by_id(db, wish_id)
-        if not wish:
-            raise HTTPException(status_code=404, detail="Wish not found")
-        if wish.owner_id != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized to update this wish")
-
-        updated_wish = await crud.update_wish(db, wish, wish_update)
-        return updated_wish
-    except Exception as e:
-        logging.error("Failed to update wish: %s", e)
-        raise HTTPException(status_code=500, detail="Failed to update wish")
 
 
 @app.post("/activities/{activity_id}/like",
