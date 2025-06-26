@@ -27,13 +27,15 @@ from backend_conf import (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="WishFlick API")
-app.include_router(router_wishes, prefix="/wishes", tags=["wishes"])
+app.include_router(router_wishes, prefix="/api/wishes", tags=["wishes"])
 
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://80.78.243.30",
     "http://80.78.243.30:5173",
+    "http://wishflick.ru",
+    "https://wishflick.ru",
 ]
 
 app.add_middleware(
@@ -62,7 +64,12 @@ async def startup():
         await conn.run_sync(Base.metadata.create_all)
 
 
-@app.post("/register", response_model=schemas.User)
+@app.get("/api/")
+async def api_root():
+    return {"message": "API is working"}
+
+
+@app.post("/api/register", response_model=schemas.User)
 async def register(user_create: schemas.UserCreate, db: AsyncSession = Depends(get_db)):
     try:
         db_user = await crud.get_user_by_email(db, email=user_create.email)
@@ -77,7 +84,7 @@ async def register(user_create: schemas.UserCreate, db: AsyncSession = Depends(g
         raise HTTPException(status_code=500, detail="Failed to register user")
 
 
-@app.post("/token", response_model=schemas.Token)
+@app.post("/api/token", response_model=schemas.Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     try:
         user = await crud.get_user_by_email(db, email=form_data.username)
@@ -90,7 +97,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         raise HTTPException(status_code=500, detail="Failed to login user")
 
 
-@app.get("/users/me", response_model=schemas.User)
+@app.get("/api/users/me", response_model=schemas.User)
 async def read_users_me(
         request: Request,
         current_user: models.User = Depends(auth.get_current_user),
@@ -110,7 +117,7 @@ async def read_users_me(
         raise HTTPException(status_code=500, detail="Failed to get user info")
 
 
-@app.put("/profile", response_model=schemas.UserProfileResponse)
+@app.put("/api/profile", response_model=schemas.UserProfileResponse)
 async def update_profile(
         request: Request,
         name: Optional[str] = Form(None),
@@ -152,7 +159,7 @@ async def update_profile(
         raise HTTPException(status_code=500, detail="Failed to update profile user")
 
 
-@app.post("/guest-register")
+@app.post("/api/guest-register")
 async def guest_register(db: AsyncSession = Depends(get_db)):
     try:
         guest_email = f"guest_{uuid.uuid4()}@example.com"
@@ -171,7 +178,7 @@ async def guest_register(db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=500, detail="Failed to register guest user")
 
 
-@app.get("/auth/google", tags=["auth"])
+@app.get("/api/auth/google", tags=["auth"])
 async def google_oauth_redirect():
     try:
         params = {
@@ -190,7 +197,7 @@ async def google_oauth_redirect():
         raise HTTPException(status_code=500, detail="Failed to auth with google")
 
 
-@app.get("/auth/google/callback", tags=["auth"])
+@app.get("/api/auth/google/callback", tags=["auth"])
 async def google_oauth_callback(
         request: Request,
         code: str,
@@ -251,7 +258,7 @@ async def google_oauth_callback(
         raise HTTPException(status_code=500, detail="Failed to callback with google")
 
 
-@app.get("/auth/facebook", tags=["auth"])
+@app.get("/api/auth/facebook", tags=["auth"])
 async def facebook_oauth_redirect():
     try:
         if not FACEBOOK_CLIENT_ID or not FACEBOOK_CLIENT_SECRET:
@@ -272,7 +279,7 @@ async def facebook_oauth_redirect():
         raise HTTPException(status_code=500, detail="Failed to auth with facebook")
 
 
-@app.get("/auth/facebook/callback", tags=["auth"])
+@app.get("/api/auth/facebook/callback", tags=["auth"])
 async def facebook_oauth_callback(
         code: str,
         state: str,
@@ -332,7 +339,7 @@ async def facebook_oauth_callback(
         raise HTTPException(status_code=500, detail="Failed to callback with facebook")
 
 
-@app.post("/auth/facebook/token", tags=["auth"])
+@app.post("/api/auth/facebook/token", tags=["auth"])
 async def facebook_token_login(token_data: schemas.FacebookToken, db: AsyncSession = Depends(get_db)):
     try:
         access_token = token_data.access_token
@@ -370,7 +377,7 @@ async def facebook_token_login(token_data: schemas.FacebookToken, db: AsyncSessi
         raise HTTPException(status_code=500, detail="Failed to get token with facebook")
 
 
-@app.post("/comments", response_model=schemas.CommentResponse)
+@app.post("/api/comments", response_model=schemas.CommentResponse)
 async def post_comment(
         comment_create: schemas.CommentCreate,
         current_user: models.User = Depends(auth.get_current_user),
@@ -386,7 +393,7 @@ async def post_comment(
         raise HTTPException(status_code=500, detail="Failed to create comment")
 
 
-@app.post("/likes", response_model=schemas.LikeResponse)
+@app.post("/api/likes", response_model=schemas.LikeResponse)
 async def post_like(
         like_create: schemas.LikeCreate,
         current_user: models.User = Depends(auth.get_current_user),
@@ -402,7 +409,7 @@ async def post_like(
         raise HTTPException(status_code=500, detail="Failed to create like")
 
 
-@app.get("/activities", response_model=List[schemas.ActivityResponse])
+@app.get("/api/activities", response_model=List[schemas.ActivityResponse])
 async def get_activities_feed(db: AsyncSession = Depends(get_db)):
     try:
         activities = await crud.get_activities(db)
@@ -412,7 +419,7 @@ async def get_activities_feed(db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=500, detail="Failed to get activities")
 
 
-@app.post("/activities/{activity_id}/like",
+@app.post("/api/activities/{activity_id}/like",
           status_code=status.HTTP_201_CREATED)
 async def like_activity_endpoint(
         activity_id: int,
@@ -434,7 +441,7 @@ async def like_activity_endpoint(
         raise HTTPException(status_code=500, detail="Failed to create like for activity")
 
 
-@app.get("/community/wishes",
+@app.get("/api/community/wishes",
          response_model=List[schemas.WishWithStats])
 async def get_public_wishes(db: AsyncSession = Depends(get_db)):
     try:

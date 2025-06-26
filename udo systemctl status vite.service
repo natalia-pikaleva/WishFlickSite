@@ -1,0 +1,14 @@
+[0;1;32m●[0m fastapi.service - FastAPI application
+     Loaded: loaded (/etc/systemd/system/fastapi.service; enabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Tue 2025-06-24 19:45:19 MSK; 2 days ago
+   Main PID: 39543 (uvicorn)
+      Tasks: 8 (limit: 1117)
+     Memory: 73.8M
+        CPU: 4min 49.259s
+     CGroup: /system.slice/fastapi.service
+             └─39543 /root/wish-flick-site/WishFlickSite/venv/bin/python3 /root/wish-flick-site/WishFlickSite/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000 --log-config /root/wish-flick-site/WishFlickSite/backend/log_conf.yaml
+
+Jun 24 19:45:19 cv4932608.novalocal systemd[1]: fastapi.service: Deactivated successfully.
+Jun 24 19:45:19 cv4932608.novalocal systemd[1]: Stopped FastAPI application.
+Jun 24 19:45:19 cv4932608.novalocal systemd[1]: fastapi.service: Consumed 4min 35.379s CPU time.
+Jun 24 19:45:19 cv4932608.novalocal systemd[1]: Started FastAPI application.
