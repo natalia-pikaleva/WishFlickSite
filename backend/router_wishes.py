@@ -21,8 +21,9 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-UPLOAD_DIR_AVATARS = os.path.join(os.path.dirname(__file__), "uploads", "avatars")
-UPLOAD_DIR_WISHES = os.path.join(os.path.dirname(__file__), "uploads", "wishes")
+UPLOAD_DIR = "/var/www/wishflick/uploads/"
+UPLOAD_DIR_AVATARS = os.path.join(UPLOAD_DIR, "avatars")
+UPLOAD_DIR_WISHES = os.path.join(UPLOAD_DIR, "wishes")
 
 os.makedirs(UPLOAD_DIR_AVATARS, exist_ok=True)
 os.makedirs(UPLOAD_DIR_WISHES, exist_ok=True)
