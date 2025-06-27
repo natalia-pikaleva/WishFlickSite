@@ -34,7 +34,7 @@ const Hero: React.FC = () => {
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
                 ПРЕВРАТИ СВОИ
                 <br />
-                <span className="text-[#98E2D5]">МЕЧТЫ</span> Into
+                <span className="text-[#98E2D5]">МЕЧТЫ</span>
                 <br />
                 В РЕАЛЬНОСТЬ
               </h1>
