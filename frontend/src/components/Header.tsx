@@ -282,7 +282,7 @@ return (
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
-                placeholder="Your password"
+                placeholder="Твой пароль"
               />
             </div>
             {authMode === 'register' && (
@@ -299,7 +299,7 @@ return (
                     onChange={handleChange}
                     required
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
-                    placeholder="Your name"
+                    placeholder="Твое имя"
                   />
                 </div>
 
@@ -314,9 +314,9 @@ return (
                     onChange={handleChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
                   >
-                    <option value="public">Public</option>
-                    <option value="anonymous">Anonymous</option>
-                    <option value="friends">Friends Only</option>
+                    <option value="public">Публичный</option>
+                    <option value="anonymous">Анонимный</option>
+                    <option value="friends">Только для друзей</option>
                   </select>
                 </div>
               </>
@@ -336,7 +336,7 @@ return (
               onClick={toggleAuthModeHandler}
               className="text-[#6A49C8] hover:text-[#B48DFE] font-semibold focus:outline-none"
             >
-              {authMode === 'login' ? 'Register' : 'Login'}
+              {authMode === 'login' ? 'Регистрация' : 'Войти'}
             </button>
           </p>
 

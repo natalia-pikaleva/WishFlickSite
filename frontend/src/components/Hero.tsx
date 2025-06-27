@@ -32,11 +32,11 @@ const Hero: React.FC = () => {
           <div className="space-y-8">
             <div className="space-y-4">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
-                Turn Your
+                ПРЕВРАТИ СВОИ
                 <br />
-                <span className="text-[#98E2D5]">Мечты</span> Into
+                <span className="text-[#98E2D5]">МЕЧТЫ</span> Into
                 <br />
-                Reality
+                В РЕАЛЬНОСТЬ
               </h1>
               <p className="text-lg sm:text-xl text-purple-100 leading-relaxed">
                 Присоединяйтесь к сообществу, где желания сбываются благодаря социальному финансированию,

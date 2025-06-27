@@ -5,38 +5,38 @@ const Features = () => {
   const features = [
     {
       icon: Heart,
-      title: "Create Wishlists",
-      description: "Build and organize your dreams with beautiful, shareable wishlists",
+      title: "Создание желаний",
+      description: "Создавай и упорядочивай свои мечты с помощью красивых списков желаний, которыми можно поделиться",
       color: "from-[#B48DFE] to-[#6A49C8]"
     },
     {
       icon: Users,
-      title: "Social Funding",
-      description: "Get support from friends, family, and the community to achieve your goals",
+      title: "Социальное финансирование",
+      description: "Получи поддержку от друзей, семьи и сообщества для достижения своих целей",
       color: "from-[#6A49C8] to-[#98E2D5]"
     },
     {
       icon: Target,
-      title: "Goal Tracking",
-      description: "Monitor progress with detailed analytics and milestone celebrations",
+      title: "Трекер цели",
+      description: "Следи за прогрессом с помощью подробной аналитики и отмечай важные события",
       color: "from-[#98E2D5] to-[#B48DFE]"
     },
     {
       icon: Share2,
-      title: "Social Network",
-      description: "Connect with like-minded dreamers and share your journey",
+      title: "Социальная сеть",
+      description: "Общайся с мечтателями-единомышленниками",
       color: "from-[#B48DFE] to-[#98E2D5]"
     },
     {
       icon: Zap,
-      title: "AI Recommendations",
-      description: "Get personalized suggestions based on your interests and goals",
+      title: "AI рекомендации",
+      description: "Получай персонализированные предложения, основанные на твоих интересах и целях",
       color: "from-[#6A49C8] to-[#B48DFE]"
     },
     {
       icon: Shield,
-      title: "Secure Payments",
-      description: "Safe and encrypted transactions with full refund protection",
+      title: "Безопасные платежи",
+      description: "Безопасные и зашифрованные транзакции с гарантией возврата средств",
       color: "from-[#98E2D5] to-[#6A49C8]"
     }
   ];

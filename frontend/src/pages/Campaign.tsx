@@ -71,7 +71,7 @@ const Campaign = () => {
             )}
             <div className="p-6">
               <h2 className="text-2xl font-semibold text-gray-900 mb-1">{campaign.title}</h2>
-              <p className="text-gray-600 mb-4">Организовано {campaign.organizer}</p>
+              <p className="text-gray-600 mb-4">Создано: {campaign.organizer}</p>
 
               <div className="mb-4">
                 <div className="flex justify-between text-sm text-gray-700 mb-1">
@@ -93,7 +93,7 @@ const Campaign = () => {
                 </div>
                 <div className="flex items-center space-x-1">
                   <Clock className="w-5 h-5" />
-                  <span>{campaign.timeLeft} left</span>
+                  <span>{campaign.timeLeft} осталось</span>
                 </div>
               </div>
 
