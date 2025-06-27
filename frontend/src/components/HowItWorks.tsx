@@ -5,26 +5,26 @@ const HowItWorks = () => {
   const steps = [
     {
       icon: PlusCircle,
-      title: "Create Your Wishlist",
-      description: "Add items you dream of owning, from gadgets to experiences",
+      title: "Создай свой список желаний",
+      description: "Добавляй предметы, о которых мечтаешь, от гаджетов до впечатлений",
       color: "bg-[#B48DFE]"
     },
     {
       icon: Users,
-      title: "Share with Community",
-      description: "Connect with friends and find supporters who believe in your dreams",
+      title: "Поделись с сообществом",
+      description: "Общайся с друзьями и находи сторонников, которые верят в твои мечты",
       color: "bg-[#6A49C8]"
     },
     {
       icon: Gift,
-      title: "Receive Support",
-      description: "Watch as your community helps you reach your goals through contributions",
+      title: "Получи поддержку",
+      description: "Наблюдай, как твое сообщество помогает тебе достичь твоих целей с помощью пожертвований",
       color: "bg-[#98E2D5]"
     },
     {
       icon: CheckCircle,
-      title: "Achieve Your Dreams",
-      description: "Celebrate when you reach your goal and inspire others to do the same",
+      title: "Осуществи с мечты",
+      description: "Отпразднуй достижение своей цели и вдохновляй других делать то же самое",
       color: "bg-[#B48DFE]"
     }
   ];
@@ -34,10 +34,10 @@ const HowItWorks = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-            How WishFlick Works
+            Как WishFlick работает
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Four simple steps to turn your wishes into reality with the power of community
+            Четыре простых шага, которые помогут воплотить ваши желания в реальность с помощью сообщества
           </p>
         </div>
 

@@ -46,11 +46,11 @@ const Features = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-            Everything You Need to Make Dreams Come True
+            Все, что нужно для воплощения мечты в реальность
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            WishFlick combines the best of social networking, crowdfunding, and wishlist management 
-            in one powerful platform.
+            WishFlick сочетает в себе лучшее из социальных сетей, краудфандинга и управления списками
+			желаний в одной мощной платформе.
           </p>
         </div>
 

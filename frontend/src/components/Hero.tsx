@@ -34,13 +34,13 @@ const Hero: React.FC = () => {
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
                 Turn Your
                 <br />
-                <span className="text-[#98E2D5]">Dreams</span> Into
+                <span className="text-[#98E2D5]">Мечты</span> Into
                 <br />
                 Reality
               </h1>
               <p className="text-lg sm:text-xl text-purple-100 leading-relaxed">
-                Join the community where wishes come true through social funding,
-                shared dreams, and collective support.
+                Присоединяйтесь к сообществу, где желания сбываются благодаря социальному финансированию,
+				общим мечтам и коллективной поддержке.
               </p>
             </div>
 
@@ -48,13 +48,13 @@ const Hero: React.FC = () => {
 		        <button
 		          className="bg-white text-[#6A49C8] px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center justify-center group"
 		          onClick={handleGetStartedClick} >
-		          Get Started
+		          Начать
 		          <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
 		        </button>
 
               <button className="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-[#6A49C8] transition-all duration-300 flex items-center justify-center group">
                 <Play className="mr-2 w-5 h-5" />
-                Watch Demo
+                Посмотреть демо
               </button>
             </div>
 
@@ -63,15 +63,15 @@ const Hero: React.FC = () => {
             <div className="grid grid-cols-3 gap-8 pt-8">
               <div className="text-center">
                 <div className="text-2xl font-bold">10K+</div>
-                <div className="text-purple-200 text-sm">Dreams Fulfilled</div>
+                <div className="text-purple-200 text-sm">Сбывшихся Желаний</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold">50K+</div>
-                <div className="text-purple-200 text-sm">Active Users</div>
+                <div className="text-purple-200 text-sm">Активных Пользователей</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold">$2M+</div>
-                <div className="text-purple-200 text-sm">Raised Together</div>
+                <div className="text-purple-200 text-sm">Выросли Вместе</div>
               </div>
             </div>
           </div>
@@ -87,22 +87,22 @@ const Hero: React.FC = () => {
                       <Heart className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <div className="font-semibold">Dream Vacation</div>
-                      <div className="text-sm text-purple-200">by Sarah M.</div>
+                      <div className="font-semibold">Отпуск мечты</div>
+                      <div className="text-sm text-purple-200">от Анны М.</div>
                     </div>
                   </div>
 
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span>Progress</span>
-                      <span>$2,400 / $5,000</span>
+                      <span>Прогресс</span>
+                      <span>140.000 ₽ / 300.000 ₽</span>
                     </div>
                     <div className="w-full bg-white/20 rounded-full h-2">
                       <div className="bg-[#98E2D5] h-2 rounded-full w-[48%]"></div>
                     </div>
                     <div className="flex items-center space-x-2 text-sm">
                       <Users className="w-4 h-4" />
-                      <span>23 supporters</span>
+                      <span>23 человека поддержало</span>
                     </div>
                   </div>
                 </div>
@@ -112,11 +112,11 @@ const Hero: React.FC = () => {
                   <div className="flex items-center space-x-3 mb-3">
                     <div className="w-8 h-8 bg-[#B48DFE] rounded-full"></div>
                     <div className="text-sm">
-                      <span className="font-semibold">Alex</span> supported your wish
+                      <span className="font-semibold">Александр</span> поддержал твое желание
                     </div>
                   </div>
                   <div className="text-sm text-purple-200">
-                    "Hope you get that camera! 📸"
+                    "Надеюсь, ты получишь эту камеру! 📸"
                   </div>
                 </div>
               </div>

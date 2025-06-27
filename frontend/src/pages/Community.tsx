@@ -37,13 +37,13 @@ const Community = () => {
     fetchWishes();
   }, []);
 
-  if (loading) return <div>Loading...</div>;
-  if (wishes.length === 0) return <div>No wishes found.</div>;
+  if (loading) return <div>Загружается...</div>;
+  if (wishes.length === 0) return <div>Желания не найдены</div>;
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] bg-clip-text text-transparent">
-        Community Wishlist
+        Список желаний сообщества
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {wishes.map((wish) => (

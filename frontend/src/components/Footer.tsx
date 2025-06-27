@@ -44,8 +44,8 @@ const Footer = () => {
 			  </span>
 			</div>
             <p className="text-gray-400 mb-6 leading-relaxed">
-              The platform where dreams come true through community support, 
-              social connections, and shared funding.
+              Платформа, где мечты сбываются благодаря поддержке сообщества,
+			  социальным связям и совместному финансированию.
             </p>
             
             {/* Newsletter */}
@@ -67,7 +67,7 @@ const Footer = () => {
           {/* Links */}
           <div className="lg:col-span-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             <div>
-              <h4 className="font-semibold text-white mb-4">Product</h4>
+              <h4 className="font-semibold text-white mb-4">Продукт</h4>
               <ul className="space-y-2">
                 {footerLinks.product.map((link) => (
                   <li key={link.name}>
@@ -80,7 +80,7 @@ const Footer = () => {
             </div>
 
             <div>
-              <h4 className="font-semibold text-white mb-4">Community</h4>
+              <h4 className="font-semibold text-white mb-4">Сообщество</h4>
               <ul className="space-y-2">
                 {footerLinks.community.map((link) => (
                   <li key={link.name}>
@@ -93,7 +93,7 @@ const Footer = () => {
             </div>
 
             <div>
-              <h4 className="font-semibold text-white mb-4">Support</h4>
+              <h4 className="font-semibold text-white mb-4">Поддержка</h4>
               <ul className="space-y-2">
                 {footerLinks.support.map((link) => (
                   <li key={link.name}>
@@ -106,7 +106,7 @@ const Footer = () => {
             </div>
 
             <div>
-              <h4 className="font-semibold text-white mb-4">Company</h4>
+              <h4 className="font-semibold text-white mb-4">Компания</h4>
               <ul className="space-y-2">
                 {footerLinks.company.map((link) => (
                   <li key={link.name}>
@@ -123,7 +123,7 @@ const Footer = () => {
         {/* Bottom Section */}
         <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center">
           <div className="text-gray-400 text-sm">
-            © 2025 WishFlick. All rights reserved.
+            © 2025 WishFlick. Все права защищены.
           </div>
           
           <div className="flex items-center space-x-4 mt-4 sm:mt-0">

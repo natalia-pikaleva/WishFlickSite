@@ -1,7 +1,6 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
-
 type PrivacySetting = 'public' | 'friends' | 'private';
 
 interface UserProfileData {
@@ -161,7 +160,7 @@ const Profile = () => {
 
   return (
     <main className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-md mt-10">
-      <h1 className="text-3xl font-bold mb-6 text-center text-gray-900">User Profile</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center text-gray-900">Профиль</h1>
 
       {!isEditing ? (
         <div className="text-center">
@@ -173,7 +172,7 @@ const Profile = () => {
             />
           ) : (
             <div className="w-32 h-32 rounded-full mx-auto mb-4 bg-gray-200 flex items-center justify-center text-gray-400">
-              No Avatar
+              Нет аватарки
             </div>
           )}
           <h2 className="text-xl font-semibold">{profile.name || 'No Name'}</h2>
@@ -216,7 +215,7 @@ const Profile = () => {
             onClick={() => setIsEditing(true)}
             className="mt-6 px-6 py-2 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full hover:shadow-lg transition"
           >
-            Edit Profile
+            Редактировать профиль
           </button>
         </div>
       ) : (
@@ -230,7 +229,7 @@ const Profile = () => {
               />
             ) : (
               <div className="w-32 h-32 rounded-full bg-gray-200 mb-2 flex items-center justify-center text-gray-400">
-                No Avatar
+                Нет аватарки
               </div>
             )}
 
@@ -251,7 +250,7 @@ const Profile = () => {
 
           <div>
             <label className="block font-medium mb-1" htmlFor="name">
-              Name
+              Имя
             </label>
             <input
               id="name"
@@ -266,7 +265,7 @@ const Profile = () => {
 
           <div>
             <label className="block font-medium mb-1" htmlFor="email">
-              Email
+              Электронная почта
             </label>
             <input
               id="email"
@@ -282,7 +281,7 @@ const Profile = () => {
 
           <div>
             <label className="block font-medium mb-1" htmlFor="description">
-              Description
+              Обо мне
             </label>
             <textarea
               id="description"
@@ -296,7 +295,7 @@ const Profile = () => {
           </div>
 
           <fieldset>
-            <legend className="font-medium mb-2">Privacy Settings</legend>
+            <legend className="font-medium mb-2">Настройки конфиденциальности</legend>
             <label className="inline-flex items-center mr-4">
               <input
                 type="radio"
@@ -306,7 +305,7 @@ const Profile = () => {
                 onChange={handlePrivacyChange}
                 className="form-radio"
               />
-              <span className="ml-2">Public</span>
+              <span className="ml-2">Публичный</span>
             </label>
             <label className="inline-flex items-center mr-4">
               <input
@@ -317,7 +316,7 @@ const Profile = () => {
                 onChange={handlePrivacyChange}
                 className="form-radio"
               />
-              <span className="ml-2">Friends Only</span>
+              <span className="ml-2">Только для друзей</span>
             </label>
             <label className="inline-flex items-center">
               <input
@@ -328,7 +327,7 @@ const Profile = () => {
                 onChange={handlePrivacyChange}
                 className="form-radio"
               />
-              <span className="ml-2">Private</span>
+              <span className="ml-2">Закрытый</span>
             </label>
           </fieldset>
 		  <div className="flex items-center space-x-2">
@@ -343,13 +342,13 @@ const Profile = () => {
 			    className="form-checkbox h-5 w-5 text-[#6A49C8]"
 			  />
 			  <label htmlFor="isInfluencer" className="font-medium text-gray-700">
-			    I am an influencer
+			    Я блогер
 			  </label>
 			</div>
 
           <div>
             <label className="block font-medium mb-1" htmlFor="facebook">
-              Facebook URL
+              ссылка на профиль Facebook
             </label>
             <input
               id="facebook"
@@ -364,7 +363,7 @@ const Profile = () => {
 
           <div>
             <label className="block font-medium mb-1" htmlFor="twitter">
-              Twitter URL
+              Ссылка на профиль Twitter
             </label>
             <input
               id="twitter"
@@ -379,7 +378,7 @@ const Profile = () => {
 
           <div>
             <label className="block font-medium mb-1" htmlFor="instagram">
-              Instagram URL
+              Ссылка на профиль Instagram
             </label>
             <input
               id="instagram"
@@ -396,7 +395,7 @@ const Profile = () => {
             type="submit"
             className="mt-6 px-6 py-2 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full hover:shadow-lg transition"
           >
-            Save Profile
+            Сохранить
           </button>
         </form>
       )}

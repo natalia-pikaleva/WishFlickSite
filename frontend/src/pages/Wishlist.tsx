@@ -17,8 +17,8 @@ interface WishItem {
 const initialWishes: WishItem[] = [
   {
     id: 1,
-    title: "4K Monitor",
-    description: "Ultra HD monitor for creative work and gaming",
+    title: "4K монитор",
+    description: "Монитор Ultra HD для творческой работы и игр",
     image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=400&q=80",
     progress: 60,
     raised: 300,
@@ -26,8 +26,8 @@ const initialWishes: WishItem[] = [
   },
   {
     id: 2,
-    title: "Wireless Headphones",
-    description: "Noise-cancelling over-ear headphones",
+    title: "Беспроводные наушники",
+    description: "Накладные наушники-вкладыши с шумоподавлением",
     image: "https://images.unsplash.com/photo-1512499617640-c2f99912b5c9?auto=format&fit=crop&w=400&q=80",
     progress: 30,
     raised: 90,
@@ -60,7 +60,7 @@ const Wishlist = () => {
       try {
         const token = localStorage.getItem('access_token');
         if (!token) {
-          alert('Please login first');
+          alert('Пожалуйста, войдите на сайт');
           return;
         }
         const response = await axios.get(`${API_BASE_URL}/wishes`, {
@@ -76,7 +76,7 @@ const Wishlist = () => {
         }));
         setWishes(wishesWithProgress);
       } catch (error: any) {
-        alert(error.response?.data?.detail || 'Failed to load wishes');
+        alert(error.response?.data?.detail || 'Ошибка при загрузке желаний');
       }
     };
 
@@ -100,7 +100,7 @@ const Wishlist = () => {
   try {
     const token = localStorage.getItem('access_token');
     if (!token) {
-      alert('Please login first');
+      alert('Пожалуйста, войдите на сайт');
       return;
     }
 
@@ -123,7 +123,7 @@ const Wishlist = () => {
       },
     });
 
-    alert('Wish created successfully!');
+    alert('Желание успешно создано!');
     setIsFormOpen(false);
     setFormData({ title: '', description: '', image: '', goal: '', is_public: false });
     setAvatarFile(null);
@@ -143,7 +143,7 @@ const Wishlist = () => {
       },
     ]);
   } catch (error: any) {
-    alert(error.response?.data?.detail || 'Failed to create wish');
+    alert(error.response?.data?.detail || 'Ошибка при создании желания');
   }
 };
 
@@ -152,7 +152,7 @@ const Wishlist = () => {
   try {
     const token = localStorage.getItem('access_token');
     if (!token) {
-      alert('Please login first');
+      alert('Пожалуйста, войдите на сайт');
       return;
     }
 
@@ -164,7 +164,7 @@ const Wishlist = () => {
 
     setWishes(prevWishes => prevWishes.filter(wish => wish.id !== id));
   } catch (error: any) {
-    alert(error.response?.data?.detail || 'Failed to delete wish');
+    alert(error.response?.data?.detail || 'Ошибка при удалении желания');
   }
 };
 
@@ -173,7 +173,7 @@ const Wishlist = () => {
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 min-h-screen bg-gray-50">
       <h1 className="text-4xl font-bold text-gray-900 mb-8 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] bg-clip-text text-transparent">
-        Your Wishlist
+        Ваш список желаний
       </h1>
 
       {/* Кнопка открытия формы */}
@@ -184,7 +184,7 @@ const Wishlist = () => {
             className="flex flex-col items-center justify-center p-8 text-[#6A49C8] hover:text-[#B48DFE]"
           >
             <Plus className="w-10 h-10 mb-2" />
-            <span className="font-semibold text-lg">Add New Wish</span>
+            <span className="font-semibold text-lg">Добавить новое желание</span>
           </button>
         </div>
       )}
@@ -196,7 +196,7 @@ const Wishlist = () => {
           className="bg-white rounded-2xl shadow-md p-8 max-w-lg mx-auto mb-12"
         >
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-semibold text-gray-900">Create New Wish</h2>
+            <h2 className="text-2xl font-semibold text-gray-900">Создать новое желание</h2>
             <button
               type="button"
               onClick={() => setIsFormOpen(false)}
@@ -208,7 +208,7 @@ const Wishlist = () => {
           </div>
 
           <label className="block mb-4">
-            <span className="text-gray-700 font-medium">Title</span>
+            <span className="text-gray-700 font-medium">Название</span>
             <input
               type="text"
               name="title"
@@ -221,7 +221,7 @@ const Wishlist = () => {
           </label>
 
           <label className="block mb-4">
-            <span className="text-gray-700 font-medium">Description</span>
+            <span className="text-gray-700 font-medium">Описание</span>
             <textarea
               name="description"
               value={formData.description}
@@ -234,7 +234,7 @@ const Wishlist = () => {
           </label>
 
           <label className="block mb-4">
-			  <span className="text-gray-700 font-medium">Image URL</span>
+			  <span className="text-gray-700 font-medium">Ссылка на картинку</span>
 			  <input
 			    type="url"
 			    name="image"
@@ -249,7 +249,7 @@ const Wishlist = () => {
 			<label className="block mb-4">
 			  <span
 			  className="text-gray-700 font-medium"
-			  >Or upload image</span>
+			  >Или загрузить картинку с устройства</span>
 			  <input
 			    type="file"
 			    accept="image/*"
@@ -260,7 +260,7 @@ const Wishlist = () => {
 
 
           <label className="block mb-6">
-            <span className="text-gray-700 font-medium">Goal Amount ($)</span>
+            <span className="text-gray-700 font-medium">Цель (₽)</span>
             <input
               type="number"
               name="goal"
@@ -281,14 +281,14 @@ const Wishlist = () => {
 		      onChange={e => setFormData({ ...formData, is_public: e.target.checked })}
 		      className="rounded border-gray-300 text-[#6A49C8] focus:ring-[#B48DFE]"
 		    />
-		    <span className="text-gray-700 font-medium">Make wish public</span>
+		    <span className="text-gray-700 font-medium">Сделать желание публичным</span>
 		  </label>
 
           <button
             type="submit"
             className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
           >
-            Create Wish
+            Создать желание
           </button>
         </form>
       )}
@@ -322,8 +322,8 @@ const Wishlist = () => {
 
 		    <div className="mb-4">
 		      <div className="flex justify-between text-sm text-gray-700 mb-1">
-		        <span>Raised: ${wish.raised}</span>
-		        <span>Goal: ${wish.goal}</span>
+		        <span>Собрано: {wish.raised} ₽</span>
+		        <span>Цель: {wish.goal} ₽</span>
 		      </div>
 		      <div className="w-full bg-gray-200 rounded-full h-3">
 		        <div
@@ -338,7 +338,7 @@ const Wishlist = () => {
 		      onClick={() => navigate(`/wishes/${wish.id}`)}
 		      className="mb-3 w-full py-2 bg-[#6A49C8] text-white rounded-full font-semibold hover:bg-[#B48DFE] transition-colors duration-300"
 		    >
-		      View Details
+		      Посмотреть детали
 		    </button>
 
 		    <button
@@ -347,7 +347,7 @@ const Wishlist = () => {
 		      className="flex items-center justify-center gap-2 w-full py-2 border border-gray-300 rounded-full text-gray-700 hover:bg-gray-100 transition-colors duration-300"
 		    >
 		      <Trash2 className="w-5 h-5" />
-		      Remove
+		      Удалить
 		    </button>
 		  </div>
 		</div>
