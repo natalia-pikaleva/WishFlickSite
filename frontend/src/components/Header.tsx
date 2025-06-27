@@ -144,19 +144,19 @@ return (
           {/* Навигация для десктопа */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link to="/" className="text-gray-700 hover:text-[#6A49C8] transition-colors">
-              Explore
+              Главная страница
             </Link>
             <Link to="/wishlist" className="text-gray-700 hover:text-[#6A49C8] transition-colors">
-              Wishlist
+              Список желаний
             </Link>
             <Link to="/campaigns" className="text-gray-700 hover:text-[#6A49C8] transition-colors">
-              Campaigns
+              Кампании
             </Link>
             <Link to="/community" className="text-gray-700 hover:text-[#6A49C8] transition-colors">
-              Community
+              Сообщество
             </Link>
             <Link to="/influencer-wishlists" className="text-gray-700 hover:text-[#6A49C8] transition-colors">
-              Influencer Wishlists
+              Списки желаний блогеров
             </Link>
           </nav>
 
@@ -167,7 +167,7 @@ return (
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search wishes..."
+                placeholder="Поиск желаний..."
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
               />
             </div>
@@ -220,19 +220,19 @@ return (
           <div className="md:hidden py-4 border-t border-gray-200">
             <div className="flex flex-col space-y-4">
               <Link to="/" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={() => setIsMenuOpen(false)}>
-                Explore
+                Главная страница
               </Link>
               <Link to="/wishlist" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={() => setIsMenuOpen(false)}>
-                Wishlist
+                Список желаний
               </Link>
               <Link to="/campaigns" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={() => setIsMenuOpen(false)}>
-                Campaigns
+                Кампании
               </Link>
               <Link to="/community" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={() => setIsMenuOpen(false)}>
-                Community
+                Сообщество
               </Link>
               <Link to="/influencer-wishlists" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={() => setIsMenuOpen(false)}>
-                Influencer Wishlists
+                Списки желаний блогеров
               </Link>
             </div>
           </div>
@@ -252,12 +252,12 @@ return (
             <X className="w-6 h-6" />
           </button>
           <h2 className="text-2xl font-bold mb-6 text-center text-gray-900">
-            {authMode === 'login' ? 'Login' : 'Register'}
+            {authMode === 'login' ? 'Авторизация' : 'Регистрация'}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-gray-700 font-medium mb-1">
-                Email
+                Электронная почта
               </label>
               <input
                 id="email"
@@ -272,7 +272,7 @@ return (
             </div>
             <div>
               <label htmlFor="password" className="block text-gray-700 font-medium mb-1">
-                Password
+                Пароль
               </label>
               <input
                 id="password"
@@ -289,7 +289,7 @@ return (
               <>
                 <div>
                   <label htmlFor="name" className="block text-gray-700 font-medium mb-1">
-                    Name
+                    Имя
                   </label>
                   <input
                     id="name"
@@ -305,7 +305,7 @@ return (
 
                 <div>
                   <label htmlFor="privacy" className="block text-gray-700 font-medium mb-1">
-                    Privacy
+                    Вид аккаунта
                   </label>
                   <select
                     id="privacy"
@@ -326,11 +326,11 @@ return (
               type="submit"
               className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
             >
-              {authMode === 'login' ? 'Login' : 'Register'}
+              {authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
             </button>
           </form>
           <p className="mt-4 text-center text-gray-600">
-            {authMode === 'login' ? 'No account?' : 'Already have an account?'}{' '}
+            {authMode === 'login' ? 'Нет аккаунта' : 'Уже есть аккаунт?'}{' '}
             <button
               type="button"
               onClick={toggleAuthModeHandler}
@@ -341,7 +341,7 @@ return (
           </p>
 
           {/* Кнопки для OAuth и гостевого входа */}
-          <div className="mt-6 text-center text-gray-600">Or continue with</div>
+          <div className="mt-6 text-center text-gray-600">Или продолжить</div>
 
           <div className="mt-4 flex justify-center space-x-4">
             <button
@@ -349,7 +349,7 @@ return (
               onClick={handleFakeGoogleLogin}
               className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
             >
-              Continue with Google (Fake)
+              Продолжить с Google (Fake)
             </button>
             {/* Вместо кнопки Facebook вставляем компонент */}
             {/* <FacebookLoginButton /> */}
@@ -359,7 +359,7 @@ return (
               onClick={handleGuestLogin}
               className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
             >
-              Continue as Guest
+              Войти как гость
             </button>
           </div>
         </div>

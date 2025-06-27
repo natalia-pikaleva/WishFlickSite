@@ -95,8 +95,8 @@ const WishDetails = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (!wish) return <div>Wish not found</div>;
+  if (loading) return <div>Загружается...</div>;
+  if (!wish) return <div>Желания не найдены</div>;
 
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -124,7 +124,7 @@ const WishDetails = () => {
 			      onClick={() => setIsEditing(true)}
 			      className="px-4 py-2 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full whitespace-nowrap"
 			    >
-			      Edit Wish
+			      Отредактировать желание
 			    </button>
 			  )}
 

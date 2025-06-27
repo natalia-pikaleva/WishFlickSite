@@ -19,28 +19,27 @@ const CTA = () => {
         </div>
         
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
-          Ready to Make Your Dreams Come True?
+          Готовы ли воплотить свои мечты в реальность?
         </h2>
         
         <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
-          Join thousands of dreamers who have already turned their wishes into reality. 
-          Your community is waiting to support you.
+          Присоединяйтесь к тысячам мечтателей, которые уже воплотили свои желания в реальность.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button className="bg-white text-[#6A49C8] px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center justify-center group">
-            Start Your Journey
+            Начните Свое Путешествие
             <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
           
           <button className="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-[#6A49C8] transition-all duration-300">
-            Explore Wishes
+            Исследуйте желания
           </button>
         </div>
         
         <div className="mt-12 grid grid-cols-3 gap-8 max-w-md mx-auto">
           <div className="text-center">
-            <div className="text-2xl font-bold">Free</div>
+            <div className="text-2xl font-bold">Бесплатно</div>
             <div className="text-purple-200 text-sm">To Start</div>
           </div>
           <div className="text-center">
@@ -49,7 +48,7 @@ const CTA = () => {
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold">24/7</div>
-            <div className="text-purple-200 text-sm">Support</div>
+            <div className="text-purple-200 text-sm">Поддержка</div>
           </div>
         </div>
       </div>

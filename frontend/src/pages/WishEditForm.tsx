@@ -48,7 +48,7 @@ const WishEditForm: React.FC<WishEditFormProps> = ({ wishId, initialData, onClos
     try {
       const token = localStorage.getItem('access_token');
       if (!token) {
-        alert('Please login first');
+        alert('Пожалуйста, войдите на сайт');
         setLoading(false);
         return;
       }
@@ -75,7 +75,7 @@ const WishEditForm: React.FC<WishEditFormProps> = ({ wishId, initialData, onClos
       onUpdated(response.data);
       onClose();
     } catch (error: any) {
-      alert(error.response?.data?.detail || 'Failed to update wish');
+      alert(error.response?.data?.detail || 'Ошибка при редактировании желания');
     } finally {
       setLoading(false);
     }
@@ -83,10 +83,10 @@ const WishEditForm: React.FC<WishEditFormProps> = ({ wishId, initialData, onClos
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow max-w-lg mx-auto">
-      <h2 className="text-xl font-semibold mb-4">Edit Wish</h2>
+      <h2 className="text-xl font-semibold mb-4">Редактирование желания</h2>
 
       <label className="block mb-3">
-        <span className="text-gray-700">Title</span>
+        <span className="text-gray-700">Название</span>
         <input
           name="title"
           value={formData.title}
@@ -97,7 +97,7 @@ const WishEditForm: React.FC<WishEditFormProps> = ({ wishId, initialData, onClos
       </label>
 
       <label className="block mb-3">
-        <span className="text-gray-700">Description</span>
+        <span className="text-gray-700">Описание</span>
         <textarea
           name="description"
           value={formData.description}
@@ -109,7 +109,7 @@ const WishEditForm: React.FC<WishEditFormProps> = ({ wishId, initialData, onClos
       </label>
 
       <label className="block mb-4">
-        <span className="text-gray-700 font-medium">Image URL</span>
+        <span className="text-gray-700 font-medium">Ссылка на картинку</span>
         <input
           type="url"
           name="image_url"
@@ -122,7 +122,7 @@ const WishEditForm: React.FC<WishEditFormProps> = ({ wishId, initialData, onClos
       </label>
 
       <label className="block mb-4">
-        <span className="text-gray-700 font-medium">Or upload image</span>
+        <span className="text-gray-700 font-medium">Или загрузите картинку</span>
         <input
           type="file"
           accept="image/*"
@@ -132,7 +132,7 @@ const WishEditForm: React.FC<WishEditFormProps> = ({ wishId, initialData, onClos
       </label>
 
       <label className="block mb-3">
-        <span className="text-gray-700">Goal Amount ($)</span>
+        <span className="text-gray-700">Цель (₽)</span>
         <input
           name="goal"
           type="number"
@@ -152,7 +152,7 @@ const WishEditForm: React.FC<WishEditFormProps> = ({ wishId, initialData, onClos
           onChange={handleChange}
           className="rounded border-gray-300 text-[#6A49C8] focus:ring-[#B48DFE]"
         />
-        <span className="text-gray-700">Make wish public</span>
+        <span className="text-gray-700">Сделать желание публичным</span>
       </label>
 
       <div className="flex justify-end space-x-4">
@@ -162,7 +162,7 @@ const WishEditForm: React.FC<WishEditFormProps> = ({ wishId, initialData, onClos
           className="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100"
           disabled={loading}
         >
-          Cancel
+          Отмена
         </button>
         <button
           type="submit"

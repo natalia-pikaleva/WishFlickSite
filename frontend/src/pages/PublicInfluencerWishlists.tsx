@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, STATIC_BASE_URL } from '../config';
 
 interface User {
   id: number;
@@ -30,7 +30,7 @@ const getAvatarUrl = (avatarUrl?: string) => {
   if (avatarUrl.startsWith('http') || avatarUrl.startsWith('https')) {
     return avatarUrl;
   }
-  return `${backendBaseUrl}${avatarUrl}`;
+  return `${STATIC_BASE_URL}${avatarUrl}`;  // <-- используем STATIC_BASE_URL без /api
 };
 
 
@@ -53,17 +53,17 @@ const PublicInfluencerWishlists = () => {
   }, []);
 
   if (loading) {
-    return <p className="max-w-6xl mx-auto p-4">Loading...</p>;
+    return <p className="max-w-6xl mx-auto p-4">Загружается...</p>;
   }
 
   if (wishlists.length === 0) {
-    return <p className="max-w-6xl mx-auto p-4">No public influencer wishlists found.</p>;
+    return <p className="max-w-6xl mx-auto p-4">Нет листов желаний блогеров.</p>;
   }
 
   return (
     <section className="max-w-6xl mx-auto p-4">
       <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] bg-clip-text text-transparent">
-		Public Wishlists of Influencers</h1>
+		Желания блогеров</h1>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {wishlists.map(wish => {
           const progress = Math.min((wish.raised / wish.goal) * 100, 100);
@@ -105,8 +105,8 @@ const PublicInfluencerWishlists = () => {
 
                 <div className="space-y-3 mt-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Progress</span>
-                    <span className="font-semibold">${wish.raised} / ${wish.goal}</span>
+                    <span className="text-gray-600">Прогресс</span>
+                    <span className="font-semibold">{wish.raised} ₽ / {wish.goal} ₽</span>
                   </div>
 
                   <div className="w-full bg-gray-200 rounded-full h-2">
@@ -119,7 +119,7 @@ const PublicInfluencerWishlists = () => {
                   <div className="flex items-center justify-between text-sm text-gray-600">
                     <div className="flex items-center space-x-1">
                       {/* Здесь можно добавить иконку */}
-                      <span>{wish.supporters} supporters</span>
+                      <span>{wish.supporters} поддержало</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       {/* Здесь можно добавить иконку */}
@@ -129,7 +129,7 @@ const PublicInfluencerWishlists = () => {
                 </div>
 
                 <button className="w-full mt-4 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white py-2 rounded-full font-medium hover:shadow-lg transition-all duration-300">
-                  Support This Wish
+                  Поддержать это желание
                 </button>
               </div>
             </div>
