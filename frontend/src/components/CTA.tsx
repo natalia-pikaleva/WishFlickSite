@@ -33,18 +33,18 @@ const CTA = () => {
           </button>
           
           <button className="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-[#6A49C8] transition-all duration-300">
-            Исследуйте желания
+            Узнай свои желания
           </button>
         </div>
         
         <div className="mt-12 grid grid-cols-3 gap-8 max-w-md mx-auto">
           <div className="text-center">
             <div className="text-2xl font-bold">Бесплатно</div>
-            <div className="text-purple-200 text-sm">To Start</div>
+            <div className="text-purple-200 text-sm">Для начала</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold">2%</div>
-            <div className="text-purple-200 text-sm">Platform Fee</div>
+            <div className="text-purple-200 text-sm">Плата за платформу</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold">24/7</div>

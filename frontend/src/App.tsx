@@ -31,7 +31,7 @@ function Home() {
           to="/influencer-wishlists"
           className="inline-block px-6 py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg"
         >
-          View Influencer Wishlists
+          Посмотреть желания блогеров
         </Link>
       </div>
       <CTA />

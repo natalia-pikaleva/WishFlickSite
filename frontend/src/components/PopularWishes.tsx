@@ -59,7 +59,7 @@ const PopularWishes = () => {
         <div className="flex items-center justify-between mb-12">
           <div>
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Желания в тренде
+              Популярные желания
             </h2>
             <p className="text-xl text-gray-600">
               Узнай, что сообщество поддерживает прямо сейчас

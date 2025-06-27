@@ -4,28 +4,28 @@ import { Heart, Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-reac
 const Footer = () => {
   const footerLinks = {
     product: [
-      { name: 'Features', href: '#' },
-      { name: 'How it Works', href: '#' },
-      { name: 'Pricing', href: '#' },
+      { name: 'Особенности', href: '#' },
+      { name: 'Как это работает', href: '#' },
+      { name: 'Ценообразование', href: '#' },
       { name: 'API', href: '#' }
     ],
     community: [
-      { name: 'Explore Wishes', href: '#' },
-      { name: 'Success Stories', href: '#' },
-      { name: 'Community Guidelines', href: '#' },
-      { name: 'Blog', href: '#' }
+      { name: 'Узнай свои желания', href: '#' },
+      { name: 'Истории успеха', href: '#' },
+      { name: 'Гильдии сообществ', href: '#' },
+      { name: 'Блог', href: '#' }
     ],
     support: [
-      { name: 'Help Center', href: '#' },
-      { name: 'Contact Us', href: '#' },
-      { name: 'Trust & Safety', href: '#' },
-      { name: 'Status', href: '#' }
+      { name: 'Центр поддержки', href: '#' },
+      { name: 'Контакты', href: '#' },
+      { name: 'Доверие и безопасность', href: '#' },
+      { name: 'Статус', href: '#' }
     ],
     company: [
-      { name: 'About Us', href: '#' },
-      { name: 'Careers', href: '#' },
-      { name: 'Press', href: '#' },
-      { name: 'Investors', href: '#' }
+      { name: 'О нас', href: '#' },
+      { name: 'Вакансии', href: '#' },
+      { name: 'Пресслужба', href: '#' },
+      { name: 'Инвесторы', href: '#' }
     ]
   };
 
@@ -50,11 +50,11 @@ const Footer = () => {
             
             {/* Newsletter */}
             <div className="space-y-3">
-              <h4 className="font-semibold text-white">Stay Updated</h4>
+              <h4 className="font-semibold text-white">Будьте в курсе событий</h4>
               <div className="flex">
                 <input
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="Введи адрес электронной почты"
                   className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
                 />
                 <button className="px-4 py-2 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] rounded-r-lg hover:shadow-lg transition-all duration-300">
