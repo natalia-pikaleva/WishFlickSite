@@ -104,12 +104,6 @@ const Header = () => {
 	  setLoginError("");
 	  setRegisterError("");
 	  setPasswordError("");
-  const handleSubmit = async (e) => {
-	  e.preventDefault();
-	  // Сброс ошибок перед запросом
-	  setLoginError("");
-	  setRegisterError("");
-	  setPasswordError("");
 
 	  if (authMode === "register" && formData.password !== formData.confirmPassword) {
 	    setPasswordError("Пароли не совпадают");
@@ -241,9 +235,9 @@ const Header = () => {
     closeAuthModal();
     navigate('/profile');
   };
-}}
 
-return (
+
+  return (
   <>
     <header className="bg-white shadow sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -581,7 +575,7 @@ return (
         </div>
       )}
     </>
-  );
+    );
 };
 
 export default Header;
