@@ -157,6 +157,20 @@ const Header = () => {
 	  }
 	};
 
+	const handleClose = () => {
+	  closeAuthModal();
+	  // Если нужно сбрасывать локальные состояния формы, добавь сброс здесь:
+	  setFormData({
+	    email: "",
+	    password: "",
+	    confirmPassword: "",
+	    name: "",
+	    privacy: "public",
+	  });
+	  setPasswordError("");
+	  // и другие сбросы, если нужно
+	};
+
   const handleLogout = () => {
     localStorage.removeItem('access_token');
     setIsLoggedIn(false);
