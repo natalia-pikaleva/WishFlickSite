@@ -33,6 +33,11 @@ class User(Base):
     social_instagram = Column(String, nullable=True)
 
     wishes = relationship("Wish", back_populates="owner", lazy="selectin")
+    email_verifications = relationship(
+        "EmailVerification",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
 
 
 class WishSupporter(Base):
