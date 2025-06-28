@@ -25,6 +25,9 @@ const Header = () => {
   // Локальные состояния пользователя и формы
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userAvatar, setUserAvatar] = useState('/default-avatar.png');
+  const [loginError, setLoginError] = useState("");
+  const [registerError, setRegisterError] = useState("");
+
 
   const [formData, setFormData] = useState({
     email: "",
@@ -97,36 +100,78 @@ const Header = () => {
 
   const handleSubmit = async (e) => {
 	  e.preventDefault();
+	  // Сброс ошибок перед запросом
+	  setLoginError("");
+	  setRegisterError("");
+	  setPasswordError("");
+  const handleSubmit = async (e) => {
+	  e.preventDefault();
+	  // Сброс ошибок перед запросом
+	  setLoginError("");
+	  setRegisterError("");
+	  setPasswordError("");
+
 	  if (authMode === "register" && formData.password !== formData.confirmPassword) {
 	    setPasswordError("Пароли не совпадают");
 	    return;
 	  }
+
 	  setIsLoading(true);
 	  try {
-	    // Отправляем данные на ваш эндпоинт
-	    const response = await fetch("/api/register", {
+	    const endpoint = authMode === "login"
+	      ? "/api/login"
+	      : "/api/register";
+
+	    const response = await fetch(endpoint, {
 	      method: "POST",
 	      headers: { "Content-Type": "application/json" },
 	      body: JSON.stringify({
 	        email: formData.email,
 	        password: formData.password,
-	        name: formData.name,
-	        privacy: formData.privacy,
+	        ...(authMode === "register" && {
+	          name: formData.name,
+	          privacy: formData.privacy
+	        })
 	      }),
 	    });
+
 	    if (!response.ok) {
 	      const data = await response.json();
-	      throw new Error(data.detail || "Ошибка регистрации");
+	      const errorMessage = data.detail || "Ошибка запроса";
+
+	      // Устанавливаем ошибку в соответствующее состояние
+	      if (authMode === "login") {
+	        setLoginError(errorMessage);
+	      } else {
+	        setRegisterError(errorMessage);
+	      }
+	      return;
 	    }
-	    // Регистрация успешна — переходим к шагу подтверждения email
-	    setEmailForVerify(formData.email);
-	    setStep("verify");
+
+	    // Обработка успешного ответа
+	    if (authMode === "register") {
+	      setEmailForVerify(formData.email);
+	      setStep("verify");
+	    } else {
+	      // Логика для успешного входа
+	      const { access_token } = await response.json();
+	      localStorage.setItem('access_token', access_token);
+	      setIsLoggedIn(true);
+	      closeAuthModal();
+	      await fetchUserProfile(access_token);
+	    }
 	  } catch (err) {
-	    setPasswordError(err.message);
+	    const errorMessage = err.message || "Неизвестная ошибка";
+	    if (authMode === "login") {
+	      setLoginError(errorMessage);
+	    } else {
+	      setRegisterError(errorMessage);
+	    }
 	  } finally {
 	    setIsLoading(false);
 	  }
 	};
+
 
   const handleVerify = async (e) => {
 	  e.preventDefault();
@@ -438,12 +483,10 @@ return (
                     </>
                   )}
 
-                  {authMode === "login" && loginError && (
-                    <p className="text-red-500 text-sm mt-1">{loginError}</p>
-                  )}
-                  {authMode === "register" && registerError && (
-                    <p className="text-red-500 text-sm mt-1">{registerError}</p>
-                  )}
+			      {(loginError || registerError) && (
+					  <p className="text-red-500 text-sm mt-1">
+					    {authMode === "login" ? loginError : registerError}
+					  </p>
 
                   <button
                     type="submit"
