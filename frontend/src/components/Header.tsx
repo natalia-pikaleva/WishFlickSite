@@ -141,38 +141,39 @@ return (
           </Link>
 
           {/* Навигация для десктопа */}
-          <nav className="hidden md:flex items-center space-x-6 min-w-0">
-            <Link
-              to="/"
-              className="text-gray-700 hover:text-[#6A49C8] transition-colors whitespace-nowrap truncate"
-            >
-              Главная страница
-            </Link>
-            <Link
-              to="/wishlist"
-              className="text-gray-700 hover:text-[#6A49C8] transition-colors whitespace-nowrap truncate"
-            >
-              Список желаний
-            </Link>
-            <Link
-              to="/campaigns"
-              className="text-gray-700 hover:text-[#6A49C8] transition-colors whitespace-nowrap truncate"
-            >
-              Кампании
-            </Link>
-            <Link
-              to="/community"
-              className="text-gray-700 hover:text-[#6A49C8] transition-colors whitespace-nowrap truncate"
-            >
-              Сообщество
-            </Link>
-            <Link
-              to="/influencer-wishlists"
-              className="text-gray-700 hover:text-[#6A49C8] transition-colors whitespace-nowrap truncate"
-            >
-              Списки желаний блогеров
-            </Link>
-          </nav>
+          <nav className="hidden md:flex items-center space-x-6">
+			  <Link
+			    to="/"
+			    className="text-gray-700 hover:text-[#6A49C8] transition-colors"
+			  >
+			    Главная страница
+			  </Link>
+			  <Link
+			    to="/wishlist"
+			    className="text-gray-700 hover:text-[#6A49C8] transition-colors"
+			  >
+			    Список желаний
+			  </Link>
+			  <Link
+			    to="/campaigns"
+			    className="text-gray-700 hover:text-[#6A49C8] transition-colors"
+			  >
+			    Кампании
+			  </Link>
+			  <Link
+			    to="/community"
+			    className="text-gray-700 hover:text-[#6A49C8] transition-colors"
+			  >
+			    Сообщество
+			  </Link>
+			  <Link
+			    to="/influencer-wishlists"
+			    className="text-gray-700 hover:text-[#6A49C8] transition-colors"
+			  >
+			    Списки желаний блогеров
+			  </Link>
+			</nav>
+
 
           {/* Поиск и иконки */}
           <div className="flex items-center space-x-2 min-w-0">
