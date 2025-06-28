@@ -241,6 +241,7 @@ const Header = () => {
     closeAuthModal();
     navigate('/profile');
   };
+}}
 
 return (
   <>
@@ -483,28 +484,27 @@ return (
                     </>
                   )}
 
-			      <>
-					  {(loginError || registerError) && (
-					    <p className="text-red-500 text-sm mt-1">
-					      {authMode === "login" ? loginError : registerError}
-					    </p>
-					  )}
 
-					  <button
-					    type="submit"
-					    className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
-					    disabled={
-					      isLoading ||
-					      (authMode === "register" && (!!passwordError || !formData.confirmPassword))
-					    }
-					  >
-					    {isLoading
-					      ? "..."
-					      : authMode === "login"
-					      ? "Войти"
-					      : "Зарегистрироваться"}
-					  </button>
-					</>
+				  {(loginError || registerError) && (
+				    <p className="text-red-500 text-sm mt-1">
+				      {authMode === "login" ? loginError : registerError}
+				    </p>
+				  )}
+
+				  <button
+				    type="submit"
+				    className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
+				    disabled={
+				      isLoading ||
+				      (authMode === "register" && (!!passwordError || !formData.confirmPassword))
+				    }
+				  >
+				    {isLoading
+				      ? "..."
+				      : authMode === "login"
+				      ? "Войти"
+				      : "Зарегистрироваться"}
+				  </button>
 
                 </form>
                 <p className="mt-4 text-center text-gray-600">
