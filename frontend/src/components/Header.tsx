@@ -35,6 +35,12 @@ const Header = () => {
   });
 
   const [passwordError, setPasswordError] = useState("");
+  const [step, setStep] = useState('register'); // 'register' | 'verify'
+  const [emailForVerify, setEmailForVerify] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [verifyError, setVerifyError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const toggleAuthModeHandler = () => {
     toggleAuthMode();
@@ -89,39 +95,67 @@ const Header = () => {
     }
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+	  e.preventDefault();
 	  if (authMode === "register" && formData.password !== formData.confirmPassword) {
 	    setPasswordError("Пароли не совпадают");
 	    return;
 	  }
-    try {
-      if (authMode === 'login') {
-        const params = new URLSearchParams();
-        params.append('username', formData.email);
-        params.append('password', formData.password);
-        const response = await axios.post(`${API_BASE_URL}/token`, params, {
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        });
-        const { access_token } = response.data;
-        localStorage.setItem('access_token', access_token);
-        setIsLoggedIn(true);
-        closeAuthModal();
-        await fetchUserProfile(access_token);
-      } else {
-        await axios.post(`${API_BASE_URL}/register`, {
-          email: formData.email,
-          password: formData.password,
-          name: formData.name,
-          privacy: formData.privacy,
-        });
-        alert('Registration successful! Please log in.');
-        toggleAuthModeHandler();
-      }
-    } catch (error: any) {
-      alert(error.response?.data?.detail || 'Error occurred');
-    }
-  };
+	  setIsLoading(true);
+	  try {
+	    // Отправляем данные на ваш эндпоинт
+	    const response = await fetch("/api/register", {
+	      method: "POST",
+	      headers: { "Content-Type": "application/json" },
+	      body: JSON.stringify({
+	        email: formData.email,
+	        password: formData.password,
+	        name: formData.name,
+	        privacy: formData.privacy,
+	      }),
+	    });
+	    if (!response.ok) {
+	      const data = await response.json();
+	      throw new Error(data.detail || "Ошибка регистрации");
+	    }
+	    // Регистрация успешна — переходим к шагу подтверждения email
+	    setEmailForVerify(formData.email);
+	    setStep("verify");
+	  } catch (err) {
+	    setPasswordError(err.message);
+	  } finally {
+	    setIsLoading(false);
+	  }
+	};
+
+  const handleVerify = async (e) => {
+	  e.preventDefault();
+	  setIsLoading(true);
+	  setVerifyError('');
+	  try {
+	    const response = await fetch("/api/verify-email", {
+	      method: "POST",
+	      headers: { "Content-Type": "application/json" },
+	      body: JSON.stringify({
+	        email: emailForVerify,
+	        code: verificationCode,
+	      }),
+	    });
+	    if (!response.ok) {
+	      const data = await response.json();
+	      throw new Error(data.detail || "Неверный код");
+	    }
+	    // Код верный — можно автоматически залогинить пользователя или показать успех
+	    // Например:
+	    // setAuthMode('login');
+	    // или сразу залогинить
+	    window.location.reload(); // или любая другая логика
+	  } catch (err) {
+	    setVerifyError(err.message);
+	  } finally {
+	    setIsLoading(false);
+	  }
+	};
 
   const handleLogout = () => {
     localStorage.removeItem('access_token');
@@ -286,156 +320,207 @@ return (
     </header>
 
     {/* Модальное окно авторизации/регистрации */}
-    {isAuthOpen && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md mx-4 relative">
-          <button
-            onClick={closeAuthModal}
-            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-            aria-label="Close form"
-          >
-            <X className="w-6 h-6" />
-          </button>
-          <h2 className="text-2xl font-bold mb-6 text-center text-gray-900">
-            {authMode === 'login' ? 'Авторизация' : 'Регистрация'}
-          </h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-gray-700 font-medium mb-1">
-                Электронная почта
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
-                placeholder="you@example.com"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-gray-700 font-medium mb-1">
-                Пароль
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
-                placeholder="Твой пароль"
-              />
-            </div>
-
-            {/* Только для регистрации */}
-	        {authMode === 'register' && (
-	          <>
-	            <div>
-	              <label htmlFor="confirmPassword" className="block text-gray-700 font-medium mb-1">
-	                Повторите пароль
-	              </label>
-	              <input
-	                id="confirmPassword"
-	                name="confirmPassword"
-	                type="password"
-	                value={formData.confirmPassword}
-	                onChange={handleChange}
-	                required
-	                className={`w-full px-4 py-2 border ${
-	                  passwordError
-	                    ? 'border-red-500'
-	                    : 'border-gray-300'
-	                } rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent`}
-	                placeholder="Повторите пароль"
-	              />
-	              {passwordError && (
-	                <p className="text-red-500 text-sm mt-1">{passwordError}</p>
-	              )}
-	            </div>
-	            <div>
-	              <label htmlFor="name" className="block text-gray-700 font-medium mb-1">
-	                Имя
-	              </label>
-	              <input
-	                id="name"
-	                name="name"
-	                type="text"
-	                value={formData.name}
-	                onChange={handleChange}
-	                required
-	                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
-	                placeholder="Твое имя"
-	              />
-	            </div>
-	            <div>
-	              <label htmlFor="privacy" className="block text-gray-700 font-medium mb-1">
-	                Вид аккаунта
-	              </label>
-	              <select
-	                id="privacy"
-	                name="privacy"
-	                value={formData.privacy}
-	                onChange={handleChange}
-	                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
-	              >
-	                <option value="public">Публичный</option>
-	                <option value="anonymous">Анонимный</option>
-	                <option value="friends">Только для друзей</option>
-	              </select>
-	            </div>
-	          </>
-	        )}
-
-	        <button
-	          type="submit"
-	          className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
-	          disabled={authMode === 'register' && (!!passwordError || !formData.confirmPassword)}
-	        >
-	          {authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
-	        </button>
-	      </form>
-          <p className="mt-4 text-center text-gray-600">
-            {authMode === 'login' ? 'Нет аккаунта' : 'Уже есть аккаунт?'}{' '}
+      {isAuthOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md mx-4 relative">
             <button
-              type="button"
-              onClick={toggleAuthModeHandler}
-              className="text-[#6A49C8] hover:text-[#B48DFE] font-semibold focus:outline-none"
+              onClick={handleClose}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+              aria-label="Close form"
             >
-              {authMode === 'login' ? 'Регистрация' : 'Войти'}
+              <X className="w-6 h-6" />
             </button>
-          </p>
 
-          {/* Кнопки для OAuth и гостевого входа */}
-          <div className="mt-6 text-center text-gray-600">Или продолжить</div>
+            {step === "register" ? (
+              <>
+                <h2 className="text-2xl font-bold mb-6 text-center text-gray-900">
+                  {authMode === "login" ? "Авторизация" : "Регистрация"}
+                </h2>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <label htmlFor="email" className="block text-gray-700 font-medium mb-1">
+                      Электронная почта
+                    </label>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
+                      placeholder="you@example.com"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="password" className="block text-gray-700 font-medium mb-1">
+                      Пароль
+                    </label>
+                    <input
+                      id="password"
+                      name="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
+                      placeholder="Твой пароль"
+                    />
+                  </div>
 
-          <div className="mt-4 flex justify-center space-x-4">
-            <button
-              type="button"
-              onClick={handleFakeGoogleLogin}
-              className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
-            >
-              Продолжить с Google (Fake)
-            </button>
-            {/* Вместо кнопки Facebook вставляем компонент */}
-            {/* <FacebookLoginButton /> */}
+                  {authMode === "register" && (
+                    <>
+                      <div>
+                        <label htmlFor="confirmPassword" className="block text-gray-700 font-medium mb-1">
+                          Повторите пароль
+                        </label>
+                        <input
+                          id="confirmPassword"
+                          name="confirmPassword"
+                          type="password"
+                          value={formData.confirmPassword}
+                          onChange={handleChange}
+                          required
+                          className={`w-full px-4 py-2 border ${
+                            passwordError ? "border-red-500" : "border-gray-300"
+                          } rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent`}
+                          placeholder="Повторите пароль"
+                        />
+                        {passwordError && (
+                          <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label htmlFor="name" className="block text-gray-700 font-medium mb-1">
+                          Имя
+                        </label>
+                        <input
+                          id="name"
+                          name="name"
+                          type="text"
+                          value={formData.name}
+                          onChange={handleChange}
+                          required
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
+                          placeholder="Твое имя"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="privacy" className="block text-gray-700 font-medium mb-1">
+                          Вид аккаунта
+                        </label>
+                        <select
+                          id="privacy"
+                          name="privacy"
+                          value={formData.privacy}
+                          onChange={handleChange}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
+                        >
+                          <option value="public">Публичный</option>
+                          <option value="anonymous">Анонимный</option>
+                          <option value="friends">Только для друзей</option>
+                        </select>
+                      </div>
+                    </>
+                  )}
 
-            <button
-              type="button"
-              onClick={handleGuestLogin}
-              className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
-            >
-              Войти как гость
-            </button>
+                  {authMode === "login" && loginError && (
+                    <p className="text-red-500 text-sm mt-1">{loginError}</p>
+                  )}
+                  {authMode === "register" && registerError && (
+                    <p className="text-red-500 text-sm mt-1">{registerError}</p>
+                  )}
+
+                  <button
+                    type="submit"
+                    className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
+                    disabled={
+                      isLoading ||
+                      (authMode === "register" && (!!passwordError || !formData.confirmPassword))
+                    }
+                  >
+                    {isLoading
+                      ? "..."
+                      : authMode === "login"
+                      ? "Войти"
+                      : "Зарегистрироваться"}
+                  </button>
+                </form>
+                <p className="mt-4 text-center text-gray-600">
+                  {authMode === "login" ? "Нет аккаунта?" : "Уже есть аккаунт?"}{" "}
+                  <button
+                    type="button"
+                    onClick={toggleAuthModeHandler}
+                    className="text-[#6A49C8] hover:text-[#B48DFE] font-semibold focus:outline-none"
+                  >
+                    {authMode === "login" ? "Регистрация" : "Войти"}
+                  </button>
+                </p>
+
+                {/* Кнопки для OAuth и гостевого входа */}
+                <div className="mt-6 text-center text-gray-600">Или продолжить</div>
+                <div className="mt-4 flex flex-col gap-3">
+                  <button
+                    type="button"
+                    onClick={handleFakeGoogleLogin}
+                    className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
+                  >
+                    Продолжить с Google (Fake)
+                  </button>
+                  {/* <FacebookLoginButton /> */}
+                  <button
+                    type="button"
+                    onClick={handleGuestLogin}
+                    className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
+                  >
+                    Войти как гость
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="text-2xl font-bold mb-6 text-center text-gray-900">
+                  Подтверждение email
+                </h2>
+                <div className="mb-4 text-center text-gray-700">
+                  На электронную почту{" "}
+                  <span className="font-semibold">{emailForVerify}</span> отправлен код.<br />
+                  Введите код из письма для завершения регистрации.
+                </div>
+                <form onSubmit={handleVerify} className="space-y-4">
+                  <div>
+                    <label htmlFor="verificationCode" className="block text-gray-700 font-medium mb-1">
+                      Код из письма
+                    </label>
+                    <input
+                      id="verificationCode"
+                      name="verificationCode"
+                      type="text"
+                      value={verificationCode}
+                      onChange={e => setVerificationCode(e.target.value)}
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
+                      placeholder="Введите код"
+                    />
+                    {verifyError && (
+                      <p className="text-red-500 text-sm mt-1">{verifyError}</p>
+                    )}
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
+                    disabled={isLoading || !verificationCode}
+                  >
+                    {isLoading ? "..." : "Подтвердить"}
+                  </button>
+                </form>
+              </>
+            )}
           </div>
         </div>
-      </div>
-    )}
-  </>
-);
+      )}
+    </>
+  );
 };
 
 export default Header;

@@ -9,6 +9,7 @@ from fastapi.responses import RedirectResponse
 from httpx import URL
 from sqlalchemy import select, func
 
+import random
 import os
 import uuid
 import logging
@@ -23,6 +24,7 @@ from router_wishes import router as router_wishes
 from backend_conf import (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
                           GOOGLE_REDIRECT_URI, FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
                           FACEBOOK_REDIRECT_URI)
+from services.other_helpers import send_email_async
 
 logger = logging.getLogger(__name__)
 
@@ -69,19 +71,64 @@ async def api_root():
     return {"message": "API is working"}
 
 
+def generate_verification_code():
+    return f"{random.randint(100000, 999999)}"
+
+
 @app.post("/api/register", response_model=schemas.User)
-async def register(user_create: schemas.UserCreate, db: AsyncSession = Depends(get_db)):
+async def register(
+        user_create: schemas.UserCreate,
+        db: AsyncSession = Depends(get_db)
+):
     try:
         db_user = await crud.get_user_by_email(db, email=user_create.email)
         if db_user:
             raise HTTPException(status_code=400, detail="Email already registered")
         user = await crud.create_user(db, user_create)
-        # Перезагружаем пользователя с wishes
         user = await crud.get_user_by_email(db, user.email)
+
+        # Генерируем код и сохраняем его
+        code = generate_verification_code()
+        # Сохраняем код в отдельной таблице EmailVerification
+        await crud.create_email_verification(db, user_id=user.id, code=code)
+
+        # Отправляем письмо с кодом
+        subject = "Код подтверждения регистрации"
+        await send_email_async(to_email=user.email, subject=subject, code=code)
+
         return user
     except Exception as e:
         logging.error("Failed to register user: %s", e)
         raise HTTPException(status_code=500, detail="Failed to register user")
+
+
+@app.post("/api/verify-email")
+async def verify_email(data: schemas.EmailVerificationRequest, db: AsyncSession = Depends(get_db)):
+    """
+    Проверяет код подтверждения email.
+    Если код верный — делает пользователя подтверждённым.
+    """
+    try:
+        # Найти пользователя по email
+        user = await crud.get_user_by_email(db, email=data.email)
+        if not user:
+            raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+        # Найти запись о подтверждении email
+        verification = await crud.get_email_verification(db, user_id=user.id, code=data.code)
+        if not verification:
+            raise HTTPException(status_code=400, detail="Неверный код")
+
+        # Сделать пользователя подтверждённым
+        await crud.mark_user_email_verified(db, user.id)
+
+        # (Необязательно) удалить запись о подтверждении, чтобы код нельзя было использовать повторно
+        await crud.delete_email_verification(db, verification.id)
+
+        return {"detail": "Email успешно подтвержден"}
+    except Exception as e:
+        logging.error("Failed to verify email user: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to verify email user")
 
 
 @app.post("/api/token", response_model=schemas.Token)
