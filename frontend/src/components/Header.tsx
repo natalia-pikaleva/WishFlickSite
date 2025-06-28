@@ -27,12 +27,14 @@ const Header = () => {
   const [userAvatar, setUserAvatar] = useState('/default-avatar.png');
 
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    name: '',
+    email: "",
+    password: "",
+    confirmPassword: "",
+    name: "",
     privacy: 'public' as 'public' | 'anonymous' | 'friends',
   });
 
+  const [passwordError, setPasswordError] = useState("");
 
   const toggleAuthModeHandler = () => {
     toggleAuthMode();
@@ -44,9 +46,26 @@ const Header = () => {
     });
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => {
+	  const { name, value } = e.target;
+	  setFormData((prev) => ({
+	    ...prev,
+	    [name]: value,
+	  }));
+
+      // Проверка совпадения паролей
+	  if (name === "confirmPassword" || (name === "password" && formData.confirmPassword)) {
+	    if (
+	      name === "password"
+	        ? value !== formData.confirmPassword
+	        : value !== formData.password
+	    ) {
+	      setPasswordError("Пароли не совпадают");
+	    } else {
+	      setPasswordError("");
+	    }
+	  }
+	};
 
   const fetchUserProfile = async (token: string) => {
     try {
@@ -72,6 +91,10 @@ const Header = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+	  if (authMode === "register" && formData.password !== formData.confirmPassword) {
+	    setPasswordError("Пароли не совпадают");
+	    return;
+	  }
     try {
       if (authMode === 'login') {
         const params = new URLSearchParams();
@@ -307,50 +330,74 @@ return (
                 placeholder="Твой пароль"
               />
             </div>
-            {authMode === 'register' && (
-              <>
-                <div>
-                  <label htmlFor="name" className="block text-gray-700 font-medium mb-1">
-                    Имя
-                  </label>
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
-                    placeholder="Твое имя"
-                  />
-                </div>
 
-                <div>
-                  <label htmlFor="privacy" className="block text-gray-700 font-medium mb-1">
-                    Вид аккаунта
-                  </label>
-                  <select
-                    id="privacy"
-                    name="privacy"
-                    value={formData.privacy}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
-                  >
-                    <option value="public">Публичный</option>
-                    <option value="anonymous">Анонимный</option>
-                    <option value="friends">Только для друзей</option>
-                  </select>
-                </div>
-              </>
-            )}
+            {/* Только для регистрации */}
+	        {authMode === 'register' && (
+	          <>
+	            <div>
+	              <label htmlFor="confirmPassword" className="block text-gray-700 font-medium mb-1">
+	                Повторите пароль
+	              </label>
+	              <input
+	                id="confirmPassword"
+	                name="confirmPassword"
+	                type="password"
+	                value={formData.confirmPassword}
+	                onChange={handleChange}
+	                required
+	                className={`w-full px-4 py-2 border ${
+	                  passwordError
+	                    ? 'border-red-500'
+	                    : 'border-gray-300'
+	                } rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent`}
+	                placeholder="Повторите пароль"
+	              />
+	              {passwordError && (
+	                <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+	              )}
+	            </div>
+	            <div>
+	              <label htmlFor="name" className="block text-gray-700 font-medium mb-1">
+	                Имя
+	              </label>
+	              <input
+	                id="name"
+	                name="name"
+	                type="text"
+	                value={formData.name}
+	                onChange={handleChange}
+	                required
+	                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
+	                placeholder="Твое имя"
+	              />
+	            </div>
+	            <div>
+	              <label htmlFor="privacy" className="block text-gray-700 font-medium mb-1">
+	                Вид аккаунта
+	              </label>
+	              <select
+	                id="privacy"
+	                name="privacy"
+	                value={formData.privacy}
+	                onChange={handleChange}
+	                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
+	              >
+	                <option value="public">Публичный</option>
+	                <option value="anonymous">Анонимный</option>
+	                <option value="friends">Только для друзей</option>
+	              </select>
+	            </div>
+	          </>
+	        )}
 
-            <button
-              type="submit"
-              className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
-            >
-              {authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
-            </button>
-          </form>
+	        <button
+	          type="submit"
+	          className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
+	          disabled={authMode === 'register' && (!!passwordError || !formData.confirmPassword)}
+	        >
+	          {authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
+	        </button>
+	      </form>
           <p className="mt-4 text-center text-gray-600">
             {authMode === 'login' ? 'Нет аккаунта' : 'Уже есть аккаунт?'}{' '}
             <button
