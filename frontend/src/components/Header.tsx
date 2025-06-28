@@ -128,60 +128,83 @@ const Header = () => {
 
 return (
   <>
-    <header className="bg-white/95 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-white shadow sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-16 min-w-0">
           {/* Логотип */}
-			<Link to="/" className="flex items-center space-x-2">
-			  <img
-			    src={logo}
-			    alt="WishFlick Logo"
-			    className="w-full max-w-[200px] h-16 object-contain"
-			  />
-			  <span className="text-xl font-bold bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] bg-clip-text text-transparent" />
-			</Link>
-
+          <Link to="/" className="flex items-center space-x-2 min-w-0">
+            <img
+              src={logo}
+              alt="WishFlick Logo"
+              className="w-32 h-12 object-contain flex-shrink-0"
+            />
+            <span className="hidden sm:inline text-xl font-bold bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] bg-clip-text text-transparent whitespace-nowrap">
+              WishFlick
+            </span>
+          </Link>
 
           {/* Навигация для десктопа */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-[#6A49C8] transition-colors">
+          <nav className="hidden md:flex items-center space-x-6 min-w-0">
+            <Link
+              to="/"
+              className="text-gray-700 hover:text-[#6A49C8] transition-colors whitespace-nowrap truncate"
+            >
               Главная страница
             </Link>
-            <Link to="/wishlist" className="text-gray-700 hover:text-[#6A49C8] transition-colors">
+            <Link
+              to="/wishlist"
+              className="text-gray-700 hover:text-[#6A49C8] transition-colors whitespace-nowrap truncate"
+            >
               Список желаний
             </Link>
-            <Link to="/campaigns" className="text-gray-700 hover:text-[#6A49C8] transition-colors">
+            <Link
+              to="/campaigns"
+              className="text-gray-700 hover:text-[#6A49C8] transition-colors whitespace-nowrap truncate"
+            >
               Кампании
             </Link>
-            <Link to="/community" className="text-gray-700 hover:text-[#6A49C8] transition-colors">
+            <Link
+              to="/community"
+              className="text-gray-700 hover:text-[#6A49C8] transition-colors whitespace-nowrap truncate"
+            >
               Сообщество
             </Link>
-            <Link to="/influencer-wishlists" className="text-gray-700 hover:text-[#6A49C8] transition-colors">
+            <Link
+              to="/influencer-wishlists"
+              className="text-gray-700 hover:text-[#6A49C8] transition-colors whitespace-nowrap truncate"
+            >
               Списки желаний блогеров
             </Link>
           </nav>
 
           {/* Поиск и иконки */}
-          <div className="flex items-center space-x-4">
-            {/* Поиск */}
-            <div className="hidden md:flex relative">
+          <div className="flex items-center space-x-2 min-w-0">
+            {/* Поиск для десктопа */}
+            <div className="hidden md:flex relative w-48">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
                 placeholder="Поиск желаний..."
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent text-sm"
               />
             </div>
 
             {/* Уведомления */}
-            <button className="p-2 text-gray-600 hover:text-[#6A49C8] transition-colors" aria-label="Notifications">
+            <button
+              className="p-2 text-gray-600 hover:text-[#6A49C8] transition-colors flex-shrink-0"
+              aria-label="Notifications"
+            >
               <Bell className="w-5 h-5" />
             </button>
 
             {/* Профиль или кнопка входа */}
             {isLoggedIn ? (
               <>
-                <Link to="/profile" aria-label="Go to profile">
+                <Link
+                  to="/profile"
+                  aria-label="Go to profile"
+                  className="flex-shrink-0"
+                >
                   <img
                     src={userAvatar}
                     alt="User avatar"
@@ -190,15 +213,15 @@ return (
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="ml-2 px-4 py-1 rounded-full font-semibold text-white bg-gradient-to-r from-[#6A49C8] to-[#B48DFE] shadow-md hover:from-[#B48DFE] hover:to-[#6A49C8] transition-all duration-200"
+                  className="ml-2 px-4 py-1 rounded-full font-semibold text-white bg-gradient-to-r from-[#6A49C8] to-[#B48DFE] shadow-md hover:from-[#B48DFE] hover:to-[#6A49C8] transition-all duration-200 whitespace-nowrap text-sm"
                 >
                   Logout
                 </button>
               </>
             ) : (
               <button
-                className="p-2 text-gray-600 hover:text-[#6A49C8] transition-colors"
-                onClick={() => openAuthModal('login')}
+                className="p-2 text-gray-600 hover:text-[#6A49C8] transition-colors flex-shrink-0"
+                onClick={() => openAuthModal("login")}
                 aria-label="Open login/register form"
               >
                 <User className="w-5 h-5" />
@@ -207,7 +230,7 @@ return (
 
             {/* Кнопка меню для мобильных */}
             <button
-              className="md:hidden p-2 text-gray-600"
+              className="md:hidden p-2 text-gray-600 flex-shrink-0"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle menu"
             >
