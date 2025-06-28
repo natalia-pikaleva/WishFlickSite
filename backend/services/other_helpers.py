@@ -1,6 +1,6 @@
 import aiosmtplib
 from email.message import EmailMessage
-from backend.config import EMAIL_YANDEX_PASSWORD
+from config import EMAIL_YANDEX_PASSWORD
 
 
 def make_html_email(code):
