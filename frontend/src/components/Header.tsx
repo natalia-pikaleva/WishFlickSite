@@ -138,9 +138,6 @@ return (
               alt="WishFlick Logo"
               className="w-32 h-12 object-contain flex-shrink-0"
             />
-            <span className="hidden sm:inline text-xl font-bold bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] bg-clip-text text-transparent whitespace-nowrap">
-              WishFlick
-            </span>
           </Link>
 
           {/* Навигация для десктопа */}
