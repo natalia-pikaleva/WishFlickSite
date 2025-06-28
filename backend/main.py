@@ -2,6 +2,7 @@ from fastapi import (FastAPI, Request, Depends, UploadFile, File,
                      Form, HTTPException, status)
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from fastapi.staticfiles import StaticFiles
@@ -97,6 +98,8 @@ async def register(
         await send_email_async(to_email=user.email, subject=subject, code=code)
 
         return user
+    except HTTPException:
+        raise
     except Exception as e:
         logging.error("Failed to register user: %s", e)
         raise HTTPException(status_code=500, detail="Failed to register user")
@@ -126,6 +129,8 @@ async def verify_email(data: schemas.EmailVerificationRequest, db: AsyncSession 
         await crud.delete_email_verification(db, verification.id)
 
         return {"detail": "Email успешно подтвержден"}
+    except HTTPException:
+        raise
     except Exception as e:
         logging.error("Failed to verify email user: %s", e)
         raise HTTPException(status_code=500, detail="Failed to verify email user")
@@ -139,6 +144,8 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
             raise HTTPException(status_code=401, detail="Incorrect email or password")
         access_token = auth.create_access_token(data={"sub": user.email})
         return {"access_token": access_token, "token_type": "bearer", "user_id": user.id}
+    except HTTPException:
+        raise
     except Exception as e:
         logging.error("Failed to login user: %s", e)
         raise HTTPException(status_code=500, detail="Failed to login user")
