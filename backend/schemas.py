@@ -221,3 +221,8 @@ class WishUpdate(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class EmailVerificationRequest(BaseModel):
+    email: EmailStr
+    code: str

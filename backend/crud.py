@@ -10,7 +10,8 @@ from datetime import datetime, timedelta, timezone
 import shutil
 import os
 import uuid
-from models import User, Wish, Comment, Activity, ActivityType, Like, ActivityLike
+from models import (User, Wish, Comment, Activity, ActivityType, Like,
+                    ActivityLike, EmailVerification)
 from auth import get_password_hash
 import schemas as schemas
 
@@ -274,3 +275,43 @@ async def update_wish(db: AsyncSession, db_wish: Wish, wish_update: schemas.Wish
     await db.commit()
     await db.refresh(db_wish)
     return db_wish
+
+
+async def create_email_verification(db: AsyncSession, user_id: int, code: str):
+    verification = EmailVerification(user_id=user_id, code=code)
+    db.add(verification)
+    await db.commit()
+    await db.refresh(verification)
+    return verification
+
+
+async def get_email_verification(db, user_id: int, code: str):
+    result = await db.execute(
+        select(EmailVerification).where(
+            EmailVerification.user_id == user_id,
+            EmailVerification.code == code
+        )
+    )
+    return result.scalars().first()
+
+
+async def mark_user_email_verified(db, user_id: int):
+    result = await db.execute(
+        select(User).where(User.id == user_id)
+    )
+    user = result.scalars().first()
+    if user:
+        user.is_verified = True  # Добавь поле is_verified в модель User!
+        await db.commit()
+        await db.refresh(user)
+    return user
+
+
+async def delete_email_verification(db, verification_id: int):
+    result = await db.execute(
+        select(EmailVerification).where(EmailVerification.id == verification_id)
+    )
+    verification = result.scalars().first()
+    if verification:
+        await db.delete(verification)
+        await db.commit()

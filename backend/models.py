@@ -6,6 +6,7 @@ from enum import Enum as PyEnum
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import Enum as SqlEnum
 
+
 class PrivacyEnum(PyEnum):
     public = "public"
     friends = "friends"
@@ -18,6 +19,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
+    is_verified = Column(Boolean, default=False)
     hashed_password = Column(String, nullable=False)
     name = Column(String, nullable=True)
     avatar_url = Column(String, nullable=True)
@@ -149,3 +151,12 @@ class ActivityLike(Base):
     __table_args__ = (
         UniqueConstraint('user_id', 'activity_id', name='uq_user_activity_like'),
     )
+
+
+class EmailVerification(Base):
+    __tablename__ = "email_verification"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    code = Column(String(6), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    user = relationship("User", back_populates="email_verifications")
