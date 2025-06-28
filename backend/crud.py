@@ -301,7 +301,7 @@ async def mark_user_email_verified(db, user_id: int):
     )
     user = result.scalars().first()
     if user:
-        user.is_verified = True  # Добавь поле is_verified в модель User!
+        user.is_verified = True
         await db.commit()
         await db.refresh(user)
     return user
