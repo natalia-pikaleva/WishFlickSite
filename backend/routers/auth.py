@@ -1,0 +1,314 @@
+from fastapi import (APIRouter, Request, Depends)
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.exceptions import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.responses import RedirectResponse
+from httpx import URL
+
+import random
+import os
+import logging
+import httpx
+
+from database import Base, engine, get_db
+import models as models
+import schemas as schemas
+import crud as crud
+import auth as auth
+from backend_conf import (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
+                          GOOGLE_REDIRECT_URI, FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
+                          FACEBOOK_REDIRECT_URI)
+from services.other_helpers import send_email_async
+
+logger = logging.getLogger(__name__)
+
+UPLOAD_DIR_AVATARS = os.path.join(os.path.dirname(__file__), "uploads", "avatars")
+UPLOAD_DIR_WISHES = os.path.join(os.path.dirname(__file__), "uploads", "wishes")
+
+os.makedirs(UPLOAD_DIR_AVATARS, exist_ok=True)
+os.makedirs(UPLOAD_DIR_WISHES, exist_ok=True)
+
+router = APIRouter()
+
+def generate_verification_code():
+    return f"{random.randint(100000, 999999)}"
+
+
+@router.get("/google", tags=["auth"])
+async def google_oauth_redirect():
+    try:
+        params = {
+            "client_id": GOOGLE_CLIENT_ID,
+            "response_type": "code",
+            "scope": "openid email profile",
+            "redirect_uri": GOOGLE_REDIRECT_URI,
+            "access_type": "offline",
+            "prompt": "consent",
+        }
+
+        url = URL("https://accounts.google.com/o/oauth2/v2/auth").copy_with(params=params)
+        return RedirectResponse(url)
+    except Exception as e:
+        logging.error("Failed to auth with google: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to auth with google")
+
+
+@router.get("/google/callback", tags=["auth"])
+async def google_oauth_callback(
+        request: Request,
+        code: str,
+        db: AsyncSession = Depends(get_db)
+):
+    try:
+        # Обмен кода на токен
+        token_url = "https://oauth2.googleapis.com/token"
+        data = {
+            "code": code,
+            "client_id": GOOGLE_CLIENT_ID,
+            "client_secret": GOOGLE_CLIENT_SECRET,
+            "redirect_uri": GOOGLE_REDIRECT_URI,
+            "grant_type": "authorization_code",
+        }
+        async with httpx.AsyncClient() as client:
+            token_resp = await client.post(token_url, data=data)
+            token_resp.raise_for_status()
+            tokens = token_resp.json()
+
+            # Получаем информацию о пользователе
+            userinfo_resp = await client.get(
+                "https://www.googleapis.com/oauth2/v3/userinfo",
+                headers={"Authorization": f"Bearer {tokens['access_token']}"}
+            )
+            userinfo_resp.raise_for_status()
+            userinfo = userinfo_resp.json()
+
+        email = userinfo.get("email")
+        name = userinfo.get("name")
+        avatar_url = userinfo.get("picture")
+
+        if not email:
+            raise HTTPException(status_code=400, detail="Email not available from Google")
+
+        # Создаём или получаем пользователя из БД
+        user = await crud.get_user_by_email(db, email=email)
+        if not user:
+            # Создаём нового пользователя с дефолтным паролем или без пароля
+            user_create = models.UserCreate(
+                email=email,
+                name=name,
+                avatar_url=avatar_url,
+                password=os.urandom(16).hex(),
+                privacy="public",
+            )
+            user = await crud.create_user(db, user_create)
+
+        # Создаём JWT токен
+        access_token = auth.create_access_token(data={"sub": user.email})
+
+        # Здесь можно вернуть токен в куки или в URL для фронтенда
+        # Например, редирект на фронтенд с токеном в параметре
+        frontend_url = f"http://localhost:3000/oauth-callback?token={access_token}"
+        return RedirectResponse(frontend_url)
+    except Exception as e:
+        logging.error("Failed to callback with google: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to callback with google")
+
+
+@router.get("/facebook", tags=["auth"])
+async def facebook_oauth_redirect():
+    try:
+        if not FACEBOOK_CLIENT_ID or not FACEBOOK_CLIENT_SECRET:
+            raise HTTPException(status_code=500, detail="Facebook OAuth credentials not set")
+
+        params = {
+            "client_id": FACEBOOK_CLIENT_ID,
+            "redirect_uri": FACEBOOK_REDIRECT_URI,
+            "state": "random_string_for_csrf_protection",  # можно реализовать защиту
+            "scope": "email,public_profile",
+            "response_type": "code",
+            "auth_type": "rerequest",
+        }
+        url = httpx.URL("https://www.facebook.com/v15.0/dialog/oauth").copy_with(params=params)
+        return RedirectResponse(url)
+    except Exception as e:
+        logging.error("Failed to auth wiyh facebook: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to auth with facebook")
+
+
+@router.get("/facebook/callback", tags=["auth"])
+async def facebook_oauth_callback(
+        code: str,
+        state: str,
+        db: AsyncSession = Depends(get_db)
+):
+    try:
+        # Обмен кода на access token
+        token_url = "https://graph.facebook.com/v15.0/oauth/access_token"
+        params = {
+            "client_id": FACEBOOK_CLIENT_ID,
+            "redirect_uri": FACEBOOK_REDIRECT_URI,
+            "client_secret": FACEBOOK_CLIENT_SECRET,
+            "code": code,
+        }
+        async with httpx.AsyncClient() as client:
+            token_resp = await client.get(token_url, params=params)
+            token_resp.raise_for_status()
+            token_data = token_resp.json()
+
+            access_token = token_data.get("access_token")
+            if not access_token:
+                raise HTTPException(status_code=400, detail="Failed to get access token from Facebook")
+
+            # Получение информации о пользователе
+            userinfo_resp = await client.get(
+                "https://graph.facebook.com/me",
+                params={"fields": "id,name,email,picture", "access_token": access_token}
+            )
+            userinfo_resp.raise_for_status()
+            userinfo = userinfo_resp.json()
+
+        email = userinfo.get("email")
+        name = userinfo.get("name")
+        avatar_url = userinfo.get("picture", {}).get("data", {}).get("url")
+
+        if not email:
+            raise HTTPException(status_code=400, detail="Email not available from Facebook")
+
+        # Создаём или получаем пользователя из БД
+        user = await crud.get_user_by_email(db, email=email)
+        if not user:
+            user_create = models.UserCreate(
+                email=email,
+                name=name,
+                avatar_url=avatar_url,
+                password=os.urandom(16).hex(),
+                privacy="public",
+            )
+            user = await crud.create_user(db, user_create)
+
+        access_token_jwt = auth.create_access_token(data={"sub": user.email})
+
+        frontend_url = f"http://80.78.243.30:5173/oauth-callback?token={access_token_jwt}"
+        return RedirectResponse(frontend_url)
+    except Exception as e:
+        logging.error("Failed to callbak with facebook: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to callback with facebook")
+
+
+@router.post("/facebook/token", tags=["auth"])
+async def facebook_token_login(token_data: schemas.FacebookToken, db: AsyncSession = Depends(get_db)):
+    try:
+        access_token = token_data.access_token
+
+        async with httpx.AsyncClient() as client:
+            userinfo_resp = await client.get(
+                "https://graph.facebook.com/me",
+                params={"fields": "id,name,email,picture", "access_token": access_token}
+            )
+            if userinfo_resp.status_code != 200:
+                raise HTTPException(status_code=400, detail="Invalid Facebook token")
+
+            userinfo = userinfo_resp.json()
+
+        email = userinfo.get("email")
+        if not email:
+            raise HTTPException(status_code=400, detail="Email not provided by Facebook")
+
+        user = await crud.get_user_by_email(db, email=email)
+        if not user:
+            user_create = models.UserCreate(
+                email=email,
+                name=userinfo.get("name"),
+                avatar_url=userinfo.get("picture", {}).get("data", {}).get("url"),
+                password="random_generated_password",  # OAuth, пароль не нужен
+                privacy="public",
+            )
+            user = await crud.create_user(db, user_create)
+
+        jwt_token = auth.create_access_token(data={"sub": user.email})
+
+        return {"access_token": jwt_token, "token_type": "bearer"}
+    except Exception as e:
+        logging.error("Failed to get token with facebook: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to get token with facebook")
+
+
+@router.post("/register", response_model=schemas.User)
+async def register(
+        user_create: schemas.UserCreate,
+        db: AsyncSession = Depends(get_db)
+):
+    try:
+        db_user = await crud.get_user_by_email(db, email=user_create.email)
+        if db_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
+        user = await crud.create_user(db, user_create)
+        logger.info("user created")
+
+        user = await crud.get_user_by_email(db, user.email)
+        logger.info("got user by email")
+
+        # Генерируем код и сохраняем его
+        code = generate_verification_code()
+        # Сохраняем код в отдельной таблице EmailVerification
+        await crud.create_email_verification(db, user_id=user.id, code=code)
+        logger.info("email verification created")
+
+        # Отправляем письмо с кодом
+        subject = "Код подтверждения регистрации"
+        await send_email_async(to_email=user.email, subject=subject, code=code)
+        logger.info("The email has been sent")
+
+        return user
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error("Failed to register user: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to register user")
+
+
+@router.post("/verify-email")
+async def verify_email(data: schemas.EmailVerificationRequest, db: AsyncSession = Depends(get_db)):
+    """
+    Проверяет код подтверждения email.
+    Если код верный — делает пользователя подтверждённым.
+    """
+    try:
+        # Найти пользователя по email
+        user = await crud.get_user_by_email(db, email=data.email)
+        if not user:
+            raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+        # Найти запись о подтверждении email
+        verification = await crud.get_email_verification(db, user_id=user.id, code=data.code)
+        if not verification:
+            raise HTTPException(status_code=400, detail="Неверный код")
+
+        # Сделать пользователя подтверждённым
+        await crud.mark_user_email_verified(db, user.id)
+
+        # (Необязательно) удалить запись о подтверждении, чтобы код нельзя было использовать повторно
+        await crud.delete_email_verification(db, verification.id)
+
+        return {"detail": "Email успешно подтвержден"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error("Failed to verify email user: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to verify email user")
+
+
+@router.post("/token", response_model=schemas.Token)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    try:
+        user = await crud.get_user_by_email(db, email=form_data.username)
+        if not user or not auth.verify_password(form_data.password, user.hashed_password):
+            raise HTTPException(status_code=401, detail="Incorrect email or password")
+        access_token = auth.create_access_token(data={"sub": user.email})
+        return {"access_token": access_token, "token_type": "bearer", "user_id": user.id}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error("Failed to login user: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to login user")
+
