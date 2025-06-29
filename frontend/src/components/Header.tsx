@@ -43,6 +43,8 @@ const Header = () => {
   const [verificationCode, setVerificationCode] = useState('');
   const [verifyError, setVerifyError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [savedPassword, setSavedPassword] = useState('');
 
 
   const toggleAuthModeHandler = () => {
@@ -113,8 +115,8 @@ const Header = () => {
 	  setIsLoading(true);
 	  try {
 	    const endpoint = authMode === "login"
-	      ? "/api/login"
-	      : "/api/register";
+	      ? "/api/auth/login"
+	      : "/api/auth/register";
 
 	    const response = await fetch(endpoint, {
 	      method: "POST",
@@ -145,6 +147,7 @@ const Header = () => {
 	    // Обработка успешного ответа
 	    if (authMode === "register") {
 	      setEmailForVerify(formData.email);
+	      setSavedPassword(formData.password);
 	      setStep("verify");
 	    } else {
 	      // Логика для успешного входа
@@ -172,7 +175,7 @@ const Header = () => {
 	  setIsLoading(true);
 	  setVerifyError('');
 	  try {
-	    const response = await fetch("/api/verify-email", {
+	    const response = await fetch("/api/auth/verify-email", {
 	      method: "POST",
 	      headers: { "Content-Type": "application/json" },
 	      body: JSON.stringify({
@@ -181,16 +184,38 @@ const Header = () => {
 	      }),
 	    });
 	    if (!response.ok) {
-	      const data = await response.json();
-	      throw new Error(data.detail || "Неверный код");
-	    }
-	    // Код верный — можно автоматически залогинить пользователя или показать успех
-	    // Например:
-	    // setAuthMode('login');
-	    // или сразу залогинить
-	    window.location.reload(); // или любая другая логика
+		  const data = await response.json();
+		  throw new Error(data.detail || "Неверный код");
+		}
+		// Код верный — показываем окно успеха
+		setEmailVerified(true);
+
 	  } catch (err) {
 	    setVerifyError(err.message);
+	  } finally {
+	    setIsLoading(false);
+	  }
+	};
+
+	const handleLoginAfterVerify = async () => {
+	  setIsLoading(true);
+	  try {
+	    const response = await fetch("/api/auth/login", {
+	      method: "POST",
+	      headers: { "Content-Type": "application/json" },
+	      body: JSON.stringify({
+	        email: emailForVerify,
+	        password: savedPassword, // если вы где-то сохраняете пароль пользователя после регистрации
+	      }),
+	    });
+	    if (!response.ok) {
+	      throw new Error("Ошибка входа. Попробуйте вручную.");
+	    }
+	    // например, если используете next-auth:
+	    // signIn("credentials", { email: emailForVerify, password: savedPassword });
+	    window.location.href = "/"; // или куда нужно
+	  } catch (err) {
+	    alert(err.message);
 	  } finally {
 	    setIsLoading(false);
 	  }
@@ -218,7 +243,7 @@ const Header = () => {
 
   const handleGuestLogin = async () => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/guest-register`);
+      const response = await axios.post(`${API_BASE_URL}/auth/guest-register`);
       const { access_token } = response.data;
       localStorage.setItem('access_token', access_token);
       setIsLoggedIn(true);
@@ -534,42 +559,58 @@ const Header = () => {
               </>
             ) : (
               <>
-                <h2 className="text-2xl font-bold mb-6 text-center text-gray-900">
-                  Подтверждение email
-                </h2>
-                <div className="mb-4 text-center text-gray-700">
-                  На электронную почту{" "}
-                  <span className="font-semibold">{emailForVerify}</span> отправлен код.<br />
-                  Введите код из письма для завершения регистрации.
-                </div>
-                <form onSubmit={handleVerify} className="space-y-4">
-                  <div>
-                    <label htmlFor="verificationCode" className="block text-gray-700 font-medium mb-1">
-                      Код из письма
-                    </label>
-                    <input
-                      id="verificationCode"
-                      name="verificationCode"
-                      type="text"
-                      value={verificationCode}
-                      onChange={e => setVerificationCode(e.target.value)}
-                      required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
-                      placeholder="Введите код"
-                    />
-                    {verifyError && (
-                      <p className="text-red-500 text-sm mt-1">{verifyError}</p>
-                    )}
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
-                    disabled={isLoading || !verificationCode}
-                  >
-                    {isLoading ? "..." : "Подтвердить"}
-                  </button>
-                </form>
-              </>
+  {emailVerified ? (
+    <div className="text-center">
+      <h2 className="text-2xl font-bold mb-6 text-green-600">Электронная почта подтверждена!</h2>
+      <p className="mb-4">Теперь вы можете войти на сайт.</p>
+      <button
+        className="py-3 px-6 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
+        onClick={handleLoginAfterVerify}
+      >
+        Войти на сайт
+      </button>
+    </div>
+  ) : (
+    <>
+      <h2 className="text-2xl font-bold mb-6 text-center text-gray-900">
+        Подтверждение email
+      </h2>
+      <div className="mb-4 text-center text-gray-700">
+        На электронную почту{" "}
+        <span className="font-semibold">{emailForVerify}</span> отправлен код.<br />
+        Введите код из письма для завершения регистрации.
+      </div>
+      <form onSubmit={handleVerify} className="space-y-4">
+        <div>
+          <label htmlFor="verificationCode" className="block text-gray-700 font-medium mb-1">
+            Код из письма
+          </label>
+          <input
+            id="verificationCode"
+            name="verificationCode"
+            type="text"
+            value={verificationCode}
+            onChange={e => setVerificationCode(e.target.value)}
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent"
+            placeholder="Введите код"
+          />
+          {verifyError && (
+            <p className="text-red-500 text-sm mt-1">{verifyError}</p>
+          )}
+        </div>
+        <button
+          type="submit"
+          className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
+          disabled={isLoading || !verificationCode}
+        >
+          {isLoading ? "..." : "Подтвердить"}
+        </button>
+      </form>
+    </>
+  )}
+</>
+
             )}
           </div>
         </div>
