@@ -1,6 +1,6 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, STATIC_BASE_URL } from '../config';
 type PrivacySetting = 'public' | 'friends' | 'private';
 
 interface UserProfileData {
@@ -27,6 +27,13 @@ const defaultProfile: UserProfileData = {
   isInfluencer: false,  // по умолчанию false
 };
 
+const getAvatarUrl = (avatarUrl?: string) => {
+  if (!avatarUrl) return '/default-avatar.png';
+  if (avatarUrl.startsWith('http') || avatarUrl.startsWith('https')) {
+    return avatarUrl;
+  }
+  return `${STATIC_BASE_URL}${avatarUrl}`;
+};
 
 const Profile = () => {
   const [profile, setProfile] = useState<UserProfileData>(defaultProfile);
@@ -166,7 +173,7 @@ const Profile = () => {
         <div className="text-center">
           {profile.avatarUrl ? (
             <img
-              src={profile.avatarUrl}
+              src={getAvatarUrl(profile.avatarUrl)}
               alt="Avatar"
               className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
             />
@@ -223,7 +230,7 @@ const Profile = () => {
           <div className="flex flex-col items-center">
             {profile.avatarUrl ? (
               <img
-                src={profile.avatarUrl}
+                src={getAvatarUrl(profile.avatarUrl)}
                 alt="Avatar Preview"
                 className="w-32 h-32 rounded-full object-cover mb-2"
               />
