@@ -52,15 +52,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/uploads",
-          StaticFiles(directory=os.path.join(os.path.dirname(__file__), "uploads")),
-          name="uploads")
-
-UPLOAD_DIR_AVATARS = os.path.join(os.path.dirname(__file__), "uploads", "avatars")
-UPLOAD_DIR_WISHES = os.path.join(os.path.dirname(__file__), "uploads", "wishes")
+UPLOAD_ROOT = "/var/www/wishflick/uploads"
+UPLOAD_DIR_AVATARS = os.path.join(UPLOAD_ROOT, "avatars")
+UPLOAD_DIR_WISHES = os.path.join(UPLOAD_ROOT, "wishes")
 
 os.makedirs(UPLOAD_DIR_AVATARS, exist_ok=True)
 os.makedirs(UPLOAD_DIR_WISHES, exist_ok=True)
+
+app.mount("/uploads", StaticFiles(directory=UPLOAD_ROOT), name="uploads")
 
 
 # Создание таблиц (запускайте один раз)
