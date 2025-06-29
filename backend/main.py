@@ -6,15 +6,11 @@ from fastapi.exceptions import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse
-from httpx import URL
 from sqlalchemy import select, func
 
 import random
 import os
-import uuid
 import logging
-import httpx
 
 from database import Base, engine, get_db
 import models as models
@@ -24,10 +20,6 @@ import auth as auth
 from backend.routers.wishes import router as router_wishes
 from backend.routers.auth import router as router_auth
 
-from backend_conf import (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
-                          GOOGLE_REDIRECT_URI, FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
-                          FACEBOOK_REDIRECT_URI)
-from services.other_helpers import send_email_async
 
 logger = logging.getLogger(__name__)
 
