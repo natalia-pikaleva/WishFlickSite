@@ -17,8 +17,8 @@ import models as models
 import schemas as schemas
 import crud as crud
 import auth as auth
-from backend.routers.wishes import router as router_wishes
-from backend.routers.auth import router as router_auth
+from routers.wishes import router as router_wishes
+from routers.auth import router as router_auth
 
 
 logger = logging.getLogger(__name__)
