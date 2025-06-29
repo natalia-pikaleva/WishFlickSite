@@ -277,113 +277,102 @@ const Header = () => {
   return (
   <>
     <header className="bg-white shadow sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 min-w-0">
-          {/* Логотип */}
-          <Link to="/" className="flex items-center space-x-2 min-w-0">
-            <img
-              src={logo}
-              alt="WishFlick Logo"
-              className="w-32 h-12 object-contain flex-shrink-0"
-            />
-          </Link>
+      <div className="w-full flex justify-center bg-[#FAFAFC] py-4">
+		  <div className="w-full max-w-[1208px] h-[86px] rounded-[47px] shadow-[0_10px_40px_-10px_rgba(40,72,95,0.1)] flex items-center px-6 md:px-10 relative">
+		    {/* Логотип */}
+		    <Link to="/" className="flex items-center min-w-0 mr-4">
+		      <img
+		        src={logo}
+		        alt="WishFlick Logo"
+		        className="w-32 h-12 object-contain flex-shrink-0"
+		      />
+		    </Link>
 
-          {/* Навигация для десктопа */}
-          <nav className="hidden md:flex items-center space-x-6">
-			  <Link
-			    to="/"
-			    className="text-gray-700 hover:text-[#6A49C8] transition-colors"
-			  >
-			    Главная страница
-			  </Link>
-			  <Link
-			    to="/wishlist"
-			    className="text-gray-700 hover:text-[#6A49C8] transition-colors"
-			  >
-			    Список желаний
-			  </Link>
-			  <Link
-			    to="/campaigns"
-			    className="text-gray-700 hover:text-[#6A49C8] transition-colors"
-			  >
-			    Кампании
-			  </Link>
-			  <Link
-			    to="/community"
-			    className="text-gray-700 hover:text-[#6A49C8] transition-colors"
-			  >
-			    Сообщество
-			  </Link>
-			  <Link
-			    to="/influencer-wishlists"
-			    className="text-gray-700 hover:text-[#6A49C8] transition-colors"
-			  >
-			    Списки желаний блогеров
-			  </Link>
-			</nav>
+		    {/* Навигация */}
+		    <nav className="hidden md:flex items-center gap-6 flex-1">
+		      <Link
+		        to="/"
+		        className="font-semibold text-base text-[#16141D] hover:text-[#835FE5] transition-colors"
+		      >
+		        Главная страница
+		      </Link>
+		      <Link
+		        to="/wishlist"
+		        className="font-semibold text-base text-[#1C1C1C] opacity-40 hover:opacity-100 hover:text-[#835FE5] transition"
+		      >
+		        Список желаний
+		      </Link>
+		      <Link
+		        to="/campaigns"
+		        className="font-semibold text-base text-[#1C1C1C] opacity-40 hover:opacity-100 hover:text-[#835FE5] transition"
+		      >
+		        Кампании
+		      </Link>
+		      <Link
+		        to="/community"
+		        className="font-semibold text-base text-[#1C1C1C] opacity-40 hover:opacity-100 hover:text-[#835FE5] transition"
+		      >
+		        Сообщество
+		      </Link>
+		      <Link
+		        to="/influencer-wishlists"
+		        className="font-semibold text-base text-[#1C1C1C] opacity-40 hover:opacity-100 hover:text-[#835FE5] transition"
+		      >
+		        Списки блогеров
+		      </Link>
+		    </nav>
 
+		    {/* Поиск и иконки */}
+		    <div className="flex items-center gap-2 min-w-0 ml-4">
+		      <div className="hidden md:flex relative w-48">
+		        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+		        <input
+		          type="text"
+		          placeholder="Поиск желаний..."
+		          className="pl-10 pr-4 py-2 border border-gray-200 rounded-full w-full focus:ring-2 focus:ring-[#B48DFE] text-sm bg-white"
+		        />
+		      </div>
+		      <button
+		        className="p-2 text-gray-600 hover:text-[#835FE5] transition-colors"
+		        aria-label="Notifications"
+		      >
+		        <Bell className="w-5 h-5" />
+		      </button>
+		      {isLoggedIn ? (
+		        <>
+		          <Link to="/profile" aria-label="Go to profile">
+		            <img
+		              src={userAvatar}
+		              alt="User avatar"
+		              className="w-8 h-8 rounded-full object-cover border-2 border-[#B48DFE]"
+		            />
+		          </Link>
+		          <button
+		            onClick={handleLogout}
+		            className="ml-2 px-4 py-1 rounded-full font-semibold text-white bg-gradient-to-r from-[#6A49C8] to-[#B48DFE] shadow-md hover:from-[#B48DFE] hover:to-[#6A49C8] transition-all duration-200 text-sm"
+		          >
+		            Logout
+		          </button>
+		        </>
+		      ) : (
+		        <button
+		          className="px-4 py-2 bg-black/5 rounded-full font-bold text-[#16141D] opacity-60 hover:opacity-100 transition"
+		          onClick={() => openAuthModal("login")}
+		        >
+		          Войти
+		        </button>
+		      )}
+		      {/* Кнопка меню для мобильных */}
+		      <button
+		        className="md:hidden p-2 text-gray-600"
+		        onClick={() => setIsMenuOpen(!isMenuOpen)}
+		        aria-label="Toggle menu"
+		      >
+		        {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+		      </button>
+		    </div>
+		  </div>
 
-          {/* Поиск и иконки */}
-          <div className="flex items-center space-x-2 min-w-0">
-            {/* Поиск для десктопа */}
-            <div className="hidden md:flex relative w-48">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Поиск желаний..."
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-[#B48DFE] focus:border-transparent text-sm"
-              />
-            </div>
-
-            {/* Уведомления */}
-            <button
-              className="p-2 text-gray-600 hover:text-[#6A49C8] transition-colors flex-shrink-0"
-              aria-label="Notifications"
-            >
-              <Bell className="w-5 h-5" />
-            </button>
-
-            {/* Профиль или кнопка входа */}
-            {isLoggedIn ? (
-              <>
-                <Link
-                  to="/profile"
-                  aria-label="Go to profile"
-                  className="flex-shrink-0"
-                >
-                  <img
-                    src={userAvatar}
-                    alt="User avatar"
-                    className="w-8 h-8 rounded-full object-cover border-2 border-[#B48DFE]"
-                  />
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="ml-2 px-4 py-1 rounded-full font-semibold text-white bg-gradient-to-r from-[#6A49C8] to-[#B48DFE] shadow-md hover:from-[#B48DFE] hover:to-[#6A49C8] transition-all duration-200 whitespace-nowrap text-sm"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <button
-                className="p-2 text-gray-600 hover:text-[#6A49C8] transition-colors flex-shrink-0"
-                onClick={() => openAuthModal("login")}
-                aria-label="Open login/register form"
-              >
-                <User className="w-5 h-5" />
-              </button>
-            )}
-
-            {/* Кнопка меню для мобильных */}
-            <button
-              className="md:hidden p-2 text-gray-600 flex-shrink-0"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
 
         {/* Мобильное меню */}
         {isMenuOpen && (
