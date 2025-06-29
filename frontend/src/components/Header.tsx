@@ -197,15 +197,15 @@ const Header = () => {
 		  const data = await response.json();
 		  throw new Error(data.detail || "Неверный код");
 		}
-		// Код верный — показываем окно успеха
+		// Код верный — теперь логиним пользователя автоматически!
+        await handleLoginAfterVerify();
 		setEmailVerified(true);
-
-	  } catch (err) {
-	    setVerifyError(err.message);
-	  } finally {
-	    setIsLoading(false);
-	  }
-	};
+		  } catch (err) {
+		    setVerifyError(err.message);
+		  } finally {
+		    setIsLoading(false);
+		  }
+		};
 
 	const handleLoginAfterVerify = async () => {
 	  setIsLoading(true);
@@ -222,13 +222,14 @@ const Header = () => {
 	    if (!response.ok) {
 	      throw new Error("Ошибка входа. Попробуйте вручную.");
 	    }
-	    // например, если используете next-auth:
-	    // signIn("credentials", { email: emailForVerify, password: savedPassword });
-	    window.location.href = "/"; // или куда нужно
+	    const data = await response.json();
+	    localStorage.setItem('access_token', data.access_token);
+	    setIsLoggedIn(true);
+	    closeAuthModal();
+	    await fetchUserProfile(data.access_token);
+	    // window.location.href = "/"  // если нужно редиректить на главную
 	  } catch (err) {
 	    alert(err.message);
-	  } finally {
-	    setIsLoading(false);
 	  }
 	};
 
@@ -412,14 +413,14 @@ const Header = () => {
     {/* Модальное окно авторизации/регистрации */}
       {isAuthOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md mx-4 relative">
-            <button
-              onClick={handleClose}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-              aria-label="Close form"
-            >
-              <X className="w-6 h-6" />
-            </button>
+		  <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md mx-4 relative max-h-[80vh] overflow-y-auto">
+		    <button
+		      onClick={handleClose}
+		      className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+		      aria-label="Close form"
+		    >
+		      <X className="w-6 h-6" />
+		    </button>
 
             {step === "register" ? (
               <>
