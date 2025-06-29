@@ -1,6 +1,13 @@
 import aiosmtplib
+import logging
+import ssl
+import certifi
+
+
 from email.message import EmailMessage
 from config import EMAIL_YANDEX_PASSWORD
+
+logger = logging.getLogger(__name__)
 
 
 def make_html_email(code):
@@ -24,6 +31,8 @@ def make_html_email(code):
 
 
 async def send_email_async(to_email: str, subject: str, code: str):
+    logger.error("start send_email_async")
+
     message = EmailMessage()
     message["From"] = "WishFlick <deva032006@yandex.ru>"
     message["To"] = to_email
@@ -37,6 +46,8 @@ async def send_email_async(to_email: str, subject: str, code: str):
     html_body = make_html_email(code)
     message.add_alternative(html_body, subtype="html")
 
+    ssl_context = ssl.create_default_context(cafile=certifi.where())
+
     await aiosmtplib.send(
         message,
         hostname="smtp.yandex.ru",
@@ -44,4 +55,5 @@ async def send_email_async(to_email: str, subject: str, code: str):
         username="deva032006@yandex.ru",
         password=EMAIL_YANDEX_PASSWORD,
         start_tls=True,
+        tls_context=ssl_context,
     )

@@ -86,16 +86,21 @@ async def register(
         if db_user:
             raise HTTPException(status_code=400, detail="Email already registered")
         user = await crud.create_user(db, user_create)
+        logger.info("user created")
+
         user = await crud.get_user_by_email(db, user.email)
+        logger.info("got user by email")
 
         # Генерируем код и сохраняем его
         code = generate_verification_code()
         # Сохраняем код в отдельной таблице EmailVerification
         await crud.create_email_verification(db, user_id=user.id, code=code)
+        logger.info("email verification created")
 
         # Отправляем письмо с кодом
         subject = "Код подтверждения регистрации"
         await send_email_async(to_email=user.email, subject=subject, code=code)
+        logger.info("The email has been sent")
 
         return user
     except HTTPException:

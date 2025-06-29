@@ -6,6 +6,7 @@ from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 from datetime import datetime, timedelta, timezone
+import logging
 
 import shutil
 import os
@@ -15,8 +16,12 @@ from models import (User, Wish, Comment, Activity, ActivityType, Like,
 from auth import get_password_hash
 import schemas as schemas
 
+logger = logging.getLogger(__name__)
+
 
 async def get_user_by_email(db: AsyncSession, email: str):
+    logger.info("start get_user_by_email")
+
     result = await db.execute(
         select(User)
         .options(selectinload(User.wishes))  # загружаем wishes заранее
@@ -27,6 +32,7 @@ async def get_user_by_email(db: AsyncSession, email: str):
 
 
 async def create_user(db: AsyncSession, user_create):
+    logger.info("start create_user")
     hashed_password = get_password_hash(user_create.password)
     db_user = User(
         email=user_create.email,
@@ -35,13 +41,14 @@ async def create_user(db: AsyncSession, user_create):
         avatar_url=user_create.avatar_url,
         description=user_create.description,
         privacy=user_create.privacy,
-        social_facebook=user_create.social_facebook,
-        social_twitter=user_create.social_twitter,
-        social_instagram=user_create.social_instagram,
+        social_facebook=str(user_create.social_facebook) if user_create.social_facebook else None,
+        social_twitter=str(user_create.social_twitter) if user_create.social_twitter else None,
+        social_instagram=str(user_create.social_instagram) if user_create.social_instagram else None,
     )
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)
+
     return db_user
 
 
@@ -278,6 +285,8 @@ async def update_wish(db: AsyncSession, db_wish: Wish, wish_update: schemas.Wish
 
 
 async def create_email_verification(db: AsyncSession, user_id: int, code: str):
+    logger.info("start create_email_verification")
+
     verification = EmailVerification(user_id=user_id, code=code)
     db.add(verification)
     await db.commit()
