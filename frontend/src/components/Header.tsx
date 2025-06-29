@@ -375,27 +375,44 @@ const Header = () => {
 
 
         {/* Мобильное меню */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200">
-            <div className="flex flex-col space-y-4">
-              <Link to="/" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={() => setIsMenuOpen(false)}>
-                Главная страница
-              </Link>
-              <Link to="/wishlist" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={() => setIsMenuOpen(false)}>
-                Список желаний
-              </Link>
-              <Link to="/campaigns" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={() => setIsMenuOpen(false)}>
-                Кампании
-              </Link>
-              <Link to="/community" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={() => setIsMenuOpen(false)}>
-                Сообщество
-              </Link>
-              <Link to="/influencer-wishlists" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={() => setIsMenuOpen(false)}>
-                Списки желаний блогеров
-              </Link>
-            </div>
-          </div>
-        )}
+		{isMenuOpen && (
+		  <div className="fixed inset-0 z-50 flex">
+		    {/* Затемнение фона */}
+		    <div
+		      className="fixed inset-0 bg-black bg-opacity-40"
+		      onClick={() => setIsMenuOpen(false)}
+		      aria-hidden="true"
+		    />
+		    {/* Само меню */}
+		    <div className="relative w-64 bg-white h-full shadow-lg flex flex-col p-6">
+		      <button
+		        className="absolute top-4 right-4 text-gray-600"
+		        onClick={() => setIsMenuOpen(false)}
+		        aria-label="Закрыть меню"
+		      >
+		        <X className="w-6 h-6" />
+		      </button>
+		      <nav className="mt-10 flex flex-col space-y-4">
+		        <Link to="/" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={() => setIsMenuOpen(false)}>
+		          Главная страница
+		        </Link>
+		        <Link to="/wishlist" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={() => setIsMenuOpen(false)}>
+		          Список желаний
+		        </Link>
+		        <Link to="/campaigns" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={() => setIsMenuOpen(false)}>
+		          Кампании
+		        </Link>
+		        <Link to="/community" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={() => setIsMenuOpen(false)}>
+		          Сообщество
+		        </Link>
+		        <Link to="/influencer-wishlists" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={() => setIsMenuOpen(false)}>
+		          Списки желаний блогеров
+		        </Link>
+		      </nav>
+		    </div>
+		  </div>
+		)}
+
       </div>
     </header>
 
