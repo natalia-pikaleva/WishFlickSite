@@ -114,22 +114,31 @@ const Header = () => {
 
 	  setIsLoading(true);
 	  try {
-	    const endpoint = authMode === "login"
-	      ? "/api/auth/login"
-	      : "/api/auth/register";
+	    let response;
+	    if (authMode === "login") {
+	      // Для логина отправляем form-data с username и password
+	      const loginForm = new URLSearchParams();
+	      loginForm.append("username", formData.email);
+	      loginForm.append("password", formData.password);
 
-	    const response = await fetch(endpoint, {
-	      method: "POST",
-	      headers: { "Content-Type": "application/json" },
-	      body: JSON.stringify({
-	        email: formData.email,
-	        password: formData.password,
-	        ...(authMode === "register" && {
+	      response = await fetch("/api/auth/token", {
+	        method: "POST",
+	        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+	        body: loginForm,
+	      });
+	    } else {
+	      // Для регистрации отправляем JSON
+	      response = await fetch("/api/auth/register", {
+	        method: "POST",
+	        headers: { "Content-Type": "application/json" },
+	        body: JSON.stringify({
+	          email: formData.email,
+	          password: formData.password,
 	          name: formData.name,
 	          privacy: formData.privacy
-	        })
-	      }),
-	    });
+	        }),
+	      });
+	    }
 
 	    if (!response.ok) {
 	      const data = await response.json();
@@ -170,6 +179,7 @@ const Header = () => {
 	};
 
 
+
   const handleVerify = async (e) => {
 	  e.preventDefault();
 	  setIsLoading(true);
@@ -200,14 +210,15 @@ const Header = () => {
 	const handleLoginAfterVerify = async () => {
 	  setIsLoading(true);
 	  try {
-	    const response = await fetch("/api/auth/login", {
-	      method: "POST",
-	      headers: { "Content-Type": "application/json" },
-	      body: JSON.stringify({
-	        email: emailForVerify,
-	        password: savedPassword, // если вы где-то сохраняете пароль пользователя после регистрации
-	      }),
-	    });
+	    const loginForm = new URLSearchParams();
+			loginForm.append("username", emailForVerify);
+			loginForm.append("password", savedPassword);
+
+			const response = await fetch("/api/auth/token", {
+			  method: "POST",
+			  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+			  body: loginForm,
+			});
 	    if (!response.ok) {
 	      throw new Error("Ошибка входа. Попробуйте вручную.");
 	    }
