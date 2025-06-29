@@ -30,7 +30,7 @@ const getAvatarUrl = (avatarUrl?: string) => {
   if (avatarUrl.startsWith('http') || avatarUrl.startsWith('https')) {
     return avatarUrl;
   }
-  return `${STATIC_BASE_URL}${avatarUrl}`;  // <-- используем STATIC_BASE_URL без /api
+  return `${STATIC_BASE_URL}${avatarUrl}`;  //
 };
 
 
