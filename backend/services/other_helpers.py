@@ -35,7 +35,7 @@ async def send_email_async(to_email: str, subject: str, code: str):
 
     try:
         message = EmailMessage()
-        message["From"] = "WishFlick <nfo@wishflick.ru>"
+        message["From"] = "WishFlick <info@wishflick.ru>"
         message["To"] = to_email
         message["Subject"] = subject
 
