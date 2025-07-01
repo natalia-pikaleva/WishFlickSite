@@ -309,94 +309,71 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         raise HTTPException(status_code=500, detail="Failed to login user")
 
 
-@router.post("/vk", response_model=schemas.Token)
-async def vk_auth(
-        vk_auth_request: schemas.VKAuthRequest,
-        db: AsyncSession = Depends(get_db)
-):
-    """
-    Обрабатывает код авторизации от ВКонтакте, получает access_token,
-    регистрирует или авторизует пользователя.
-    """
-    if not VK_CLIENT_ID or not VK_CLIENT_SECRET or not VK_REDIRECT_URI:
-        raise HTTPException(status_code=500, detail="VK API credentials not configured")
+@router.get("/auth/vk/callback")
+async def vk_callback(code: str = Query(...), db: AsyncSession = Depends(get_db)):
+    if not code:
+        raise HTTPException(status_code=400, detail="Code is required")
 
     try:
         # Обмен кода на access_token
-        token_response = requests.get(
-            "https://oauth.vk.com/access_token",
-            params={
-                "client_id": VK_CLIENT_ID,
-                "client_secret": VK_CLIENT_SECRET,
-                "redirect_uri": VK_REDIRECT_URI,
-                "code": vk_auth_request.code,
-            }
-        ).json()
+        async with httpx.AsyncClient() as client:
+            token_resp = await client.get(
+                "https://oauth.vk.com/access_token",
+                params={
+                    "client_id": VK_CLIENT_ID,
+                    "client_secret": VK_CLIENT_SECRET,
+                    "redirect_uri": VK_REDIRECT_URI,
+                    "code": code,
+                },
+            )
+            token_data = token_resp.json()
 
-        logger.info(f"VK token response: {token_response}")
-
-        access_token = token_response.get("access_token")
-        vk_user_id = token_response.get("user_id")
-        email = token_response.get("email")
+        access_token = token_data.get("access_token")
+        vk_user_id = token_data.get("user_id")
+        email = token_data.get("email")
 
         if not access_token or not vk_user_id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=token_response.get("error_description", "Failed to get access token from VK")
+            raise HTTPException(status_code=400,
+                                detail=token_data.get("error_description", "Failed to get access token"))
+
+        # Получение данных пользователя
+        async with httpx.AsyncClient() as client:
+            user_resp = await client.get(
+                "https://api.vk.com/method/users.get",
+                params={
+                    "user_ids": vk_user_id,
+                    "fields": "photo_100,first_name,last_name",
+                    "access_token": access_token,
+                    "v": "5.131",
+                },
             )
+            user_data = user_resp.json()
 
-        # Получаем дополнительные данные пользователя (например, имя и аватар)
-        user_info_response = requests.get(
-            "https://api.vk.com/method/users.get",
-            params={
-                "user_ids": vk_user_id,
-                "fields": "photo_100,first_name,last_name",
-                "access_token": access_token,
-                "v": "5.131"
-            }
-        ).json()
-
-        logger.info(f"VK user info response: {user_info_response}")
-
-        vk_user_data = user_info_response.get("response", [{}])[0]
+        vk_user_data = user_data.get("response", [{}])[0]
         name = f"{vk_user_data.get('first_name', '')} {vk_user_data.get('last_name', '')}".strip()
         avatar_url = vk_user_data.get("photo_100")
 
-        # Ищем пользователя по vk_id
+        # Поиск/создание пользователя в БД (ваша логика)
         user = await crud.get_user_by_vk_id(db, vk_user_id)
-
         if user:
-            # Обновим email, если он изменился
             if email and user.email != email:
                 user.email = email
                 await db.commit()
                 await db.refresh(user)
         else:
-            # Если пользователя с таким vk_id нет, ищем по email
             user = await crud.get_user_by_email(db, email=email)
             if user:
-                # Связываем vk_id с существующим пользователем
                 user = await crud.link_vk_to_user(db, user.id, vk_user_id)
             else:
-                # Создаём нового пользователя
                 user = await crud.create_user_from_vk(db, email=email, vk_id=vk_user_id, name=name,
                                                       avatar_url=avatar_url)
 
-        # Создаём JWT токен
-        access_token_jwt = auth.create_access_token(data={"sub": user.email})
+        # Создаём JWT
+        jwt_token = auth.create_access_token(data={"sub": user.email})
 
-        return {"access_token": access_token_jwt, "token_type": "bearer"}
+        # Редирект на фронтенд с токеном (лучше в cookie, но можно и в URL)
+        frontend_url = f"https://wishflick.ru/auth/vk/callback?token={jwt_token}"
+        return RedirectResponse(frontend_url)
 
-    except requests.RequestException as e:
-        logger.error(f"VK API connection error: {e}")
-        raise HTTPException(status_code=502, detail="Failed to connect to VK API")
     except Exception as e:
-        logger.error(f"VK auth error: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="VK authentication failed")
-
-
-@router.get("/auth/vk/callback")
-async def vk_callback(code: str = Query(...)):
-    # Перенаправляем пользователя на фронтенд с кодом
-    frontend_url = f"https://wishflick.ru/auth/vk/callback?code={code}"
-    return RedirectResponse(url=frontend_url)
+        raise HTTPException(status_code=500, detail=str(e))
