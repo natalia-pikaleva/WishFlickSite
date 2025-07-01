@@ -6,6 +6,7 @@ import { useAuthModal } from '../contexts/AuthModalContext';
 import logo from '../assets/logo.jpg';
 import { API_BASE_URL, VK_CLIENT_ID, VK_REDIRECT_URI } from '../config';
 import { Link, useNavigate } from 'react-router-dom';
+import { generateCodeVerifier, generateCodeChallenge } from './utils/pkce';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -273,11 +274,30 @@ const Header = () => {
     navigate('/profile');
   };
 
-  const VK_AUTH_URL = `https://oauth.vk.com/authorize?client_id=${VK_CLIENT_ID}&redirect_uri=${encodeURIComponent(VK_REDIRECT_URI)}&scope=email&response_type=code&v=5.131`;
 
-  const handleVKLogin = () => {
-    window.location.href = VK_AUTH_URL;
-  };
+	const handleVKLogin = async () => {
+	  const codeVerifier = generateCodeVerifier();
+	  const state = generateCodeVerifier(32);
+
+	  sessionStorage.setItem('code_verifier', codeVerifier);
+	  sessionStorage.setItem('state', state);
+
+	  const codeChallenge = await generateCodeChallenge(codeVerifier);
+
+	  const params = new URLSearchParams({
+	    response_type: 'code',
+	    client_id: VK_CLIENT_ID,
+	    redirect_uri: VK_REDIRECT_URI,
+	    scope: 'email',
+	    state: state,
+	    code_challenge: codeChallenge,
+	    code_challenge_method: 'S256',
+	    v: '5.131',
+	  });
+
+	  window.location.href = `https://id.vk.com/authorize?${params.toString()}`;
+	};
+
 
   return (
   <>
