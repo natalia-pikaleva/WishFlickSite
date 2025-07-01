@@ -1,6 +1,5 @@
 from fastapi import (FastAPI, Request, Depends, UploadFile, File,
                      Form, status)
-from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,10 +14,9 @@ import logging
 from database import Base, engine, get_db
 import models as models
 import schemas as schemas
-import crud as crud
-import auth as auth
-from routers.wishes import router as router_wishes
-from routers.auth import router as router_auth
+from services import auth as auth, crud as crud
+from routers.wishes_router import router as router_wishes
+from routers.auth_router import router as router_auth
 
 
 logger = logging.getLogger(__name__)

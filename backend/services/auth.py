@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_db
 from models import User
-import crud as crud
+import services.crud as crud
 
 # TODO прописать получение секретного ключа из переменных окружения
 SECRET_KEY = "your-secret-key"  # Замените на свой секрет

@@ -14,7 +14,7 @@ from database import get_db
 import models as models
 import schemas as schemas
 import crud as crud
-import auth as auth
+import auth_router as auth
 from backend_conf import API_URL
 
 logger = logging.getLogger(__name__)

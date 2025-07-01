@@ -14,7 +14,7 @@ from database import Base, engine, get_db
 import models as models
 import schemas as schemas
 import crud as crud
-import auth as auth
+import auth_router as auth
 from backend_conf import (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
                           GOOGLE_REDIRECT_URI, FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
                           FACEBOOK_REDIRECT_URI)
