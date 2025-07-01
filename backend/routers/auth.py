@@ -318,7 +318,7 @@ async def vk_callback(
     return RedirectResponse(frontend_url)
 
 
-@router.post("/auth/vk")
+@router.post("/vk")
 async def vk_auth(
         vk_auth_request: schemas.VKAuthRequest,
         db: AsyncSession = Depends(get_db)
