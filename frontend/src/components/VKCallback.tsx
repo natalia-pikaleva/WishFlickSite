@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { API_BASE_URL } from "./config";
+import { API_BASE_URL } from "../config";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
