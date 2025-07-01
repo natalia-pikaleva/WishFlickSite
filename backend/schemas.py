@@ -226,3 +226,7 @@ class WishUpdate(BaseModel):
 class EmailVerificationRequest(BaseModel):
     email: EmailStr
     code: str
+
+
+class VKAuthRequest(BaseModel):
+    code: str

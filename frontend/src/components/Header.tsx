@@ -4,7 +4,7 @@ import { Heart, Search, Bell, User, Menu, X } from 'lucide-react';
 import { useAuthModal } from '../contexts/AuthModalContext';
 {/*import FacebookLoginButton from './FacebookLoginButton';*/}
 import logo from '../assets/logo.jpg';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, VK_CLIENT_ID, VK_REDIRECT_URI } from '../config';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Header = () => {
@@ -273,6 +273,12 @@ const Header = () => {
     navigate('/profile');
   };
 
+  const VK_AUTH_URL = `https://oauth.vk.com/authorize?client_id=${VK_CLIENT_ID}&redirect_uri=${encodeURIComponent(VK_REDIRECT_URI)}&scope=email&response_type=code&v=5.131`;
+
+  function OAuthButtons() {
+    const handleVKLogin = () => {
+	    window.location.href = VK_AUTH_URL; // Перенаправляем пользователя на VK для авторизации
+	  };
 
   return (
   <>
@@ -565,6 +571,16 @@ const Header = () => {
                   >
                     Продолжить с Google (Fake)
                   </button>
+
+                  {/* Кнопка ВКонтакте */}
+			      <button
+			        type="button"
+			        onClick={handleVKLogin}
+			        className="w-full py-3 bg-gradient-to-r from-[#4C75A3] to-[#2B587A] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
+			      >
+			        Войти через ВКонтакте
+			      </button>
+
                   {/* <FacebookLoginButton /> */}
                   <button
                     type="button"
