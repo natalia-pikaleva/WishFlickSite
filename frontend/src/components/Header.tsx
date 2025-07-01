@@ -275,11 +275,9 @@ const Header = () => {
 
   const VK_AUTH_URL = `https://oauth.vk.com/authorize?client_id=${VK_CLIENT_ID}&redirect_uri=${encodeURIComponent(VK_REDIRECT_URI)}&scope=email&response_type=code&v=5.131`;
 
-  function OAuthButtons() {
-    const handleVKLogin = () => {
-	    window.location.href = VK_AUTH_URL; // Перенаправляем пользователя на VK для авторизации
-	  };
-    };
+  const handleVKLogin = () => {
+    window.location.href = VK_AUTH_URL;
+  };
 
   return (
   <>
