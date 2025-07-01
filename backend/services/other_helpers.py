@@ -52,7 +52,7 @@ async def send_email_async(to_email: str, subject: str, code: str):
         await aiosmtplib.send(
             message,
             hostname="smtp.beget.com",
-            port=587,
+            port=2525,
             username="info@wishflick.ru",
             password=EMAIL_BEGET_PASSWORD,
             start_tls=True,
