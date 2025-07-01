@@ -3,5 +3,5 @@
 export const API_BASE_URL = 'https://wishflick.ru/api';
 export const STATIC_BASE_URL = "https://wishflick.ru";
 export const VK_CLIENT_ID = "53840991";
-export const VK_REDIRECT_URI = "https://wishflick.ru/auth/vk/callback";
+export const VK_REDIRECT_URI = "https://wishflick.ru/api/auth/vk/callback";
 
