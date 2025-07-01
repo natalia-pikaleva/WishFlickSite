@@ -309,7 +309,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         raise HTTPException(status_code=500, detail="Failed to login user")
 
 
-@router.get("/auth/vk/callback")
+@router.get("/vk/callback")
 async def vk_callback(code: str = Query(...), db: AsyncSession = Depends(get_db)):
     if not code:
         raise HTTPException(status_code=400, detail="Code is required")
