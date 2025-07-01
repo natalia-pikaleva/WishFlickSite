@@ -231,4 +231,4 @@ class EmailVerificationRequest(BaseModel):
 class VKAuthRequest(BaseModel):
     code: str
     code_verifier: str
-    device_id: str
+    device_id: Optional[str]
