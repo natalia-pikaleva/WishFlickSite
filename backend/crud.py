@@ -4,9 +4,9 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload, joinedload
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
-from typing import List, Optional
-from datetime import datetime, timedelta, timezone
+from typing import Optional
 import logging
+import secrets
 
 import shutil
 import os
@@ -324,3 +324,42 @@ async def delete_email_verification(db, verification_id: int):
     if verification:
         await db.delete(verification)
         await db.commit()
+
+
+async def get_user_by_vk_id(db: AsyncSession, vk_id: int) -> User | None:
+    result = await db.execute(select(User).filter(User.vk_id == vk_id))
+    return result.scalars().first()
+
+
+async def create_user_from_vk(
+        db: AsyncSession,
+        email: str,
+        vk_id: int,
+        name: Optional[str] = None,
+        avatar_url: Optional[str] = None
+) -> User:
+    # Для пользователей ВК пароль не обязателен, но в вашей модели hashed_password не nullable,
+    # поэтому можно сгенерировать случайный пароль или заглушку
+    fake_password = secrets.token_urlsafe(16)
+
+    user = User(
+        email=email,
+        vk_id=vk_id,
+        name=name,
+        avatar_url=avatar_url,
+        hashed_password=get_password_hash(fake_password),
+        is_verified=True  # считаем email подтверждённым через ВК
+    )
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+async def link_vk_to_user(db: AsyncSession, user_id: int, vk_id: int) -> User:
+    user = await db.get(User, user_id)
+    if user:
+        user.vk_id = vk_id
+        await db.commit()
+        await db.refresh(user)
+    return user

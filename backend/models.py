@@ -1,5 +1,5 @@
 from sqlalchemy import (Column, Integer, String, Text, Enum, ForeignKey, Float,
-                        DateTime, UniqueConstraint, func, Boolean)
+                        DateTime, UniqueConstraint, func, Boolean, BigInteger)
 from sqlalchemy.orm import relationship
 from database import Base
 from enum import Enum as PyEnum
@@ -27,6 +27,7 @@ class User(Base):
     privacy = Column(SqlEnum(PrivacyEnum, name="privacyenum"),
                      default=PrivacyEnum.public, nullable=False)
     is_influencer = Column(Boolean, default=False)
+    vk_id = Column(BigInteger, unique=True, nullable=True, index=True)
 
     social_facebook = Column(String, nullable=True)
     social_twitter = Column(String, nullable=True)
