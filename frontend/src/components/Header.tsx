@@ -279,6 +279,7 @@ const Header = () => {
     const handleVKLogin = () => {
 	    window.location.href = VK_AUTH_URL; // Перенаправляем пользователя на VK для авторизации
 	  };
+    };
 
   return (
   <>
