@@ -13,7 +13,7 @@ import os
 import uuid
 from models import (User, Wish, Comment, Activity, ActivityType, Like,
                     ActivityLike, EmailVerification)
-from auth import get_password_hash
+from services.auth import get_password_hash
 import schemas as schemas
 
 logger = logging.getLogger(__name__)
