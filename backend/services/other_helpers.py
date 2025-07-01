@@ -2,10 +2,10 @@ import aiosmtplib
 import logging
 import ssl
 import certifi
-
+from fastapi.exceptions import HTTPException
 
 from email.message import EmailMessage
-from config import EMAIL_YANDEX_PASSWORD
+from config import EMAIL_BEGET_PASSWORD
 
 logger = logging.getLogger(__name__)
 
@@ -33,27 +33,31 @@ def make_html_email(code):
 async def send_email_async(to_email: str, subject: str, code: str):
     logger.error("start send_email_async")
 
-    message = EmailMessage()
-    message["From"] = "WishFlick <deva032006@yandex.ru>"
-    message["To"] = to_email
-    message["Subject"] = subject
+    try:
+        message = EmailMessage()
+        message["From"] = "WishFlick <deva032006@yandex.ru>"
+        message["To"] = to_email
+        message["Subject"] = subject
 
-    # Текстовая версия (на всякий случай)
-    text_body = f"Здравствуйте!\n\nВаш код подтверждения: {code}\n\nВведите его на сайте для завершения регистрации."
-    message.set_content(text_body)
+        # Текстовая версия (на всякий случай)
+        text_body = f"Здравствуйте!\n\nВаш код подтверждения: {code}\n\nВведите его на сайте для завершения регистрации."
+        message.set_content(text_body)
 
-    # HTML-версия
-    html_body = make_html_email(code)
-    message.add_alternative(html_body, subtype="html")
+        # HTML-версия
+        html_body = make_html_email(code)
+        message.add_alternative(html_body, subtype="html")
 
-    ssl_context = ssl.create_default_context(cafile=certifi.where())
+        ssl_context = ssl.create_default_context(cafile=certifi.where())
 
-    await aiosmtplib.send(
-        message,
-        hostname="smtp.yandex.ru",
-        port=587,
-        username="deva032006@yandex.ru",
-        password=EMAIL_YANDEX_PASSWORD,
-        start_tls=True,
-        tls_context=ssl_context,
-    )
+        await aiosmtplib.send(
+            message,
+            hostname="smtp.beget.com",
+            port=587,
+            username="info@wishflick.ru",
+            password=EMAIL_BEGET_PASSWORD,
+            start_tls=True,
+            tls_context=ssl_context,
+        )
+    except Exception as e:
+        logging.error("Failed to send message for verification email: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to send message for verification email")
