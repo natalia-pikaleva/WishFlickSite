@@ -5,9 +5,10 @@ from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
 from database import get_db
 from models import User
-import services.crud as crud
 
 # TODO прописать получение секретного ключа из переменных окружения
 SECRET_KEY = "your-secret-key"  # Замените на свой секрет
@@ -17,17 +18,21 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 1 день
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
+
 def get_password_hash(password):
     return pwd_context.hash(password)
+
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)) -> User:
     credentials_exception = HTTPException(
@@ -42,7 +47,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    user = await crud.get_user_by_email(db, email=email)
+    result = await db.execute(
+        select(User)
+        .options(selectinload(User.wishes))
+        .filter(User.email == email)
+    )
+
+    user = result.scalars().first()
     if user is None:
         raise credentials_exception
     return user
