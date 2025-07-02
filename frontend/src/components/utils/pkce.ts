@@ -16,3 +16,4 @@ export async function generateCodeChallenge(codeVerifier: string): Promise<strin
     .replace(/\//g, '_')
     .replace(/=+$/, '');
 }
+
