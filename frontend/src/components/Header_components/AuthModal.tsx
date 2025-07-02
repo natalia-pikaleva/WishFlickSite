@@ -101,8 +101,39 @@ export default function AuthModal({
         {step === 'register' ? (
           <>
             <h2 className="text-2xl font-bold mb-6 text-center text-gray-900">
-              {authMode === 'login' ? 'Авторизация' : 'Регистрация'}
+              {authMode === 'login' ? 'Авторизация' : 'Создайте аккаунт'}
             </h2>
+            <h3 className="text-2xl mb-6 text-center text-gray-900">
+              Присоединяйтесь к сообществу мечтателей
+            </h3>
+            <div className="mt-4 flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={handleFakeGoogleLogin}
+                className="w-full py-3 bg-white text-black rounded-lg font-semibold hover:shadow-lg transition-shadow duration-300"
+              >
+                Продолжить с Google
+              </button>
+
+              {/* Виджет ВКонтакте
+              <VkAuthWidget isAuthOpen={true} />*/}
+              <button
+                type="button"
+                onClick={() => alert('Функция пока не реализована')}
+                className="w-full py-3 bg-white text-black rounded-lg font-semibold hover:shadow-lg transition-shadow duration-300"
+              >
+                Продолжить с ВКонтакте
+              </button>
+
+              <button
+                type="button"
+                onClick={handleGuestLogin}
+                className="w-full py-3 bg-white text-black rounded-lg font-semibold hover:shadow-lg transition-shadow duration-300"
+              >
+                Гостевой режим
+              </button>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
               <div>
                 <label htmlFor="email" className="block text-gray-700 font-medium mb-1">
@@ -220,27 +251,6 @@ export default function AuthModal({
               </button>
             </p>
 
-            <div className="mt-6 text-center text-gray-600">Или продолжить</div>
-            <div className="mt-4 flex flex-col gap-3">
-              <button
-                type="button"
-                onClick={handleFakeGoogleLogin}
-                className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
-              >
-                Продолжить с Google (Fake)
-              </button>
-
-              {/* Виджет ВКонтакте */}
-              <VkAuthWidget isAuthOpen={true} />
-
-              <button
-                type="button"
-                onClick={handleGuestLogin}
-                className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
-              >
-                Войти как гость
-              </button>
-            </div>
           </>
         ) : (
           <>
