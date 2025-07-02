@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { generateCodeVerifier, generateCodeChallenge } from './utils/pkce';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -18,6 +19,9 @@ import Profile from './pages/Profile';
 import OAuthCallback from "./pages/OAuthCallback";
 import WishDetails from './pages/WishDetails';
 import PublicInfluencerWishlists from './pages/PublicInfluencerWishlists';
+
+import * as VKID from '@vkid/sdk';
+import { VK_CLIENT_ID, VK_REDIRECT_URI } from './config';
 
 function Home() {
   return (
@@ -40,6 +44,22 @@ function Home() {
 }
 
 function App() {
+
+  useEffect(() => {
+    (async () => {
+      const verifier = generateCodeVerifier();
+      const challenge = await generateCodeChallenge(verifier);
+      localStorage.setItem("vk_code_verifier", verifier);
+
+      VKID.Config.set({
+        app_id: VK_CLIENT_ID,
+        redirect_uri: VK_REDIRECT_URI,
+        code_challenge: challenge,
+        code_challenge_method: 'S256',
+      });
+    })();
+  }, []);
+
   return (
     <AuthModalProvider>
       <Router>
