@@ -17,9 +17,11 @@ import schemas as schemas
 from services import auth as auth, crud as crud
 from routers.wishes_router import router as router_wishes
 from routers.auth_router import router as router_auth
-
+from config import LOGGING_CONFIG
+import logging.config
 
 logger = logging.getLogger(__name__)
+logging.config.dictConfig(LOGGING_CONFIG)
 
 app = FastAPI(title="WishFlick API")
 app.include_router(router_wishes, prefix="/api/wishes", tags=["wishes"])
