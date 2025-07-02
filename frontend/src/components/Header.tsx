@@ -285,9 +285,6 @@ const Header = () => {
 	      app_id: VK_CLIENT_ID,
 	    });
 
-	    const container = document.getElementById('VkIdSdkOAuthList');
-	    if (!container) return;
-
 	    const oauthList = new VKID.OAuthList();
 
 	    oauthList.render({
