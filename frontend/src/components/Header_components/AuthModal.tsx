@@ -233,7 +233,7 @@ export default function AuthModal({
 
               <button
                 type="submit"
-                className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
+                className="w-full py-3 bg-gradient-to-r from-[#B48DFE] to-[#98E2D5] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
                 disabled={
                   isLoading ||
                   (authMode === 'register' && (!!passwordError || !formData.confirmPassword))
