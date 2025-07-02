@@ -23,7 +23,6 @@ const Header = () => {
 	  openAuthModal,
 	  closeAuthModal,
 	  toggleAuthMode,
-	  handleGuestLogin,
 	} = useAuthModal();
 
   const vkContainerRef = useRef(null);
