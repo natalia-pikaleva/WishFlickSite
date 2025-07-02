@@ -110,7 +110,9 @@ export default function AuthModal({
               <button
                 type="button"
                 onClick={handleFakeGoogleLogin}
-				className="w-full py-3 bg-white text-black rounded-lg font-semibold border border-gray-300 hover:shadow-lg transition-shadow duration-300"              >
+				className="w-full py-3 bg-white text-black rounded-lg font-semibold border
+				border-gray-300 hover:shadow-lg transition-shadow duration-300"
+				>
                 Продолжить с Google
               </button>
 
@@ -119,7 +121,8 @@ export default function AuthModal({
               <button
                 type="button"
                 onClick={() => alert('Функция пока не реализована')}
-				className="w-full py-3 bg-white text-black rounded-lg font-semibold border border-gray-300 hover:shadow-lg transition-shadow duration-300"              >
+				className="w-full py-3 bg-white text-black rounded-lg font-semibold border
+				border-gray-300 hover:shadow-lg transition-shadow duration-300"
               >
                 Продолжить с ВКонтакте
               </button>
@@ -127,7 +130,8 @@ export default function AuthModal({
               <button
                 type="button"
                 onClick={handleGuestLogin}
-				className="w-full py-3 bg-white text-black rounded-lg font-semibold border border-gray-300 hover:shadow-lg transition-shadow duration-300"              >
+				className="w-full py-3 bg-white text-black rounded-lg font-semibold border
+				border-gray-300 hover:shadow-lg transition-shadow duration-300"
               >
                 Гостевой режим
               </button>
