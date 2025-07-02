@@ -15,7 +15,7 @@ import models as models
 import schemas as schemas
 
 import services.crud as crud
-import services.auth as auth
+from services.auth import create_access_token, verify_password
 
 from backend_conf import (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
                           GOOGLE_REDIRECT_URI, FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
@@ -101,7 +101,7 @@ async def google_oauth_callback(
             user = await crud.create_user(db, user_create)
 
         # Создаём JWT токен
-        access_token = auth.create_access_token(data={"sub": user.email})
+        access_token = create_access_token(data={"sub": user.email})
 
         # Здесь можно вернуть токен в куки или в URL для фронтенда
         # Например, редирект на фронтенд с токеном в параметре
@@ -184,7 +184,7 @@ async def facebook_oauth_callback(
             )
             user = await crud.create_user(db, user_create)
 
-        access_token_jwt = auth.create_access_token(data={"sub": user.email})
+        access_token_jwt = create_access_token(data={"sub": user.email})
 
         frontend_url = f"http://80.78.243.30:5173/oauth-callback?token={access_token_jwt}"
         return RedirectResponse(frontend_url)
@@ -223,7 +223,7 @@ async def facebook_token_login(token_data: schemas.FacebookToken, db: AsyncSessi
             )
             user = await crud.create_user(db, user_create)
 
-        jwt_token = auth.create_access_token(data={"sub": user.email})
+        jwt_token = create_access_token(data={"sub": user.email})
 
         return {"access_token": jwt_token, "token_type": "bearer"}
     except Exception as e:
@@ -300,9 +300,9 @@ async def verify_email(data: schemas.EmailVerificationRequest, db: AsyncSession 
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     try:
         user = await crud.get_user_by_email(db, email=form_data.username)
-        if not user or not auth.verify_password(form_data.password, user.hashed_password):
+        if not user or not verify_password(form_data.password, user.hashed_password):
             raise HTTPException(status_code=401, detail="Incorrect email or password")
-        access_token = auth.create_access_token(data={"sub": user.email})
+        access_token = create_access_token(data={"sub": user.email})
         return {"access_token": access_token, "token_type": "bearer", "user_id": user.id}
     except HTTPException:
         raise
@@ -407,7 +407,7 @@ async def vk_auth(
 
         # Создаём JWT токен
         logger.debug("Создаем токен")
-        access_token_jwt = auth.create_access_token(data={"sub": user.email})
+        access_token_jwt = create_access_token(data={"sub": user.email})
         logger.debug("Токен получен")
 
         return {"access_token": access_token_jwt, "token_type": "bearer"}
