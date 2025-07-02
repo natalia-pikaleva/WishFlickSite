@@ -157,6 +157,11 @@ export default function AuthModal({
               >
                 Гостевой режим
               </button>
+              <div className="flex items-center gap-3 my-6">
+				  <div className="flex-grow border-t border-gray-300"></div>
+				  <span className="text-gray-500 whitespace-nowrap">или</span>
+				  <div className="flex-grow border-t border-gray-300"></div>
+			  </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
