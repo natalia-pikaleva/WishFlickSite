@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef  } from 'react';
 import axios from 'axios';
-import { VK_CLIENT_ID, VK_REDIRECT_URI } from '../config';
+import { VK_CLIENT_ID, VK_REDIRECT_URI } from '../../config';
 import { generateCodeVerifier, generateCodeChallenge } from './utils/pkce';
 import * as VKID from '@vkid/sdk';
 
