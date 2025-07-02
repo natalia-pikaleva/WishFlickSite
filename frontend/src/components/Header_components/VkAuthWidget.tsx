@@ -23,8 +23,8 @@ const VkAuthWidget = ({ isAuthOpen }: { isAuthOpen: boolean }) => {
 	    console.log('code_challenge:', challenge);
 
       VKID.Config.set({
-        app_id: VK_CLIENT_ID,
-        redirect_uri: VK_REDIRECT_URI,
+        app_id: 53840991,
+        redirect_uri: "https://wishflick.ru/api/auth/vk/callback",
         code_challenge: challenge,
         code_challenge_method: "S256",
       });
