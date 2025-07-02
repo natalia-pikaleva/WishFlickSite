@@ -276,7 +276,7 @@ const Header = () => {
 
 
   const handleVKLogin = () => {
-	  const state = generateState(32);
+	  const state = generateCodeVerifier(32);
 
 	  sessionStorage.setItem('state', state);
 
