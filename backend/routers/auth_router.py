@@ -24,7 +24,6 @@ from services.other_helpers import send_email_async
 from config import VK_CLIENT_ID, VK_CLIENT_SECRET, VK_REDIRECT_URI
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 router = APIRouter()
 
@@ -417,5 +416,6 @@ async def vk_auth(
     except httpx.RequestError as e:
         raise HTTPException(status_code=502, detail="Failed to connect to VK API")
     except Exception as e:
+        logger.exception("Ошибка при авторизации через ВКонтакте")
         raise HTTPException(status_code=500, detail=f"VK authentication failed: {str(e)}, "
                                                     f"create_access_token: {create_access_token}, type: {type(create_access_token)}")
