@@ -291,10 +291,15 @@ const Header = () => {
 	    lang: VKID.Languages.RUS,
 	    styles: { height: 44, borderRadius: 8 }
 	  })
-	  .on(VKID.WidgetEvents.ERROR, (error) => {
-	    console.error('Ошибка авторизации VK ID:', error);
-	    alert('Ошибка авторизации. Попробуйте позже.');
-	  })
+	  oauthList.on(VKID.WidgetEvents.ERROR, (error) => {
+		  if (error.code === 'stat_events_error') {
+		    // Можно игнорировать или логировать в фоне
+		    console.warn('Ошибка статистики VK ID SDK:', error);
+		  } else {
+		    alert('Ошибка авторизации. Попробуйте позже.');
+		    console.error('Ошибка авторизации VK ID:', error);
+		  }
+		});
 	  .on(VKID.WidgetEvents.LOGIN_SUCCESS, (payload) => {
 	    // payload содержит code, device_id, state, code_verifier
 	    fetch('/api/auth/vk', {
