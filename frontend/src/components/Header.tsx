@@ -9,8 +9,77 @@ import { Link, useNavigate } from 'react-router-dom';
 import { generateCodeVerifier, generateCodeChallenge } from './utils/pkce';
 import * as VKID from '@vkid/sdk';
 
-const Header = () => {
+const VkAuthWidget = ({ isAuthOpen }: { isAuthOpen: boolean }) => {
+  const vkContainerRef = useRef<HTMLDivElement>(null);
+  const [codeVerifier, setCodeVerifier] = useState<string>("");
 
+  useEffect(() => {
+    if (!isAuthOpen || !vkContainerRef.current) return;
+
+    (async () => {
+      const verifier = generateCodeVerifier();
+      const challenge = await generateCodeChallenge(verifier);
+      setCodeVerifier(verifier);
+      localStorage.setItem("vk_code_verifier", verifier);
+
+      VKID.Config.set({
+        app_id: VK_CLIENT_ID,
+        redirect_uri: VK_REDIRECT_URI,
+        code_challenge: challenge,
+        code_challenge_method: "S256",
+      });
+
+      const oauthList = new VKID.OAuthList();
+
+      oauthList.render({
+        container: vkContainerRef.current,
+        oauthList: [VKID.OAuthName.VK],
+        scheme: VKID.Scheme.LIGHT,
+        lang: VKID.Languages.RUS,
+        styles: { height: 44, borderRadius: 8 },
+      });
+
+      oauthList.on(VKID.WidgetEvents.LOGIN_SUCCESS, (payload) => {
+        const verifierFromStorage = localStorage.getItem("vk_code_verifier") || "";
+
+        fetch("/api/auth/vk", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            code: payload.code,
+            device_id: payload.device_id,
+            state: payload.state,
+            code_verifier: verifierFromStorage,
+          }),
+        })
+          .then(async (res) => {
+            if (!res.ok) {
+              const errorText = await res.text();
+              throw new Error(`Ошибка авторизации: ${errorText}`);
+            }
+            return res.json();
+          })
+          .then((data) => {
+            localStorage.setItem("jwt_token", data.access_token);
+            alert("Вы успешно вошли!");
+            window.location.href = "/";
+          })
+          .catch((error) => {
+            console.error("Ошибка при обмене кода на токен:", error);
+            alert("Не удалось войти. Попробуйте снова.");
+          });
+      });
+
+      return () => {
+        oauthList.destroy();
+      };
+    })();
+  }, [isAuthOpen]);
+
+  return <div ref={vkContainerRef} style={{ minHeight: 44 }}></div>;
+};
+
+const Header = () => {
   const navigate = useNavigate();
 
   // Меню
@@ -18,80 +87,18 @@ const Header = () => {
 
   // Авторизация из контекста
   const {
-	  isAuthOpen,
-	  authMode,
-	  openAuthModal,
-	  closeAuthModal,
-	  toggleAuthMode,
-	} = useAuthModal();
+    isAuthOpen,
+    authMode,
+    openAuthModal,
+    closeAuthModal,
+    toggleAuthMode,
+  } = useAuthModal();
 
-  const VkAuthWidget = ({ isAuthOpen }: { isAuthOpen: boolean }) => {
-	  const vkContainerRef = useRef<HTMLDivElement>(null);
-	  const [codeVerifier, setCodeVerifier] = useState<string>("");
-
-	  useEffect(() => {
-	    if (!isAuthOpen || !vkContainerRef.current) return;
-
-	    (async () => {
-	      const verifier = generateCodeVerifier();
-	      const challenge = await generateCodeChallenge(verifier);
-	      setCodeVerifier(verifier);
-	      localStorage.setItem("vk_code_verifier", verifier);
-
-	      VKID.Config.set({
-	        app_id: VK_CLIENT_ID,
-	        redirect_uri: VK_REDIRECT_URI,
-	        code_challenge: challenge,
-	        code_challenge_method: "S256",
-	      });
-
-	      const oauthList = new VKID.OAuthList();
-
-	      oauthList.render({
-	        container: vkContainerRef.current,
-	        oauthList: [VKID.OAuthName.VK],
-	        scheme: VKID.Scheme.LIGHT,
-	        lang: VKID.Languages.RUS,
-	        styles: { height: 44, borderRadius: 8 },
-	      });
-
-	      oauthList.on(VKID.WidgetEvents.LOGIN_SUCCESS, (payload) => {
-	        const verifierFromStorage = localStorage.getItem("vk_code_verifier") || "";
-
-	        fetch("/api/auth/vk", {
-	          method: "POST",
-	          headers: { "Content-Type": "application/json" },
-	          body: JSON.stringify({
-	            code: payload.code,
-	            device_id: payload.device_id,
-	            state: payload.state,
-	            code_verifier: verifierFromStorage,
-	          }),
-	        })
-	          .then(async (res) => {
-	            if (!res.ok) {
-	              const errorText = await res.text();
-	              throw new Error(`Ошибка авторизации: ${errorText}`);
-	            }
-	            return res.json();
-	          })
-	          .then((data) => {
-	            localStorage.setItem("jwt_token", data.access_token);
-	            alert("Вы успешно вошли!");
-	            window.location.href = "/";
-	          })
-	          .catch((error) => {
-	            console.error("Ошибка при обмене кода на токен:", error);
-	            alert("Не удалось войти. Попробуйте снова.");
-	          });
-	      });
-
-	      return () => {
-	        oauthList.destroy();
-	      };
-	    })();
-	  }, [isAuthOpen]);
-
+  // Локальные состояния пользователя и формы
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userAvatar, setUserAvatar] = useState('/default-avatar.png');
+  const [loginError, setLoginError] = useState("");
+  const [registerError, setRegisterError] = useState("");
 
   // Локальные состояния пользователя и формы
   const [isLoggedIn, setIsLoggedIn] = useState(false);
