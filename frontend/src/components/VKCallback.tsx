@@ -15,6 +15,12 @@ function VKCallback() {
     const savedState = sessionStorage.getItem('state');
     const code = query.get('code');
 
+    console.log("Callback URL params:", {
+      code: query.get('code'),
+      state: query.get('state'),
+      savedState: sessionStorage.getItem('state'),
+   });
+
     // Проверка наличия кода и совпадения state для защиты от CSRF
     if (!code || queryState !== savedState) {
       alert("Ошибка безопасности или отсутствует код авторизации.");
@@ -52,6 +58,7 @@ function VKCallback() {
         navigate('/');
       })
       .catch((error) => {
+        console.error("Ошибка при авторизации через ВКонтакте:", error);  // <-- Логируем ошибку
         alert(`Не удалось войти через ВКонтакте: ${error.message}`);
         navigate('/');
       });

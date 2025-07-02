@@ -13,8 +13,8 @@ import httpx
 from database import Base, engine, get_db
 import models as models
 import schemas as schemas
-import crud as crud
-import auth_router as auth
+import services.crud as crud
+import services.auth as auth
 from backend_conf import (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
                           GOOGLE_REDIRECT_URI, FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
                           FACEBOOK_REDIRECT_URI)
@@ -351,6 +351,7 @@ async def vk_auth(
                 raise HTTPException(status_code=token_resp.status_code, detail=f"VK token error: {detail}")
 
             token_data = token_resp.json()
+            logger.debug("token data  correctly")
 
         access_token = token_data.get("access_token")
         vk_user_id = token_data.get("user_id")
@@ -375,28 +376,37 @@ async def vk_auth(
                 timeout=10,
             )
             user_data = user_resp.json()
+            logger.debug("user data correctly")
 
         vk_user_data = user_data.get("response", [{}])[0]
         name = f"{vk_user_data.get('first_name', '')} {vk_user_data.get('last_name', '')}".strip()
         avatar_url = vk_user_data.get("photo_100")
 
         # Поиск/создание пользователя в БД
+        logger.debug("start find or create user")
         user = await crud.get_user_by_vk_id(db, vk_user_id)
+        
         if user:
+            logger.debug("пользователь найден по id vk")
             if email and user.email != email:
                 user.email = email
                 await db.commit()
                 await db.refresh(user)
         else:
+            logger.debug("Пользователь не найден по id vk, ищем по email")
             user = await crud.get_user_by_email(db, email=email)
             if user:
+                logger.debug("Пользователь найден по email, запускаем функцию link_vk_to_user")
                 user = await crud.link_vk_to_user(db, user.id, vk_user_id)
             else:
+                logger.debug("Пользователь не найден по email, создаем пользователя")
                 user = await crud.create_user_from_vk(db, email=email, vk_id=vk_user_id, name=name,
                                                       avatar_url=avatar_url)
 
         # Создаём JWT токен
+        logger.debug("Создаем токен")
         access_token_jwt = auth.create_access_token(data={"sub": user.email})
+        logger.debug("Токен получен")
 
         return {"access_token": access_token_jwt, "token_type": "bearer"}
 
