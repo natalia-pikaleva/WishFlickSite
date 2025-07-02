@@ -24,6 +24,7 @@ from services.other_helpers import send_email_async
 from config import VK_CLIENT_ID, VK_CLIENT_SECRET, VK_REDIRECT_URI
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 router = APIRouter()
 
