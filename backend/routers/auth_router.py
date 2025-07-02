@@ -311,102 +311,50 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         raise HTTPException(status_code=500, detail="Failed to login user")
 
 
+
+
+@router.get("/vk/callback")
+async def vk_callback(request: Request):
+    code = request.query_params.get("code")
+    state = request.query_params.get("state")
+    if not code or not state:
+        raise HTTPException(status_code=400, detail="Missing code or state")
+
+    # Здесь просто редиректим на фронтенд с кодом и state
+    # Фронтенд должен получить их из URL и отправить вместе с code_verifier на сервер
+    redirect_url = f"https://wishflick.ru/auth/vk/callback?code={code}&state={state}"
+    return RedirectResponse(url=redirect_url)
+
+
 @router.post("/vk")
-async def vk_auth(
-        vk_auth_request: schemas.VKAuthRequest,
-        db: AsyncSession = Depends(get_db)
-):
-    if not VK_CLIENT_ID or not VK_CLIENT_SECRET or not VK_REDIRECT_URI:
-        raise HTTPException(status_code=500, detail="VK API credentials not configured")
+async def vk_auth(vk_auth_request: dict, db: AsyncSession = Depends(get_db)):
+    code = vk_auth_request.get("code")
+    code_verifier = vk_auth_request.get("code_verifier")
+    device_id = vk_auth_request.get("device_id")
 
-    if not vk_auth_request.device_id or not vk_auth_request.code_verifier:
-        raise HTTPException(status_code=400, detail="Missing device_id or code_verifier")
+    if not code or not code_verifier:
+        raise HTTPException(status_code=400, detail="Missing code or code_verifier")
 
-    try:
-        async with httpx.AsyncClient() as client:
-            data = {
-                "client_id": VK_CLIENT_ID,
-                "client_secret": VK_CLIENT_SECRET,
-                "redirect_uri": VK_REDIRECT_URI,
-                "code": vk_auth_request.code,
-                "code_verifier": vk_auth_request.code_verifier,
-                "device_id": vk_auth_request.device_id,
-                "grant_type": "authorization_code",
-            }
+    # Обмен кода на токен у ВКонтакте
+    async with httpx.AsyncClient() as client:
+        params = {
+            "client_id": "53840991",  # ваш VK_CLIENT_ID
+            "redirect_uri": "https://wishflick.ru/api/auth/vk/callback",
+            "client_secret": "ВАШ_CLIENT_SECRET",  # если требуется
+            "code": code,
+            "code_verifier": code_verifier,
+            "grant_type": "authorization_code",
+        }
+        response = await client.post("https://oauth.vk.com/access_token", params=params)
+        if response.status_code != 200:
+            raise HTTPException(status_code=400, detail="Failed to get access token from VK")
 
-            token_resp = await client.post(
-                "https://id.vk.com/oauth2/token",
-                data=data,
-                timeout=10,
-            )
+        data = response.json()
+        access_token = data.get("access_token")
+        if not access_token:
+            raise HTTPException(status_code=400, detail="No access token received")
 
-            if token_resp.status_code != 200:
-                detail = token_resp.text
-                raise HTTPException(status_code=token_resp.status_code, detail=f"VK token error: {detail}")
-
-            token_data = token_resp.json()
-
-        access_token = token_data.get("access_token")
-        vk_user_id = token_data.get("user_id")
-        email = token_data.get("email")
-
-        if not access_token or not vk_user_id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=token_data.get("error_description", "Failed to get access token from VK")
-            )
-
-        # Получение данных пользователя
-        async with httpx.AsyncClient() as client:
-            user_resp = await client.get(
-                "https://api.vk.com/method/users.get",
-                params={
-                    "user_ids": vk_user_id,
-                    "fields": "photo_100,first_name,last_name",
-                    "access_token": access_token,
-                    "v": "5.131"
-                },
-                timeout=10,
-            )
-            user_data = user_resp.json()
-            logger.debug("user data correctly")
-
-        vk_user_data = user_data.get("response", [{}])[0]
-        name = f"{vk_user_data.get('first_name', '')} {vk_user_data.get('last_name', '')}".strip()
-        avatar_url = vk_user_data.get("photo_100")
-
-        # Поиск/создание пользователя в БД
-        logger.debug("start find or create user")
-        user = await crud.get_user_by_vk_id(db, vk_user_id)
-
-        if user:
-            logger.debug("пользователь найден по id vk")
-            if email and user.email != email:
-                user.email = email
-                await db.commit()
-                await db.refresh(user)
-        else:
-            logger.debug("Пользователь не найден по id vk, ищем по email")
-            user = await crud.get_user_by_email(db, email=email)
-            if user:
-                logger.debug("Пользователь найден по email, запускаем функцию link_vk_to_user")
-                user = await crud.link_vk_to_user(db, user.id, vk_user_id)
-            else:
-                logger.debug("Пользователь не найден по email, создаем пользователя")
-                user = await crud.create_user_from_vk(db, email=email, vk_id=vk_user_id, name=name,
-                                                      avatar_url=avatar_url)
-
-        # Создаём JWT токен
-        logger.debug("Создаем токен")
-
-        access_token_jwt = create_access_token(data={"sub": user.email})
-        logger.debug("Токен получен")
-
-        return {"access_token": access_token_jwt, "token_type": "bearer"}
-
-    except httpx.RequestError as e:
-        raise HTTPException(status_code=502, detail="Failed to connect to VK API")
-    except Exception as e:
-        logger.exception("Ошибка при авторизации через ВКонтакте")
-        raise HTTPException(status_code=500, detail=f"VK authentication failed: {str(e)}, "
-                                                    f"create_access_token: {create_access_token}, type: {type(create_access_token)}")
+        # Здесь ваша логика создания JWT, сохранения пользователя и т.п.
+        # Например:
+        # jwt_token = create_jwt_for_user(...)
+        return {"access_token": access_token, "token_type": "bearer"}
