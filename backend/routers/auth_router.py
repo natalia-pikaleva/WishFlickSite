@@ -407,8 +407,7 @@ async def vk_auth(
                                                       avatar_url=avatar_url)
 
         # Создаём JWT токен
-        logger.info("Создаем токен")
-        logger.info(f"create_access_token: {create_access_token}, type: {type(create_access_token)}")
+        logger.debug("Создаем токен")
 
         access_token_jwt = create_access_token(data={"sub": user.email})
         logger.debug("Токен получен")
