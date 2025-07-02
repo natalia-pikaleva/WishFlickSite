@@ -100,13 +100,6 @@ const Header = () => {
   const [loginError, setLoginError] = useState("");
   const [registerError, setRegisterError] = useState("");
 
-  // Локальные состояния пользователя и формы
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userAvatar, setUserAvatar] = useState('/default-avatar.png');
-  const [loginError, setLoginError] = useState("");
-  const [registerError, setRegisterError] = useState("");
-
-
   const [formData, setFormData] = useState({
     email: "",
     password: "",
