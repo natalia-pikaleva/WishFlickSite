@@ -349,7 +349,7 @@ async def vk_auth(
             )
 
             if token_resp.status_code != 200:
-                detail = await token_resp.text()
+                detail = token_resp.text
                 raise HTTPException(status_code=token_resp.status_code, detail=f"VK token error: {detail}")
 
             token_data = token_resp.json()
