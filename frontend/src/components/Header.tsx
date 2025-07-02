@@ -276,6 +276,11 @@ const Header = () => {
   };
 
   useEffect(() => {
+	  console.log('Инициализация VKID виджета');
+	  const container = document.getElementById('VkIdSdkOAuthList');
+	  console.log('Контейнер для VKID:', container);
+	  if (!container) return;
+
 	    VKID.Config.set({
 	      app_id: VK_CLIENT_ID,
 	    });
