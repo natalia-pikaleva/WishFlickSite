@@ -89,7 +89,8 @@ export default function AuthModal({
 }: AuthModalProps) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md mx-4 relative max-h-[80vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-xs sm:max-w-sm md:max-w-md
+                      lg:max-w-lg xl:max-w-xl mx-4 relative max-h-[80vh] overflow-y-auto">
         <button
           onClick={closeAuthModal}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
@@ -239,7 +240,7 @@ export default function AuthModal({
                   (authMode === 'register' && (!!passwordError || !formData.confirmPassword))
                 }
               >
-                {isLoading ? '...' : authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
+                {isLoading ? '...' : authMode === 'login' ? 'Войти' : 'Создать аккаунт'}
               </button>
             </form>
 
