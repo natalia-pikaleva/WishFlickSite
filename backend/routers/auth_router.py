@@ -322,14 +322,16 @@ async def vk_callback(
 
 @router.post("/vk")
 async def vk_auth(
-        vk_auth_request: schemas.VKAuthRequest,
-        db: AsyncSession = Depends(get_db)
+    vk_auth_request: schemas.VKAuthRequest,
+    db: AsyncSession = Depends(get_db)
 ):
     if not VK_CLIENT_ID or not VK_CLIENT_SECRET or not VK_REDIRECT_URI:
         raise HTTPException(status_code=500, detail="VK API credentials not configured")
 
+    if not vk_auth_request.device_id or not vk_auth_request.code_verifier:
+        raise HTTPException(status_code=400, detail="Missing device_id or code_verifier")
+
     try:
-        # Обмен кода на access_token с PKCE
         async with httpx.AsyncClient() as client:
             data = {
                 "client_id": VK_CLIENT_ID,
@@ -337,10 +339,9 @@ async def vk_auth(
                 "redirect_uri": VK_REDIRECT_URI,
                 "code": vk_auth_request.code,
                 "code_verifier": vk_auth_request.code_verifier,
+                "device_id": vk_auth_request.device_id,
                 "grant_type": "authorization_code",
             }
-            if vk_auth_request.device_id:
-                data["device_id"] = vk_auth_request.device_id
 
             token_resp = await client.post(
                 "https://id.vk.com/oauth2/token",
@@ -353,7 +354,6 @@ async def vk_auth(
                 raise HTTPException(status_code=token_resp.status_code, detail=f"VK token error: {detail}")
 
             token_data = token_resp.json()
-            logger.debug("token data  correctly")
 
         access_token = token_data.get("access_token")
         vk_user_id = token_data.get("user_id")
