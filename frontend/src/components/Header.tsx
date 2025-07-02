@@ -7,6 +7,7 @@ import logo from '../assets/logo.jpg';
 import { API_BASE_URL, VK_CLIENT_ID, VK_REDIRECT_URI } from '../config';
 import { Link, useNavigate } from 'react-router-dom';
 import { generateCodeVerifier, generateCodeChallenge } from './utils/pkce';
+import * as VKID from '@vkid/sdk';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -275,22 +276,66 @@ const Header = () => {
   };
 
 
-  const handleVKLogin = () => {
-	  const state = generateCodeVerifier(32);
+	// Создаём экземпляр виджета
+	const oauthList = new VKID.OAuthList();
 
-	  sessionStorage.setItem('state', state);
+	// Получаем контейнер из DOM
+	const container = document.getElementById('VkIdSdkOAuthList');
 
-	  const params = new URLSearchParams({
-	    response_type: 'code',
-	    client_id: VK_CLIENT_ID,
-	    redirect_uri: VK_REDIRECT_URI,
-	    scope: 'email',
-	    state: state,
-	    v: '5.131',
+
+	if (container) {
+	  oauthList.render({
+	    container,
+	    oauthList: [VKID.OAuthName.VK, VKID.OAuthName.MAIL, VKID.OAuthName.OK],
+	    scheme: VKID.Scheme.LIGHT,
+	    lang: VKID.Languages.RUS,
+	    styles: { height: 44, borderRadius: 8 }
+	  })
+	  .on(VKID.WidgetEvents.ERROR, (error) => {
+	    console.error('Ошибка авторизации VK ID:', error);
+	    alert('Ошибка авторизации. Попробуйте позже.');
+	  })
+	  .on(VKID.WidgetEvents.LOGIN_SUCCESS, (payload) => {
+	    // payload содержит code, device_id, state, code_verifier
+	    fetch('/api/auth/vk', {
+	      method: 'POST',
+	      headers: { 'Content-Type': 'application/json' },
+	      body: JSON.stringify({
+	        code: payload.code,
+	        device_id: payload.device_id,
+	        state: payload.state,
+	        code_verifier: payload.code_verifier,
+	      }),
+	    })
+	    .then(async (res) => {
+	      if (!res.ok) {
+	        const errorText = await res.text();
+	        throw new Error(`Ошибка авторизации: ${errorText}`);
+	      }
+	      return res.json();
+	    })
+	    .then(data => {
+	      // data должен содержать JWT токен, например: { access_token: "..." }
+	      const token = data.access_token;
+	      if (token) {
+	        // Сохраняем токен, например в localStorage
+	        localStorage.setItem('jwt_token', token);
+	        // Можно обновить UI или сделать редирект
+	        console.log('Авторизация успешна, токен получен:', token);
+	        alert('Вы успешно вошли!');
+	        // Например, редирект на главную страницу
+	        window.location.href = '/';
+	      } else {
+	        throw new Error('Токен не получен');
+	      }
+	    })
+	    .catch(error => {
+	      console.error('Ошибка при обмене кода на токен:', error);
+	      alert('Не удалось войти. Попробуйте снова.');
+	    });
 	  });
+	}
 
-	  window.location.href = `https://oauth.vk.com/authorize?${params.toString()}`;
-	};
 
 
   return (
@@ -585,14 +630,8 @@ const Header = () => {
                     Продолжить с Google (Fake)
                   </button>
 
-                  {/* Кнопка ВКонтакте */}
-			      <button
-			        type="button"
-			        onClick={handleVKLogin}
-			        className="w-full py-3 bg-gradient-to-r from-[#4C75A3] to-[#2B587A] text-white rounded-full font-semibold hover:shadow-lg transition-shadow duration-300"
-			      >
-			        Войти через ВКонтакте
-			      </button>
+                  {/* Авторизация через ВКонтакте */}
+			      <div id="VkIdSdkOAuthList"></div>
 
                   {/* <FacebookLoginButton /> */}
                   <button

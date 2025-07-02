@@ -19,8 +19,6 @@ import OAuthCallback from "./pages/OAuthCallback";
 import WishDetails from './pages/WishDetails';
 import PublicInfluencerWishlists from './pages/PublicInfluencerWishlists';
 
-import VKCallback from "./components/VKCallback";
-
 function Home() {
   return (
     <>
@@ -48,7 +46,6 @@ function App() {
         <Header />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/auth/vk/callback" element={<VKCallback />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/community" element={<Community />} />
           <Route path="/campaigns" element={<Campaign />} />
