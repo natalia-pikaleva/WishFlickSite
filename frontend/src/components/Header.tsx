@@ -290,17 +290,19 @@ const Header = () => {
 	    scheme: VKID.Scheme.LIGHT,
 	    lang: VKID.Languages.RUS,
 	    styles: { height: 44, borderRadius: 8 }
-	  })
+	  });
+
 	  oauthList.on(VKID.WidgetEvents.ERROR, (error) => {
-		  if (error.code === 'stat_events_error') {
-		    // Можно игнорировать или логировать в фоне
-		    console.warn('Ошибка статистики VK ID SDK:', error);
-		  } else {
-		    alert('Ошибка авторизации. Попробуйте позже.');
-		    console.error('Ошибка авторизации VK ID:', error);
-		  }
-		});
-	  .on(VKID.WidgetEvents.LOGIN_SUCCESS, (payload) => {
+	    if (error.code === 'stat_events_error') {
+	      // Можно игнорировать или логировать в фоне
+	      console.warn('Ошибка статистики VK ID SDK:', error);
+	    } else {
+	      alert('Ошибка авторизации. Попробуйте позже.');
+	      console.error('Ошибка авторизации VK ID:', error);
+	    }
+	  });
+
+	  oauthList.on(VKID.WidgetEvents.LOGIN_SUCCESS, (payload) => {
 	    // payload содержит code, device_id, state, code_verifier
 	    fetch('/api/auth/vk', {
 	      method: 'POST',
@@ -323,12 +325,9 @@ const Header = () => {
 	      // data должен содержать JWT токен, например: { access_token: "..." }
 	      const token = data.access_token;
 	      if (token) {
-	        // Сохраняем токен, например в localStorage
 	        localStorage.setItem('jwt_token', token);
-	        // Можно обновить UI или сделать редирект
 	        console.log('Авторизация успешна, токен получен:', token);
 	        alert('Вы успешно вошли!');
-	        // Например, редирект на главную страницу
 	        window.location.href = '/';
 	      } else {
 	        throw new Error('Токен не получен');
@@ -340,7 +339,6 @@ const Header = () => {
 	    });
 	  });
 	}
-
 
 
   return (
