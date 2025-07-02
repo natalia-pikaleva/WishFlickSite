@@ -103,15 +103,14 @@ export default function AuthModal({
             <h2 className="text-2xl font-bold mb-6 text-center text-gray-900">
               {authMode === 'login' ? 'Авторизация' : 'Создайте аккаунт'}
             </h2>
-            <h3 className="text-2xl mb-6 text-center text-gray-900">
+            <h3 className="text-sm mb-6 text-center text-gray-900">
               Присоединяйтесь к сообществу мечтателей
             </h3>
             <div className="mt-4 flex flex-col gap-3">
               <button
                 type="button"
                 onClick={handleFakeGoogleLogin}
-                className="w-full py-3 bg-white text-black rounded-lg font-semibold hover:shadow-lg transition-shadow duration-300"
-              >
+				className="w-full py-3 bg-white text-black rounded-lg font-semibold border border-gray-300 hover:shadow-lg transition-shadow duration-300"              >
                 Продолжить с Google
               </button>
 
@@ -120,7 +119,7 @@ export default function AuthModal({
               <button
                 type="button"
                 onClick={() => alert('Функция пока не реализована')}
-                className="w-full py-3 bg-white text-black rounded-lg font-semibold hover:shadow-lg transition-shadow duration-300"
+				className="w-full py-3 bg-white text-black rounded-lg font-semibold border border-gray-300 hover:shadow-lg transition-shadow duration-300"              >
               >
                 Продолжить с ВКонтакте
               </button>
@@ -128,7 +127,7 @@ export default function AuthModal({
               <button
                 type="button"
                 onClick={handleGuestLogin}
-                className="w-full py-3 bg-white text-black rounded-lg font-semibold hover:shadow-lg transition-shadow duration-300"
+				className="w-full py-3 bg-white text-black rounded-lg font-semibold border border-gray-300 hover:shadow-lg transition-shadow duration-300"              >
               >
                 Гостевой режим
               </button>
