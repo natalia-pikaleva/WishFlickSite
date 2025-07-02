@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef  } from 'react';
 import axios from 'axios';
 import { Heart, Search, Bell, User, Menu, X } from 'lucide-react';
 import { useAuthModal } from '../contexts/AuthModalContext';
-{/*import FacebookLoginButton from './FacebookLoginButton';*/}
+//import FacebookLoginButton from './FacebookLoginButton';
 import logo from '../assets/logo.jpg';
 import { API_BASE_URL, VK_CLIENT_ID, VK_REDIRECT_URI } from '../config';
 import { Link, useNavigate } from 'react-router-dom';
@@ -80,6 +80,8 @@ const VkAuthWidget = ({ isAuthOpen }: { isAuthOpen: boolean }) => {
 };
 
 const Header = () => {
+
+  const vkContainerRef = useRef(null);
   const navigate = useNavigate();
 
   // Меню
