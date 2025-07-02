@@ -275,14 +275,10 @@ const Header = () => {
   };
 
 
-  const handleVKLogin = async () => {
-	  const codeVerifier = generateCodeVerifier();
-	  const state = generateCodeVerifier(32);
+  const handleVKLogin = () => {
+	  const state = generateState(32);
 
-	  sessionStorage.setItem('code_verifier', codeVerifier);
 	  sessionStorage.setItem('state', state);
-
-	  const codeChallenge = await generateCodeChallenge(codeVerifier);
 
 	  const params = new URLSearchParams({
 	    response_type: 'code',
@@ -290,8 +286,6 @@ const Header = () => {
 	    redirect_uri: VK_REDIRECT_URI,
 	    scope: 'email',
 	    state: state,
-	    code_challenge: codeChallenge,
-	    code_challenge_method: 'S256',
 	    v: '5.131',
 	  });
 
