@@ -231,7 +231,7 @@ export default function AuthModal({
               </button>
 
               {/* Виджет ВКонтакте */}
-              {/*}<VkAuthWidget isAuthOpen={true} /> */}
+              <VkAuthWidget isAuthOpen={true} />
 
               <button
                 type="button"
