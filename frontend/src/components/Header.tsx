@@ -275,7 +275,7 @@ const Header = () => {
   };
 
 
-	const handleVKLogin = async () => {
+  const handleVKLogin = async () => {
 	  const codeVerifier = generateCodeVerifier();
 	  const state = generateCodeVerifier(32);
 
@@ -295,7 +295,7 @@ const Header = () => {
 	    v: '5.131',
 	  });
 
-	  window.location.href = `https://id.vk.com/authorize?${params.toString()}`;
+	  window.location.href = `https://oauth.vk.com/authorize?${params.toString()}`;
 	};
 
 
