@@ -53,7 +53,12 @@ const VkAuthWidget = ({ isAuthOpen }: VkAuthWidgetProps) => {
     });
 
     return () => {
-      oauthList.destroy();
+      if (typeof oauthList.destroy === 'function') {
+        oauthList.destroy();
+      } else if (typeof oauthList.dispose === 'function') {
+        oauthList.dispose();
+      }
+      // Если нет ни destroy, ни dispose — ничего не вызывайте
     };
   }, [isAuthOpen]);
 
@@ -61,4 +66,3 @@ const VkAuthWidget = ({ isAuthOpen }: VkAuthWidgetProps) => {
 };
 
 export default VkAuthWidget;
-
