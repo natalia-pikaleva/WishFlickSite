@@ -18,15 +18,15 @@ const Header = () => {
 
   // Авторизация из контекста
   const {
-    isAuthOpen,
-    authMode,
-    openAuthModal,
-    closeAuthModal,
-    toggleAuthMode,
-  } = useAuthModal();
+	  isAuthOpen,
+	  authMode,
+	  openAuthModal,
+	  closeAuthModal,
+	  toggleAuthMode,
+	  handleGuestLogin,
+	} = useAuthModal();
 
   const vkContainerRef = useRef(null);
-  const { isAuthOpen, handleGuestLogin } = useAuthModal();
 
   useEffect(() => {
     if (!isAuthOpen) return;
