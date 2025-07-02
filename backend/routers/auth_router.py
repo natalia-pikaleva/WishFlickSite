@@ -418,4 +418,5 @@ async def vk_auth(
     except httpx.RequestError as e:
         raise HTTPException(status_code=502, detail="Failed to connect to VK API")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"VK authentication failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"VK authentication failed: {str(e)}, "
+                                                    f"create_access_token: {create_access_token}, type: {type(create_access_token)}")
