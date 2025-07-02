@@ -13,8 +13,10 @@ import logging
 from database import get_db
 import models as models
 import schemas as schemas
-import crud as crud
-import auth_router as auth
+
+import services.crud as crud
+import services.auth as auth
+
 from backend_conf import API_URL
 
 logger = logging.getLogger(__name__)
