@@ -17,6 +17,11 @@ const VkAuthWidget = ({ isAuthOpen }: { isAuthOpen: boolean }) => {
       setCodeVerifier(verifier);
       localStorage.setItem("vk_code_verifier", verifier);
 
+      // Логируем значения перед отправкой в VKID.Config
+	    console.log('VK_CLIENT_ID:', VK_CLIENT_ID);
+	    console.log('VK_REDIRECT_URI:', VK_REDIRECT_URI);
+	    console.log('code_challenge:', challenge);
+
       VKID.Config.set({
         app_id: VK_CLIENT_ID,
         redirect_uri: VK_REDIRECT_URI,
