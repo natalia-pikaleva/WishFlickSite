@@ -311,19 +311,10 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         raise HTTPException(status_code=500, detail="Failed to login user")
 
 
-@router.get("/vk/callback")
-async def vk_callback(
-        code: str = Query(...),
-        state: str = Query(...),
-):
-    frontend_url = f"https://wishflick.ru/auth/vk/callback?code={code}&state={state}"
-    return RedirectResponse(frontend_url)
-
-
 @router.post("/vk")
 async def vk_auth(
-    vk_auth_request: schemas.VKAuthRequest,
-    db: AsyncSession = Depends(get_db)
+        vk_auth_request: schemas.VKAuthRequest,
+        db: AsyncSession = Depends(get_db)
 ):
     if not VK_CLIENT_ID or not VK_CLIENT_SECRET or not VK_REDIRECT_URI:
         raise HTTPException(status_code=500, detail="VK API credentials not configured")
@@ -387,7 +378,7 @@ async def vk_auth(
         # Поиск/создание пользователя в БД
         logger.debug("start find or create user")
         user = await crud.get_user_by_vk_id(db, vk_user_id)
-        
+
         if user:
             logger.debug("пользователь найден по id vk")
             if email and user.email != email:
