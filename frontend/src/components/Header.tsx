@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef  } from 'react';
 import axios from 'axios';
 import { Heart, Search, Bell, User, Menu, X } from 'lucide-react';
 import { useAuthModal } from '../contexts/AuthModalContext';
@@ -10,6 +10,7 @@ import { generateCodeVerifier, generateCodeChallenge } from './utils/pkce';
 import * as VKID from '@vkid/sdk';
 
 const Header = () => {
+
   const navigate = useNavigate();
 
   // Меню
@@ -23,6 +24,80 @@ const Header = () => {
     closeAuthModal,
     toggleAuthMode,
   } = useAuthModal();
+
+  const vkContainerRef = useRef(null);
+  const { isAuthOpen, handleGuestLogin } = useAuthModal();
+
+  useEffect(() => {
+    if (!isAuthOpen) return;
+    if (!vkContainerRef.current) return;
+
+
+    VKID.Config.set({ app_id: VK_CLIENT_ID });
+
+    const oauthList = new VKID.OAuthList();
+
+    oauthList.render({
+      container: vkContainerRef.current,
+      oauthList: [VKID.OAuthName.VK, VKID.OAuthName.MAIL, VKID.OAuthName.OK],
+      scheme: VKID.Scheme.LIGHT,
+      lang: VKID.Languages.RUS,
+      styles: { height: 44, borderRadius: 8 },
+    });
+
+    oauthList.on(VKID.WidgetEvents.ERROR, (error) => {
+      if (error.code === 'stat_events_error') {
+        console.warn('Ошибка статистики VK ID SDK:', error);
+      } else {
+        alert('Ошибка авторизации. Попробуйте позже.');
+        console.error('Ошибка авторизации VK ID:', error);
+      }
+    });
+
+    oauthList.on(VKID.WidgetEvents.LOGIN_SUCCESS, (payload) => {
+	      fetch('/api/auth/vk', {
+	        method: 'POST',
+	        headers: { 'Content-Type': 'application/json' },
+	        body: JSON.stringify({
+	          code: payload.code,
+	          device_id: payload.device_id,
+	          state: payload.state,
+	          code_verifier: payload.code_verifier,
+	        }),
+	      })
+	      .then(async (res) => {
+	        if (!res.ok) {
+	          const errorText = await res.text();
+	          throw new Error(`Ошибка авторизации: ${errorText}`);
+	        }
+	        return res.json();
+	      })
+	      .then(data => {
+	        const token = data.access_token;
+	        if (token) {
+	          localStorage.setItem('jwt_token', token);
+	          alert('Вы успешно вошли!');
+	          window.location.href = '/';
+	        } else {
+	          throw new Error('Токен не получен');
+	        }
+	      })
+	      .catch(error => {
+	        console.error('Ошибка при обмене кода на токен:', error);
+	        alert('Не удалось войти. Попробуйте снова.');
+	      });
+	    });
+
+	    // Очистка при размонтировании компонента
+	    return () => {
+	      oauthList.destroy();
+	    };
+	  }, []); // пустой массив зависимостей — эффект выполнится один раз при монтировании
+
+
+
+
+
 
   // Локальные состояния пользователя и формы
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -275,74 +350,7 @@ const Header = () => {
     navigate('/profile');
   };
 
-  useEffect(() => {
-	  console.log('Инициализация VKID виджета');
-	  const container = document.getElementById('VkIdSdkOAuthList');
-	  console.log('Контейнер для VKID:', container);
-	  if (!container) return;
 
-	    VKID.Config.set({
-	      app_id: VK_CLIENT_ID,
-	    });
-
-	    const oauthList = new VKID.OAuthList();
-
-	    oauthList.render({
-	      container,
-	      oauthList: [VKID.OAuthName.VK, VKID.OAuthName.MAIL, VKID.OAuthName.OK],
-	      scheme: VKID.Scheme.LIGHT,
-	      lang: VKID.Languages.RUS,
-	      styles: { height: 44, borderRadius: 8 }
-	    });
-
-	    oauthList.on(VKID.WidgetEvents.ERROR, (error) => {
-	      if (error.code === 'stat_events_error') {
-	        console.warn('Ошибка статистики VK ID SDK:', error);
-	      } else {
-	        alert('Ошибка авторизации. Попробуйте позже.');
-	        console.error('Ошибка авторизации VK ID:', error);
-	      }
-	    });
-
-	    oauthList.on(VKID.WidgetEvents.LOGIN_SUCCESS, (payload) => {
-	      fetch('/api/auth/vk', {
-	        method: 'POST',
-	        headers: { 'Content-Type': 'application/json' },
-	        body: JSON.stringify({
-	          code: payload.code,
-	          device_id: payload.device_id,
-	          state: payload.state,
-	          code_verifier: payload.code_verifier,
-	        }),
-	      })
-	      .then(async (res) => {
-	        if (!res.ok) {
-	          const errorText = await res.text();
-	          throw new Error(`Ошибка авторизации: ${errorText}`);
-	        }
-	        return res.json();
-	      })
-	      .then(data => {
-	        const token = data.access_token;
-	        if (token) {
-	          localStorage.setItem('jwt_token', token);
-	          alert('Вы успешно вошли!');
-	          window.location.href = '/';
-	        } else {
-	          throw new Error('Токен не получен');
-	        }
-	      })
-	      .catch(error => {
-	        console.error('Ошибка при обмене кода на токен:', error);
-	        alert('Не удалось войти. Попробуйте снова.');
-	      });
-	    });
-
-	    // Очистка при размонтировании компонента
-	    return () => {
-	      oauthList.destroy();
-	    };
-	  }, []); // пустой массив зависимостей — эффект выполнится один раз при монтировании
 
 
 
@@ -639,7 +647,7 @@ const Header = () => {
                   </button>
 
                   {/* Авторизация через ВКонтакте */}
-			      <div id="VkIdSdkOAuthList"></div>
+			      <div ref={vkContainerRef} style={{ minHeight: 44 }}></div>
 
                   {/* <FacebookLoginButton /> */}
                   <button
