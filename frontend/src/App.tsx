@@ -51,6 +51,9 @@ function App() {
       const challenge = await generateCodeChallenge(verifier);
       localStorage.setItem("vk_code_verifier", verifier);
 
+      console.log('VK_CLIENT_ID:', VK_CLIENT_ID);
+
+
       VKID.Config.set({
         app_id: VK_CLIENT_ID,
         redirect_uri: VK_REDIRECT_URI,
