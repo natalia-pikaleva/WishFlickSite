@@ -243,124 +243,119 @@ const Profile = () => {
 	  <h1 className="text-3xl font-bold mb-6 text-center text-gray-900">Профиль</h1>
 
 	  {!isEditing ? (
-	    <div className="flex flex-col md:flex-row md:space-x-8">
-	        {/* Левая колонка: информация и кнопка */}
-			<div className="md:w-1/2 text-center md:text-left">
-			  <div className="profile-avatar flex items-center relative w-32 h-32 rounded-full bg-gray-200 overflow-hidden mx-auto md:mx-0 mb-4">
-			    {profile.avatarUrl ? (
-			      <img
-			        id="profileAvatarImg"
-			        src={getAvatarUrl(profile.avatarUrl)}
-			        alt="Avatar"
-			        className="w-full h-full object-cover"
-			      />
-			    ) : (
-			      <span
-			        id="profileInitials"
-			        className="flex items-center justify-center w-full h-full text-3xl font-bold text-gray-600"
-			      >
-			        {profile.name ? profile.name.slice(0, 2).toUpperCase() : '??'}
-			      </span>
-			    )}
-
-			    <button
-			      type="button"
-			      className="absolute bottom-1 right-1 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition"
-			      onClick={() => avatarInputRef.current?.click()}
-			      title="Изменить фото"
-			    >
-			      📷
-			    </button>
-
-			    <input
-			      type="file"
-			      ref={avatarInputRef}
-			      accept="image/*"
-			      className="hidden"
-			      onChange={handleAvatarChange}
-			    />
-			  </div>
-
-			  <h2 className="text-xl font-semibold">{profile.name || 'No Name'}</h2>
-			  <p className="text-gray-600">{profile.email}</p>
-			  <p className="mt-4">{profile.description}</p>
-			  <div className="mt-4 space-x-4">
-			    {profile.socialLinks.facebook && (
-			      <a
-			        href={profile.socialLinks.facebook}
-			        target="_blank"
-			        rel="noreferrer"
-			        className="text-blue-600 hover:underline"
-			      >
-			        Facebook
-			      </a>
-			    )}
-			    {profile.socialLinks.twitter && (
-			      <a
-			        href={profile.socialLinks.twitter}
-			        target="_blank"
-			        rel="noreferrer"
-			        className="text-blue-400 hover:underline"
-			      >
-			        Twitter
-			      </a>
-			    )}
-			    {profile.socialLinks.instagram && (
-			      <a
-			        href={profile.socialLinks.instagram}
-			        target="_blank"
-			        rel="noreferrer"
-			        className="text-pink-600 hover:underline"
-			      >
-			        Instagram
-			      </a>
-			    )}
-			  </div>
-			  <p className="mt-4 font-medium">Privacy: {profile.privacy}</p>
-			</div>
-
-	        {/* Блок количества вишлистов и друзей*/}
-	        <div className="profile-info mt-2">
-			  <h1 id="profileName" className="text-2xl font-bold">{profile.name || 'No Name'}</h1>
-			  <p id="profileEmail" className="text-gray-600">{profile.email}</p>
-
-			  <div className="profile-stats flex space-x-6 mt-3 text-center">
-			    <div className="stat">
-			      <span className="stat-number block text-xl font-semibold" id="profileWishlists">{wishes.length}</span>
-			      <span className="stat-label text-gray-500 text-sm">Вишлистов</span>
-			    </div>
-			    <div className="stat">
-			      <span className="stat-number block text-xl font-semibold" id="profileContributions">0</span>
-			      <span className="stat-label text-gray-500 text-sm">Взносов</span>
-			    </div>
-			    <div className="stat">
-			      <span className="stat-number block text-xl font-semibold" id="profileFriends">{friendsCount}</span>
-			      <span className="stat-label text-gray-500 text-sm">Друзей</span>
-			    </div>
-			  </div>
-			</div>
-
+	  <div className="flex flex-col md:flex-row md:space-x-8">
+	    {/* Левая колонка: информация и кнопка */}
+	    <div className="md:w-1/2 text-center md:text-left">
+	      <div className="profile-avatar flex items-center relative w-32 h-32 rounded-full bg-gray-200 overflow-hidden mx-auto md:mx-0 mb-4">
+	        {profile.avatarUrl ? (
+	          <img
+	            id="profileAvatarImg"
+	            src={getAvatarUrl(profile.avatarUrl)}
+	            alt="Avatar"
+	            className="w-full h-full object-cover"
+	          />
+	        ) : (
+	          <span
+	            id="profileInitials"
+	            className="flex items-center justify-center w-full h-full text-3xl font-bold text-gray-600"
+	          >
+	            {profile.name ? profile.name.slice(0, 2).toUpperCase() : '??'}
+	          </span>
+	        )}
 
 	        <button
-	          onClick={() => setIsEditing(true)}
-	          className="mt-6 px-6 py-2 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full hover:shadow-lg transition"
+	          type="button"
+	          className="absolute bottom-1 right-1 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition"
+	          onClick={() => avatarInputRef.current?.click()}
+	          title="Изменить фото"
 	        >
-	          Редактировать профиль
+	          📷
 	        </button>
 
-
-	      </div>
-
-	      {/* Правая колонка: Желания, друзья, лента */}
-	      <div className="md:w-1/2">
-	        <ProfileTabs
-	          wishes={wishes}
-	          friendsCount={friendsCount}
-	          onRemove={handleRemove}
-	          onViewDetails={handleViewDetails}
+	        <input
+	          type="file"
+	          ref={avatarInputRef}
+	          accept="image/*"
+	          className="hidden"
+	          onChange={handleAvatarChange}
 	        />
 	      </div>
 
+	      <h2 className="text-xl font-semibold">{profile.name || 'No Name'}</h2>
+	      <p className="text-gray-600">{profile.email}</p>
+	      <p className="mt-4">{profile.description}</p>
+	      <div className="mt-4 space-x-4">
+	        {profile.socialLinks.facebook && (
+	          <a
+	            href={profile.socialLinks.facebook}
+	            target="_blank"
+	            rel="noreferrer"
+	            className="text-blue-600 hover:underline"
+	          >
+	            Facebook
+	          </a>
+	        )}
+	        {profile.socialLinks.twitter && (
+	          <a
+	            href={profile.socialLinks.twitter}
+	            target="_blank"
+	            rel="noreferrer"
+	            className="text-blue-400 hover:underline"
+	          >
+	            Twitter
+	          </a>
+	        )}
+	        {profile.socialLinks.instagram && (
+	          <a
+	            href={profile.socialLinks.instagram}
+	            target="_blank"
+	            rel="noreferrer"
+	            className="text-pink-600 hover:underline"
+	          >
+	            Instagram
+	          </a>
+	        )}
+	      </div>
+	      <p className="mt-4 font-medium">Privacy: {profile.privacy}</p>
+
+	      {/* Блок количества вишлистов и друзей*/}
+	      <div className="profile-info mt-2">
+	        <h1 id="profileName" className="text-2xl font-bold">{profile.name || 'No Name'}</h1>
+	        <p id="profileEmail" className="text-gray-600">{profile.email}</p>
+
+	        <div className="profile-stats flex space-x-6 mt-3 text-center">
+	          <div className="stat">
+	            <span className="stat-number block text-xl font-semibold" id="profileWishlists">{wishes.length}</span>
+	            <span className="stat-label text-gray-500 text-sm">Вишлистов</span>
+	          </div>
+	          <div className="stat">
+	            <span className="stat-number block text-xl font-semibold" id="profileContributions">0</span>
+	            <span className="stat-label text-gray-500 text-sm">Взносов</span>
+	          </div>
+	          <div className="stat">
+	            <span className="stat-number block text-xl font-semibold" id="profileFriends">{friendsCount}</span>
+	            <span className="stat-label text-gray-500 text-sm">Друзей</span>
+	          </div>
+	        </div>
+	      </div>
+
+	      <button
+	        onClick={() => setIsEditing(true)}
+	        className="mt-6 px-6 py-2 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full hover:shadow-lg transition"
+	      >
+	        Редактировать профиль
+	      </button>
+	    </div>
+
+	    {/* Правая колонка: Желания, друзья, лента */}
+	    <div className="md:w-1/2">
+	      <ProfileTabs
+	        wishes={wishes}
+	        friendsCount={friendsCount}
+	        onRemove={handleRemove}
+	        onViewDetails={handleViewDetails}
+	      />
+	    </div>
 	  </div>
 	) : (
 	  <form onSubmit={handleSubmit} className="space-y-6">
