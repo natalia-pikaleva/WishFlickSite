@@ -352,12 +352,14 @@ const Profile = () => {
 	      </div>
 
 	      {/* Правая колонка: Желания, друзья, лента */}
-	      <ProfileTabs
-            wishes={wishes}
-            friendsCount={friendsCount}
-            onRemove={handleRemove}
-            onViewDetails={handleViewDetails}
-          />
+	      <div className="md:w-1/2">
+	        <ProfileTabs
+	          wishes={wishes}
+	          friendsCount={friendsCount}
+	          onRemove={handleRemove}
+	          onViewDetails={handleViewDetails}
+	        />
+	      </div>
 
 	  </div>
 	) : (
