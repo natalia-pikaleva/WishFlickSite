@@ -232,28 +232,36 @@ const Profile = () => {
 
 	      {/* Правая колонка: Мои желания */}
 	      <WishList wishes={profile.wishes} />
-	    </div>
 	  </div>
-	  ) : (
-              <div className="w-32 h-32 rounded-full bg-gray-200 mb-2 flex items-center justify-center text-gray-400">
-                Нет аватарки
-              </div>
-            )}
+	) : (
+	  <form onSubmit={handleSubmit} className="space-y-6">
+	    <div className="flex flex-col items-center">
+	      {profile.avatarUrl ? (
+	        <img
+	          src={getAvatarUrl(profile.avatarUrl)}
+	          alt="Avatar Preview"
+	          className="w-32 h-32 rounded-full object-cover mb-2"
+	        />
+	      ) : (
+	        <div className="w-32 h-32 rounded-full bg-gray-200 mb-2 flex items-center justify-center text-gray-400">
+	          Нет аватарки
+	        </div>
+	      )}
 
-            <input
-		        type="file"
-		        accept="image/*"
-		        id="avatarFile"
-		        onChange={handleAvatarChange}
-		        className="hidden"
-		      />
-		      <label
-		        htmlFor="avatarFile"
-                className="mt-6 px-6 py-2 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full hover:shadow-lg transition"
-				>
-		        Выберите файл
-		      </label>
-          </div>
+	      <input
+	        type="file"
+	        accept="image/*"
+	        id="avatarFile"
+	        onChange={handleAvatarChange}
+	        className="hidden"
+	      />
+	      <label
+	        htmlFor="avatarFile"
+	        className="mt-6 px-6 py-2 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full hover:shadow-lg transition"
+	      >
+	        Выберите файл
+	      </label>
+	    </div>
 
           <div>
             <label className="block font-medium mb-1" htmlFor="name">
