@@ -262,11 +262,15 @@ const Header = () => {
 		      </div>
 
 		      <div className="flex items-center gap-2 min-w-0 flex-nowrap ml-4">
-		        <SearchBar className="flex-grow min-w-0" />
-		        <button className="p-2 text-gray-600 hover:text-[#835FE5] transition-colors" aria-label="Notifications">
-		          <Bell className="w-5 h-5" />
-		        </button>
+		        <SearchBar className="hidden md:flex flex-grow min-w-0" />
+		        <button
+				  className="hidden md:block p-2 text-gray-600 hover:text-[#835FE5] transition-colors"
+				  aria-label="Notifications"
+				>
+				  <Bell className="w-5 h-5" />
+				</button>
 		        <UserMenu
+		          className="hidden md:flex"
 		          isLoggedIn={isLoggedIn}
 		          userAvatar={userAvatar}
 		          onLogout={handleLogout}
