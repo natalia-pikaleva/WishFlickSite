@@ -240,13 +240,13 @@ const Profile = () => {
 
 
   return (
-    <main className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-md mt-10">
+    <main className="max-w-full mx-auto p-6 bg-white rounded-xl shadow-md mt-10">
 	  <h1 className="text-3xl font-bold mb-6 text-center text-gray-900">Профиль</h1>
 
 	  {!isEditing ? (
 	  <div className="flex flex-col md:flex-row md:space-x-8">
 	    {/* Левая колонка: информация и кнопка */}
-	    <div className="md:w-1/2 text-center md:text-left">
+	    <div className="md:w-1/3 text-center md:text-left">
 
 		  {/* Аватарка профиля с кнопкой редактирования */}
 	      <div className="relative inline-block rounded-full p-[2px] bg-gradient-to-r from-[#B48DFE] to-[#98E2D5]">
@@ -352,7 +352,7 @@ const Profile = () => {
 	    </div>
 
 	    {/* Правая колонка: Желания, друзья, лента */}
-	    <div className="md:w-1/2">
+	    <div className="md:w-2/3">
 	      <ProfileTabs
 	        wishes={wishes}
 	        friendsCount={friendsCount}
