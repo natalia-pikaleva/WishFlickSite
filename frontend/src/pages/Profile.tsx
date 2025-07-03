@@ -246,7 +246,7 @@ const Profile = () => {
 	  {!isEditing ? (
 	  <div className="flex flex-col md:flex-row md:space-x-8">
 	    {/* Левая колонка: информация и кнопка */}
-	    <div className="md:w-1/3 text-center md:text-left lg:ml-6">
+	    <div className="md:w-1/3 text-center md:text-left lg:ml-8">
 
 		  {/* Аватарка профиля с кнопкой редактирования */}
 	      <div className="relative inline-block rounded-full p-[2px] bg-gradient-to-r from-[#B48DFE] to-[#98E2D5]">

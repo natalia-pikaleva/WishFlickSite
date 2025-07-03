@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
 export default function Navigation() {
   return (
     <nav className="hidden md:flex items-center gap-6 flex-1">
-      <NavLink
+      {/*<NavLink
         to="/"
         className={({ isActive }) =>
           isActive
@@ -33,7 +33,7 @@ export default function Navigation() {
         }
       >
         Кампании
-      </NavLink>
+      </NavLink>*/}
       <NavLink
         to="/community"
         className={({ isActive }) =>
