@@ -4,7 +4,7 @@ interface WishListProps {
   wishes: string[]; // или более сложная структура
 }
 
-const WishList: React.FC<WishListProps> = ({ wishes }) => {
+const WishListProfile: React.FC<WishListProps> = ({ wishes }) => {
   return (
     <div>
       <h3 className="text-2xl font-semibold mb-4">Мои желания</h3>

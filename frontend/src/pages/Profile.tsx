@@ -1,7 +1,7 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
 import { API_BASE_URL, STATIC_BASE_URL } from '../config';
-import WishList from './Profile_components/WishListProfile';
+import WishListProfile from './Profile_components/WishListProfile';
 
 type PrivacySetting = 'public' | 'friends' | 'private';
 
@@ -231,7 +231,8 @@ const Profile = () => {
 	      </div>
 
 	      {/* Правая колонка: Мои желания */}
-	      <WishList wishes={profile.wishes} />
+	      <WishListProfile wishes={profile.wishes} />
+
 	  </div>
 	) : (
 	  <form onSubmit={handleSubmit} className="space-y-6">
