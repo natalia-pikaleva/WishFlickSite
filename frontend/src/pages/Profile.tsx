@@ -278,7 +278,7 @@ const Profile = () => {
 	      </div>
 
 	      {/* Правая колонка: Мои желания */}
-	      <WishListProfile wishes={profile.wishes} />
+	      <WishListProfile wishes={wishes || []} onRemove={handleRemove} onViewDetails={handleViewDetails} />
 
 	  </div>
 	) : (
