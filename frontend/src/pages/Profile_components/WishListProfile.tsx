@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface WishListProps {
-  wishes: string[]; // или более сложная структура
+  wishes?: string[]; // или более сложная структура
 }
 
 const WishListProfile: React.FC<WishListProps> = ({ wishes }) => {
