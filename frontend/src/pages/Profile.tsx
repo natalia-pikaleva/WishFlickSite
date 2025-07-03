@@ -232,6 +232,7 @@ const Profile = () => {
 
 	      {/* Правая колонка: Мои желания */}
 	      <WishListProfile wishes={profile.wishes} />
+
 	  </div>
 	) : (
 	  <form onSubmit={handleSubmit} className="space-y-6">
