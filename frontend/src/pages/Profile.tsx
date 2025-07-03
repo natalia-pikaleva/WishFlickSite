@@ -222,17 +222,45 @@ const Profile = () => {
 	    <div className="flex flex-col md:flex-row md:space-x-8">
 	      {/* Левая колонка: информация и кнопка */}
 	      <div className="md:w-1/2 text-center md:text-left">
-	        {profile.avatarUrl ? (
-	          <img
-	            src={getAvatarUrl(profile.avatarUrl)}
-	            alt="Avatar"
-	            className="w-32 h-32 rounded-full mx-auto md:mx-0 mb-4 object-cover"
-	          />
-	        ) : (
-	          <div className="w-32 h-32 rounded-full mx-auto md:mx-0 mb-4 bg-gray-200 flex items-center justify-center text-gray-400">
-	            Нет аватарки
-	          </div>
-	        )}
+	        <div className="profile-avatar flex items-center relative w-32 h-32 rounded-full bg-gray-200 overflow-hidden mx-auto md:mx-0 mb-4">
+			  {profile.avatarUrl ? (
+			    <img
+			      id="profileAvatarImg"
+			      src={getAvatarUrl(profile.avatarUrl)}
+			      alt="Avatar"
+			      className="w-full h-full object-cover"
+			    />
+			  ) : (
+			    <span
+			      id="profileInitials"
+			      className="flex items-center justify-center w-full h-full text-3xl font-bold text-gray-600"
+			    >
+			      {profile.name ? profile.name.slice(0, 2).toUpperCase() : '??'}
+			    </span>
+			  )}
+
+			  <button
+			    type="button"
+			    id="avatarUploadBtn"
+			    title="Изменить фото"
+			    className="absolute bottom-1 right-1 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition"
+			    onClick={() => {
+			      const input = document.getElementById('avatarInput');
+			      input?.click();
+			    }}
+			  >
+			    📷
+			  </button>
+
+			  <input
+			    type="file"
+			    id="avatarInput"
+			    accept="image/*"
+			    className="hidden"
+			    onChange={handleAvatarChange}
+			  />
+			</div>
+
 	        <h2 className="text-xl font-semibold">{profile.name || 'No Name'}</h2>
 	        <p className="text-gray-600">{profile.email}</p>
 	        <p className="mt-4">{profile.description}</p>
