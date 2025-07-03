@@ -18,14 +18,14 @@ export default function UserMenu({ isLoggedIn, userAvatar, onLogout, onLoginClic
           </Link>
           <button
             onClick={onLogout}
-            className="ml-2 px-4 py-1 rounded-full font-semibold text-white bg-gradient-to-r from-[#6A49C8] to-[#B48DFE] shadow-md hover:from-[#B48DFE] hover:to-[#6A49C8] transition-all duration-200 text-sm"
+            className="ml-2 px-4 py-1 rounded-full font-semibold text-white bg-gradient-to-r from-[#6A49C8] to-[#98E2D5] shadow-md hover:from-[#B48DFE] hover:to-[#6A49C8] transition-all duration-200 text-sm"
           >
-            Logout
+            Выйти
           </button>
         </>
       ) : (
         <button
-          className="px-4 py-2 bg-black/5 rounded-full font-bold text-[#16141D] opacity-60 hover:opacity-100 transition"
+            className="ml-2 px-4 py-1 rounded-full font-semibold text-white bg-gradient-to-r from-[#6A49C8] to-[#98E2D5] shadow-md hover:from-[#B48DFE] hover:to-[#6A49C8] transition-all duration-200 text-sm"
           onClick={onLoginClick}
         >
           Войти

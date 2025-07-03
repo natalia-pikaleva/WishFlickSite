@@ -23,10 +23,11 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           <Link to="/campaigns" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={onClose}>Кампании</Link>
           <Link to="/community" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={onClose}>Сообщество</Link>
           <Link to="/influencer-wishlists" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={onClose}>Списки желаний блогеров</Link>
+
           {/* Горизонтальная тонкая линия */}
           <hr className="border-t border-gray-300 my-4" />
 
-		  {/* Новый пункт меню Профиль */}
+		  {/* Профиль */}
 		  <Link to="/profile" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={onClose}>Профиль</Link>
         </nav>
       </div>
