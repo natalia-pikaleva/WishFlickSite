@@ -1,6 +1,8 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
 import { API_BASE_URL, STATIC_BASE_URL } from '../config';
+import WishList from './Profile_components/WishListProfile';
+
 type PrivacySetting = 'public' | 'friends' | 'private';
 
 interface UserProfileData {
@@ -167,74 +169,71 @@ const Profile = () => {
 
   return (
     <main className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-md mt-10">
-      <h1 className="text-3xl font-bold mb-6 text-center text-gray-900">Профиль</h1>
+	  <h1 className="text-3xl font-bold mb-6 text-center text-gray-900">Профиль</h1>
 
-      {!isEditing ? (
-        <div className="text-center">
-          {profile.avatarUrl ? (
-            <img
-              src={getAvatarUrl(profile.avatarUrl)}
-              alt="Avatar"
-              className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
-            />
-          ) : (
-            <div className="w-32 h-32 rounded-full mx-auto mb-4 bg-gray-200 flex items-center justify-center text-gray-400">
-              Нет аватарки
-            </div>
-          )}
-          <h2 className="text-xl font-semibold">{profile.name || 'No Name'}</h2>
-          <p className="text-gray-600">{profile.email}</p>
-          <p className="mt-4">{profile.description}</p>
-          <div className="mt-4 space-x-4">
-            {profile.socialLinks.facebook && (
-              <a
-                href={profile.socialLinks.facebook}
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-600 hover:underline"
-              >
-                Facebook
-              </a>
-            )}
-            {profile.socialLinks.twitter && (
-              <a
-                href={profile.socialLinks.twitter}
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-400 hover:underline"
-              >
-                Twitter
-              </a>
-            )}
-            {profile.socialLinks.instagram && (
-              <a
-                href={profile.socialLinks.instagram}
-                target="_blank"
-                rel="noreferrer"
-                className="text-pink-600 hover:underline"
-              >
-                Instagram
-              </a>
-            )}
-          </div>
-          <p className="mt-4 font-medium">Privacy: {profile.privacy}</p>
-          <button
-            onClick={() => setIsEditing(true)}
-            className="mt-6 px-6 py-2 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full hover:shadow-lg transition"
-          >
-            Редактировать профиль
-          </button>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex flex-col items-center">
-            {profile.avatarUrl ? (
-              <img
-                src={getAvatarUrl(profile.avatarUrl)}
-                alt="Avatar Preview"
-                className="w-32 h-32 rounded-full object-cover mb-2"
-              />
-            ) : (
+	  {!isEditing ? (
+	    <div className="flex flex-col md:flex-row md:space-x-8">
+	      {/* Левая колонка: информация и кнопка */}
+	      <div className="md:w-1/2 text-center md:text-left">
+	        {profile.avatarUrl ? (
+	          <img
+	            src={getAvatarUrl(profile.avatarUrl)}
+	            alt="Avatar"
+	            className="w-32 h-32 rounded-full mx-auto md:mx-0 mb-4 object-cover"
+	          />
+	        ) : (
+	          <div className="w-32 h-32 rounded-full mx-auto md:mx-0 mb-4 bg-gray-200 flex items-center justify-center text-gray-400">
+	            Нет аватарки
+	          </div>
+	        )}
+	        <h2 className="text-xl font-semibold">{profile.name || 'No Name'}</h2>
+	        <p className="text-gray-600">{profile.email}</p>
+	        <p className="mt-4">{profile.description}</p>
+	        <div className="mt-4 space-x-4">
+	          {profile.socialLinks.facebook && (
+	            <a
+	              href={profile.socialLinks.facebook}
+	              target="_blank"
+	              rel="noreferrer"
+	              className="text-blue-600 hover:underline"
+	            >
+	              Facebook
+	            </a>
+	          )}
+	          {profile.socialLinks.twitter && (
+	            <a
+	              href={profile.socialLinks.twitter}
+	              target="_blank"
+	              rel="noreferrer"
+	              className="text-blue-400 hover:underline"
+	            >
+	              Twitter
+	            </a>
+	          )}
+	          {profile.socialLinks.instagram && (
+	            <a
+	              href={profile.socialLinks.instagram}
+	              target="_blank"
+	              rel="noreferrer"
+	              className="text-pink-600 hover:underline"
+	            >
+	              Instagram
+	            </a>
+	          )}
+	        </div>
+	        <p className="mt-4 font-medium">Privacy: {profile.privacy}</p>
+	        <button
+	          onClick={() => setIsEditing(true)}
+	          className="mt-6 px-6 py-2 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full hover:shadow-lg transition"
+	        >
+	          Редактировать профиль
+	        </button>
+	      </div>
+
+	      {/* Правая колонка: Мои желания */}
+	      <WishList wishes={profile.wishes} />
+	    </div>
+	  ) : (
               <div className="w-32 h-32 rounded-full bg-gray-200 mb-2 flex items-center justify-center text-gray-400">
                 Нет аватарки
               </div>
