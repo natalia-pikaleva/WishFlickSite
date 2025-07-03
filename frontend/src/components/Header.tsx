@@ -252,34 +252,39 @@ const Header = () => {
 
   return (
     <>
-      <header className="bg-white shadow sticky top-0 z-50">
-        <div className="w-full flex justify-center bg-[#FAFAFC] py-4">
-          <div className="w-full max-w-[1208px] h-[86px] rounded-[47px] shadow-[0_10px_40px_-10px_rgba(40,72,95,0.1)] flex items-center px-6 md:px-10 relative">
-            <Logo />
-            <Navigation />
-            <div className="flex items-center gap-2 min-w-0 ml-4">
-              <SearchBar />
-              <button className="p-2 text-gray-600 hover:text-[#835FE5] transition-colors" aria-label="Notifications">
-                <Bell className="w-5 h-5" />
-              </button>
-              <UserMenu
-                isLoggedIn={isLoggedIn}
-                userAvatar={userAvatar}
-                onLogout={handleLogout}
-                onLoginClick={() => openAuthModal('login')}
-              />
-              <button
-                className="md:hidden p-2 text-gray-600"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                aria-label="Toggle menu"
-              >
-                {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
-            </div>
-          </div>
-          <MobileMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-        </div>
-      </header>
+      <header className="bg-white shadow sticky top-0 z-50 overflow-x-hidden">
+		  <div className="flex justify-center bg-[#FAFAFC] py-4">
+		    <div className="w-full max-w-[1208px] h-[86px] rounded-[47px] shadow flex items-center px-6 md:px-10 relative justify-between">
+
+		      <div className="flex items-center gap-4">
+		        <Logo />
+		        <Navigation />
+		      </div>
+
+		      <div className="flex items-center gap-2 min-w-0 flex-nowrap ml-4">
+		        <SearchBar className="flex-grow min-w-0" />
+		        <button className="p-2 text-gray-600 hover:text-[#835FE5] transition-colors" aria-label="Notifications">
+		          <Bell className="w-5 h-5" />
+		        </button>
+		        <UserMenu
+		          isLoggedIn={isLoggedIn}
+		          userAvatar={userAvatar}
+		          onLogout={handleLogout}
+		          onLoginClick={() => openAuthModal('login')}
+		        />
+		        <button
+		          className="md:hidden p-2 text-gray-600 flex-shrink-0"
+		          onClick={() => setIsMenuOpen(!isMenuOpen)}
+		          aria-label="Toggle menu"
+		        >
+		          {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+		        </button>
+		      </div>
+		    </div>
+		    <MobileMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+		  </div>
+		</header>
+
 
       {isAuthOpen && (
         <AuthModal
