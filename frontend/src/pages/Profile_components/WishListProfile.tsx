@@ -16,7 +16,7 @@ interface WishListProps {
   onViewDetails?: (id: number) => void;
 }
 
-const WishListProfile: React.FC<WishListProps> = ({ wishes, onRemove, onViewDetails }) => {
+const WishListProfile: React.FC<WishListProps> = ({ wishes = [], onRemove, onViewDetails }) => {
   return (
     <div>
       <h3 className="text-2xl font-semibold mb-4">Мои желания</h3>
