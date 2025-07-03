@@ -1,4 +1,5 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL, STATIC_BASE_URL } from '../config';
 import WishListProfile from './Profile_components/WishListProfile';
@@ -41,6 +42,8 @@ const Profile = () => {
   const [profile, setProfile] = useState<UserProfileData>(defaultProfile);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [wishes, setWishes] = useState<WishItem[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -124,48 +127,92 @@ const Profile = () => {
   };
 
   const handleSubmit = async (e: FormEvent) => {
-  e.preventDefault();
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      alert('Please login first');
-      return;
-    }
-    const formDataToSend = new FormData();
-    formDataToSend.append('name', profile.name || '');
-    formDataToSend.append('email', profile.email || '');
-    formDataToSend.append('description', profile.description || '');
-    formDataToSend.append('privacy', profile.privacy || 'public');
-    formDataToSend.append('social_facebook', profile.socialLinks.facebook || '');
-    formDataToSend.append('social_twitter', profile.socialLinks.twitter || '');
-    formDataToSend.append('social_instagram', profile.socialLinks.instagram || '');
-    if (avatarFile) {
-      formDataToSend.append('avatar', avatarFile);
-    }
-	formDataToSend.append('is_influencer', profile.isInfluencer ? 'true' : 'false');
+	  e.preventDefault();
+	    const token = localStorage.getItem('access_token');
+	    if (!token) {
+	      alert('Please login first');
+	      return;
+	    }
+	    const formDataToSend = new FormData();
+	    formDataToSend.append('name', profile.name || '');
+	    formDataToSend.append('email', profile.email || '');
+	    formDataToSend.append('description', profile.description || '');
+	    formDataToSend.append('privacy', profile.privacy || 'public');
+	    formDataToSend.append('social_facebook', profile.socialLinks.facebook || '');
+	    formDataToSend.append('social_twitter', profile.socialLinks.twitter || '');
+	    formDataToSend.append('social_instagram', profile.socialLinks.instagram || '');
+	    if (avatarFile) {
+	      formDataToSend.append('avatar', avatarFile);
+	    }
+		formDataToSend.append('is_influencer', profile.isInfluencer ? 'true' : 'false');
 
+	    try {
+	  const response = await axios.put(`${API_BASE_URL}/profile`, formDataToSend, {
+	    headers: {
+	      Authorization: `Bearer ${token}`,
+	      'Content-Type': 'multipart/form-data',
+	    },
+	  });
+	  console.log('Profile updated:', response.data);
+	  alert('Profile updated!');
+	  setProfile({
+	    ...response.data,
+	    avatarUrl: response.data.avatar_url || '',
+	    socialLinks: {
+	      facebook: response.data.social_facebook || '',
+	      twitter: response.data.social_twitter || '',
+	      instagram: response.data.social_instagram || '',
+	    },
+	  });
+	  setIsEditing(false);
+	} catch (error: any) {
+	  alert(error.response?.data?.detail || 'Failed to update profile');
+	}
+	};
+
+  useEffect(() => {
+    const fetchWishes = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          alert('Пожалуйста, войдите на сайт');
+          return;
+        }
+        const response = await axios.get(`${API_BASE_URL}/wishes`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const wishesWithProgress = response.data.map((wish: any) => ({
+          ...wish,
+          progress: wish.goal > 0 ? Math.round((wish.raised / wish.goal) * 100) : 0,
+          image: wish.image_url,
+        }));
+        setWishes(wishesWithProgress);
+      } catch (error: any) {
+        alert(error.response?.data?.detail || 'Ошибка при загрузке желаний');
+      }
+    };
+    fetchWishes();
+  }, []);
+
+  const handleRemove = async (id: number) => {
     try {
-  const response = await axios.put(`${API_BASE_URL}/profile`, formDataToSend, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-  console.log('Profile updated:', response.data);
-  alert('Profile updated!');
-  setProfile({
-    ...response.data,
-    avatarUrl: response.data.avatar_url || '',
-    socialLinks: {
-      facebook: response.data.social_facebook || '',
-      twitter: response.data.social_twitter || '',
-      instagram: response.data.social_instagram || '',
-    },
-  });
-  setIsEditing(false);
-} catch (error: any) {
-  alert(error.response?.data?.detail || 'Failed to update profile');
-}
-};
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        alert('Пожалуйста, войдите на сайт');
+        return;
+      }
+      await axios.delete(`${API_BASE_URL}/wishes/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setWishes(prev => prev.filter(wish => wish.id !== id));
+    } catch (error: any) {
+      alert(error.response?.data?.detail || 'Ошибка при удалении желания');
+    }
+  };
+
+  const handleViewDetails = (id: number) => {
+    navigate(`/wishes/${id}`);
+  };
 
   return (
     <main className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-md mt-10">
