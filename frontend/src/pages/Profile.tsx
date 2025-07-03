@@ -233,6 +233,7 @@ const Profile = () => {
 	      {/* Правая колонка: Мои желания */}
 	      <WishList wishes={profile.wishes} />
 	    </div>
+	  </div>
 	  ) : (
               <div className="w-32 h-32 rounded-full bg-gray-200 mb-2 flex items-center justify-center text-gray-400">
                 Нет аватарки
