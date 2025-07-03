@@ -31,7 +31,6 @@ const defaultProfile: UserProfileData = {
   isInfluencer: false,  // по умолчанию false
 };
 
-const avatarInputRef = useRef<HTMLInputElement>(null);
 
 const getAvatarUrl = (avatarUrl?: string) => {
   if (!avatarUrl) return '/default-avatar.png';
@@ -47,6 +46,8 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [wishes, setWishes] = useState<WishItem[]>([]);
   const navigate = useNavigate();
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
 
   useEffect(() => {
     const fetchProfile = async () => {
