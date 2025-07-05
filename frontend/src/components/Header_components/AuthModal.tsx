@@ -80,7 +80,7 @@ export default function AuthModal({
   setEmailVerified,
   savedPassword,
   setSavedPassword,
-  handleChange,
+  handleChange, 415 276
   handleSubmit,
   handleVerify,
   handleLoginAfterVerify,
@@ -88,9 +88,9 @@ export default function AuthModal({
   handleGuestLogin,
 }: AuthModalProps) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-filter backdrop-blur-2xl flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-filter backdrop-blur-lg flex items-center justify-center z-50">
 	  <div className="bg-white rounded-2xl shadow-lg px-4 py-6 w-full
-	                  max-w-[280px] sm:max-w-[320px] md:max-w-[320px] lg:max-w-[320px] xl:max-w-[320px]
+	                  max-w-[280px] sm:max-w-[320px] md:max-w-[320px] lg:max-w-[440px] xl:max-w-[480px]
 	                  mx-2 relative max-h-[80vh] overflow-y-auto">
 	    <div className="flex justify-between items-center mb-6">
             {/* Логотип слева */}
