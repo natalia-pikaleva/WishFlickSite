@@ -241,8 +241,6 @@ const Profile = () => {
 
   return (
     <main className="max-w-full mx-auto p-6 bg-white rounded-xl shadow-md mt-10">
-	  <h1 className="text-3xl font-bold mb-6 text-center text-gray-900">Профиль</h1>
-
 	  {!isEditing ? (
 	  <div className="flex flex-col md:flex-row md:space-x-8">
 	    {/* Левая колонка: информация и кнопка */}
