@@ -1,11 +1,14 @@
 from sqlalchemy import (Column, Integer, String, Text, Enum, ForeignKey, Float,
-                        DateTime, UniqueConstraint, func, Boolean, BigInteger)
+                        DateTime, UniqueConstraint, func, Boolean, BigInteger,
+                        Table)
 from sqlalchemy.orm import relationship
 from database import Base
 from enum import Enum as PyEnum
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import Enum as SqlEnum
 
+
+# --- users ---
 
 class PrivacyEnum(PyEnum):
     public = "public"
@@ -14,9 +17,19 @@ class PrivacyEnum(PyEnum):
     anonymous = "anonymous"
 
 
+friend_association = Table(
+    "friend_association",
+    Base.metadata,
+    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("friend_id", Integer, ForeignKey("users.id"), primary_key=True),
+    UniqueConstraint("user_id", "friend_id", name="uq_user_friend")
+)
+
+
 class User(Base):
     __tablename__ = "users"
 
+    # columns
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
     is_verified = Column(Boolean, default=False)
@@ -33,13 +46,33 @@ class User(Base):
     social_twitter = Column(String, nullable=True)
     social_instagram = Column(String, nullable=True)
 
+    # relationships
     wishes = relationship("Wish", back_populates="owner", lazy="selectin")
     email_verifications = relationship(
         "EmailVerification",
         back_populates="user",
         cascade="all, delete-orphan"
     )
+    friends = relationship(
+        "User",
+        secondary=friend_association,
+        primaryjoin=id == friend_association.c.user_id,
+        secondaryjoin=id == friend_association.c.friend_id,
+        backref="friend_of",
+        lazy="selectin"
+    )
 
+
+class EmailVerification(Base):
+    __tablename__ = "email_verification"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    code = Column(String(6), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    user = relationship("User", back_populates="email_verifications")
+
+
+# --- wishes ---
 
 class WishSupporter(Base):
     __tablename__ = "wish_supporters"
@@ -53,6 +86,7 @@ class WishSupporter(Base):
 class Wish(Base):
     __tablename__ = "wishes"
 
+    # columns
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
     description = Column(Text, nullable=True)
@@ -66,6 +100,7 @@ class Wish(Base):
     duration_days = Column(Integer, default=30)
     category = Column(String, nullable=True)
 
+    # relationships
     owner = relationship("User", back_populates="wishes")
     supporters = relationship("WishSupporter", backref="wish", lazy="selectin")
 
@@ -81,6 +116,8 @@ class Wish(Base):
         return f"{days} day{'s' if days != 1 else ''} left"
 
 
+# --- activities ---
+
 class ActivityType(PyEnum):
     create_wish = "create_wish"
     comment = "comment"
@@ -91,6 +128,7 @@ class ActivityType(PyEnum):
 class Activity(Base):
     __tablename__ = "activities"
 
+    # columns
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     type = Column(Enum(ActivityType), nullable=False)
@@ -98,9 +136,8 @@ class Activity(Base):
     target_id = Column(Integer, nullable=True)  # id объекта действия
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    # Связь с пользователем
+    # relationships
     user = relationship("User", backref="activities")
-
     wish = relationship(
         "Wish",
         primaryjoin="and_(Activity.target_id == foreign(Wish.id), Activity.target_type == 'wish')",
@@ -117,12 +154,14 @@ class Activity(Base):
 class Comment(Base):
     __tablename__ = "comments"
 
+    # columns
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     wish_id = Column(Integer, ForeignKey("wishes.id"), nullable=False)
     content = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+    # relationships
     user = relationship("User", backref="comments")
     wish = relationship("Wish", backref="comments")
 
@@ -130,11 +169,13 @@ class Comment(Base):
 class Like(Base):
     __tablename__ = "likes"
 
+    # columns
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     wish_id = Column(Integer, ForeignKey("wishes.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+    # relationships
     user = relationship("User", backref="likes")
     wish = relationship("Wish", backref="likes")
 
@@ -146,23 +187,16 @@ class Like(Base):
 class ActivityLike(Base):
     __tablename__ = "activity_likes"
 
+    # columns
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     activity_id = Column(Integer, ForeignKey("activities.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+    # relationships
     user = relationship("User", backref="activity_likes")
     activity = relationship("Activity", backref="likes")
 
     __table_args__ = (
         UniqueConstraint('user_id', 'activity_id', name='uq_user_activity_like'),
     )
-
-
-class EmailVerification(Base):
-    __tablename__ = "email_verification"
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    code = Column(String(6), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    user = relationship("User", back_populates="email_verifications")
