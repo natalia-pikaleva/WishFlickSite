@@ -80,7 +80,7 @@ export default function AuthModal({
   setEmailVerified,
   savedPassword,
   setSavedPassword,
-  handleChange, 415 276
+  handleChange,
   handleSubmit,
   handleVerify,
   handleLoginAfterVerify,
