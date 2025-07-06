@@ -232,3 +232,12 @@ class VKAuthRequest(BaseModel):
     code: str
     code_verifier: str
     device_id: Optional[str] = None
+
+class UserOut(BaseModel):
+    id: int
+    email: str
+    name: Optional[str]
+    avatar_url: Optional[str]
+
+    class Config:
+        orm_mode = True

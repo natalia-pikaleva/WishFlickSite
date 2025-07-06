@@ -363,3 +363,25 @@ async def link_vk_to_user(db: AsyncSession, user_id: int, vk_id: int) -> User:
         await db.commit()
         await db.refresh(user)
     return user
+
+
+async def add_friend(db: AsyncSession, user: User, friend: User):
+    if friend not in user.friends:
+        user.friends.append(friend)
+        await db.commit()
+        await db.refresh(user)
+    return user
+
+
+async def remove_friend(db: AsyncSession, user: User, friend: User):
+    if friend in user.friends:
+        user.friends.remove(friend)
+        await db.commit()
+        await db.refresh(user)
+    return user
+
+
+async def get_friends(db: AsyncSession, user: User):
+    # Обновим объект, чтобы получить актуальный список друзей
+    await db.refresh(user)
+    return user.friends
