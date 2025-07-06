@@ -362,185 +362,199 @@ const Profile = () => {
 	    </div>
 	  </div>
 	) : (
-	  <form onSubmit={handleSubmit} className="space-y-6">
-	    <div className="flex flex-col items-center">
-	      {profile.avatarUrl ? (
-	        <img
-	          src={getAvatarUrl(profile.avatarUrl)}
-	          alt="Avatar Preview"
-	          className="w-32 h-32 rounded-full object-cover mb-2"
-	        />
-	      ) : (
-	        <div className="w-32 h-32 rounded-full bg-gray-200 mb-2 flex items-center justify-center text-gray-400">
-	          Нет аватарки
-	        </div>
-	      )}
+	  <form onSubmit={handleSubmit} className="max-w-lg mx-auto flex flex-col items-center space-y-6">
+		  {/* Аватарка с градиентной рамкой и кнопкой камеры */}
+		  <div className="relative inline-block rounded-full p-[3px] bg-gradient-to-r from-[#B48DFE] to-[#98E2D5] mb-2">
+		    <div className="bg-white rounded-full overflow-hidden w-32 h-32 flex items-center justify-center">
+		      {profile.avatarUrl ? (
+		        <img
+		          src={getAvatarUrl(profile.avatarUrl)}
+		          alt="Avatar"
+		          className="w-full h-full object-cover"
+		        />
+		      ) : (
+		        <span className="flex items-center justify-center w-full h-full text-3xl font-bold text-gray-600">
+		          {profile.name ? profile.name.slice(0, 2).toUpperCase() : '??'}
+		        </span>
+		      )}
+		    </div>
+		    {/* Кнопка камеры */}
+		    <button
+		      type="button"
+		      onClick={() => avatarInputRef.current?.click()}
+		      title="Изменить фото"
+		      className="absolute bottom-0 right-0 p-2 rounded-full bg-gradient-to-r from-[#B48DFE] to-[#98E2D5] text-white shadow-md hover:brightness-110 transition"
+		      style={{ transform: 'translate(30%, 30%)' }}
+		    >
+		      {/* Можно использовать svg-иконку камеры вместо эмодзи */}
+		      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+		        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553 2.276A2 2 0 0121 14.118V19a2 2 0 01-2 2H5a2 2 0 01-2-2v-4.882a2 2 0 01.447-1.342L8 10m7 0V7a3 3 0 10-6 0v3" />
+		      </svg>
+		    </button>
+		    <input
+		      type="file"
+		      ref={avatarInputRef}
+		      accept="image/*"
+		      className="hidden"
+		      onChange={handleAvatarChange}
+		    />
+		  </div>
 
-	      <input
-	        type="file"
-	        accept="image/*"
-	        id="avatarFile"
-	        onChange={handleAvatarChange}
-	        className="hidden"
-	      />
-	      <label
-	        htmlFor="avatarFile"
-	        className="mt-6 px-6 py-2 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full hover:shadow-lg transition"
-	      >
-	        Выберите файл
-	      </label>
-	    </div>
+		  {/* Остальные поля формы, все по центру */}
+		  <div className="w-full flex flex-col items-center space-y-4">
+		    <div className="w-full">
+		      <label className="block font-medium mb-1" htmlFor="name">
+		        Имя
+		      </label>
+		      <input
+		        id="name"
+		        name="name"
+		        value={profile.name}
+		        onChange={handleInputChange}
+		        required
+		        className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#B48DFE]"
+		        placeholder="Ваше имя"
+		      />
+		    </div>
 
-          <div>
-            <label className="block font-medium mb-1" htmlFor="name">
-              Имя
-            </label>
-            <input
-              id="name"
-              name="name"
-              value={profile.name}
-              onChange={handleInputChange}
-              required
-              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#B48DFE]"
-              placeholder="Your name"
-            />
-          </div>
+		    <div className="w-full">
+		      <label className="block font-medium mb-1" htmlFor="email">
+		        Электронная почта
+		      </label>
+		      <input
+		        id="email"
+		        name="email"
+		        type="email"
+		        value={profile.email}
+		        onChange={handleInputChange}
+		        required
+		        className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#B48DFE]"
+		        placeholder="you@example.com"
+		      />
+		    </div>
 
-          <div>
-            <label className="block font-medium mb-1" htmlFor="email">
-              Электронная почта
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={profile.email}
-              onChange={handleInputChange}
-              required
-              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#B48DFE]"
-              placeholder="you@example.com"
-            />
-          </div>
+		    <div className="w-full">
+		      <label className="block font-medium mb-1" htmlFor="description">
+		        Обо мне
+		      </label>
+		      <textarea
+		        id="description"
+		        name="description"
+		        value={profile.description}
+		        onChange={handleInputChange}
+		        rows={3}
+		        className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#B48DFE]"
+		        placeholder="Расскажите о себе"
+		      />
+		    </div>
 
-          <div>
-            <label className="block font-medium mb-1" htmlFor="description">
-              Обо мне
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={profile.description}
-              onChange={handleInputChange}
-              rows={3}
-              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#B48DFE]"
-              placeholder="Tell us about yourself"
-            />
-          </div>
+		    <fieldset className="w-full">
+		      <legend className="font-medium mb-2">Настройки конфиденциальности</legend>
+		      <label className="inline-flex items-center mr-4">
+		        <input
+		          type="radio"
+		          name="privacy"
+		          value="public"
+		          checked={profile.privacy === 'public'}
+		          onChange={handlePrivacyChange}
+		          className="form-radio"
+		        />
+		        <span className="ml-2">Публичный</span>
+		      </label>
+		      <label className="inline-flex items-center mr-4">
+		        <input
+		          type="radio"
+		          name="privacy"
+		          value="friends"
+		          checked={profile.privacy === 'friends'}
+		          onChange={handlePrivacyChange}
+		          className="form-radio"
+		        />
+		        <span className="ml-2">Только для друзей</span>
+		      </label>
+		      <label className="inline-flex items-center">
+		        <input
+		          type="radio"
+		          name="privacy"
+		          value="private"
+		          checked={profile.privacy === 'private'}
+		          onChange={handlePrivacyChange}
+		          className="form-radio"
+		        />
+		        <span className="ml-2">Закрытый</span>
+		      </label>
+		    </fieldset>
 
-          <fieldset>
-            <legend className="font-medium mb-2">Настройки конфиденциальности</legend>
-            <label className="inline-flex items-center mr-4">
-              <input
-                type="radio"
-                name="privacy"
-                value="public"
-                checked={profile.privacy === 'public'}
-                onChange={handlePrivacyChange}
-                className="form-radio"
-              />
-              <span className="ml-2">Публичный</span>
-            </label>
-            <label className="inline-flex items-center mr-4">
-              <input
-                type="radio"
-                name="privacy"
-                value="friends"
-                checked={profile.privacy === 'friends'}
-                onChange={handlePrivacyChange}
-                className="form-radio"
-              />
-              <span className="ml-2">Только для друзей</span>
-            </label>
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                name="privacy"
-                value="private"
-                checked={profile.privacy === 'private'}
-                onChange={handlePrivacyChange}
-                className="form-radio"
-              />
-              <span className="ml-2">Закрытый</span>
-            </label>
-          </fieldset>
-		  <div className="flex items-center space-x-2">
-			  <input
-			    id="isInfluencer"
-			    name="isInfluencer"
-			    type="checkbox"
-			    checked={profile.isInfluencer}
-			    onChange={(e) =>
-			      setProfile(prev => ({ ...prev, isInfluencer: e.target.checked }))
-			    }
-			    className="form-checkbox h-5 w-5 text-[#6A49C8]"
-			  />
-			  <label htmlFor="isInfluencer" className="font-medium text-gray-700">
-			    Я блогер
-			  </label>
-			</div>
+		    <div className="flex items-center space-x-2">
+		      <input
+		        id="isInfluencer"
+		        name="isInfluencer"
+		        type="checkbox"
+		        checked={profile.isInfluencer}
+		        onChange={(e) =>
+		          setProfile(prev => ({ ...prev, isInfluencer: e.target.checked }))
+		        }
+		        className="form-checkbox h-5 w-5 text-[#6A49C8]"
+		      />
+		      <label htmlFor="isInfluencer" className="font-medium text-gray-700">
+		        Я блогер
+		      </label>
+		    </div>
 
-          <div>
-            <label className="block font-medium mb-1" htmlFor="facebook">
-              ссылка на профиль Facebook
-            </label>
-            <input
-              id="facebook"
-              name="facebook"
-              type="url"
-              value={profile.socialLinks.facebook || ''}
-              onChange={handleSocialChange}
-              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#B48DFE]"
-              placeholder="https://facebook.com/yourprofile"
-            />
-          </div>
+		    <div className="w-full">
+		      <label className="block font-medium mb-1" htmlFor="facebook">
+		        Ссылка на профиль Facebook
+		      </label>
+		      <input
+		        id="facebook"
+		        name="facebook"
+		        type="url"
+		        value={profile.socialLinks.facebook || ''}
+		        onChange={handleSocialChange}
+		        className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#B48DFE]"
+		        placeholder="https://facebook.com/yourprofile"
+		      />
+		    </div>
 
-          <div>
-            <label className="block font-medium mb-1" htmlFor="twitter">
-              Ссылка на профиль Twitter
-            </label>
-            <input
-              id="twitter"
-              name="twitter"
-              type="url"
-              value={profile.socialLinks.twitter || ''}
-              onChange={handleSocialChange}
-              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#B48DFE]"
-              placeholder="https://twitter.com/yourprofile"
-            />
-          </div>
+		    <div className="w-full">
+		      <label className="block font-medium mb-1" htmlFor="twitter">
+		        Ссылка на профиль Twitter
+		      </label>
+		      <input
+		        id="twitter"
+		        name="twitter"
+		        type="url"
+		        value={profile.socialLinks.twitter || ''}
+		        onChange={handleSocialChange}
+		        className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#B48DFE]"
+		        placeholder="https://twitter.com/yourprofile"
+		      />
+		    </div>
 
-          <div>
-            <label className="block font-medium mb-1" htmlFor="instagram">
-              Ссылка на профиль Instagram
-            </label>
-            <input
-              id="instagram"
-              name="instagram"
-              type="url"
-              value={profile.socialLinks.instagram || ''}
-              onChange={handleSocialChange}
-              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#B48DFE]"
-              placeholder="https://instagram.com/yourprofile"
-            />
-          </div>
+		    <div className="w-full">
+		      <label className="block font-medium mb-1" htmlFor="instagram">
+		        Ссылка на профиль Instagram
+		      </label>
+		      <input
+		        id="instagram"
+		        name="instagram"
+		        type="url"
+		        value={profile.socialLinks.instagram || ''}
+		        onChange={handleSocialChange}
+		        className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#B48DFE]"
+		        placeholder="https://instagram.com/yourprofile"
+		      />
+		    </div>
+		  </div>
 
-          <button
-            type="submit"
-            className="mt-6 px-6 py-2 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full hover:shadow-lg transition"
-          >
-            Сохранить
-          </button>
-        </form>
+		  <button
+		    type="submit"
+		    className="mt-6 px-6 py-2 bg-gradient-to-r from-[#B48DFE] to-[#6A49C8] text-white rounded-full hover:shadow-lg transition"
+		  >
+		    Сохранить
+		  </button>
+		</form>
+
       )}
     </main>
   );
