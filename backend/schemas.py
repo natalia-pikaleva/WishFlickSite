@@ -241,3 +241,23 @@ class UserOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class PostBase(BaseModel):
+    content: str
+
+class PostCreate(PostBase):
+    pass
+
+class PostUpdate(PostBase):
+    pass
+
+class PostOut(PostBase):
+    id: int
+    owner_id: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    model_config = {
+        "arbitrary_types_allowed": True
+    }
