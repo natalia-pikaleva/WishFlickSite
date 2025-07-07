@@ -125,7 +125,7 @@ class CommentResponse(BaseModel):
     content: str
     user_id: int
     user: CommentUser
-    created_at: datetime.datetime
+    created_at: datetime
 
     class Config:
         orm_mode = True
@@ -139,7 +139,7 @@ class LikeResponse(BaseModel):
     id: int
     user_id: int
     wish_id: int
-    created_at: datetime.datetime
+    created_at: datetime
 
     class Config:
         orm_mode = True
@@ -171,7 +171,7 @@ class ActivityResponse(BaseModel):
     target_type: Optional[str]
     target_id: Optional[int]
     wish: Optional[WishSummary]
-    created_at: datetime.datetime
+    created_at: datetime
 
     class Config:
         orm_mode = True
