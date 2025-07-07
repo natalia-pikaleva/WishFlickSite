@@ -61,6 +61,7 @@ class User(Base):
         backref="friend_of",
         lazy="selectin"
     )
+    posts = relationship("Post", back_populates="owner", lazy="selectin")
 
 
 class EmailVerification(Base):
@@ -200,3 +201,16 @@ class ActivityLike(Base):
     __table_args__ = (
         UniqueConstraint('user_id', 'activity_id', name='uq_user_activity_like'),
     )
+
+class Post(Base):
+    __tablename__ = "posts"
+
+    # columns
+    id = Column(Integer, primary_key=True, index=True)
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    # relationships
+    owner = relationship("User", back_populates="posts")

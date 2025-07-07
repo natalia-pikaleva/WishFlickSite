@@ -19,9 +19,27 @@ import Profile from './pages/Profile';
 import OAuthCallback from "./pages/OAuthCallback";
 import WishDetails from './pages/WishDetails';
 import PublicInfluencerWishlists from './pages/PublicInfluencerWishlists';
-
+import UserProfilePage from './pages/UserPage';
+import UserPage from './pages/UserPage/UserPage'
 import * as VKID from '@vkid/sdk';
 import { VK_CLIENT_ID, VK_REDIRECT_URI } from './config';
+import { useParams } from 'react-router-dom';
+
+const UserProfileWrapper: React.FC = () => {
+  const { userId } = useParams<{ userId: string }>();
+
+  if (!userId) {
+    return <div className="p-10 text-center text-red-500">Ошибка: не указан ID пользователя</div>;
+  }
+
+  // Преобразуем userId в число, если нужно (в зависимости от API)
+  const userIdNumber = Number(userId);
+  if (isNaN(userIdNumber)) {
+    return <div className="p-10 text-center text-red-500">Ошибка: неверный ID пользователя</div>;
+  }
+
+  return <UserProfilePage userId={userIdNumber} />;
+};
 
 function Home() {
   return (
@@ -76,11 +94,16 @@ function App() {
           <Route path="/oauth-callback" element={<OAuthCallback />} />
           <Route path="/wishes/:wishId" element={<WishDetails />} />
           <Route path="/influencer-wishlists" element={<PublicInfluencerWishlists />} />
+          <Route path="/users/:userId" element={<UserProfileWrapper />}/>
+          <Route path="/users" element={<UserPage />}/>
+
         </Routes>
         <Footer />
       </Router>
     </AuthModalProvider>
   );
 }
+
+
 
 export default App;

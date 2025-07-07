@@ -18,6 +18,8 @@ from services import auth as auth, crud as crud
 from routers.wishes_router import router as router_wishes
 from routers.auth_router import router as router_auth
 from routers.friends_router import router as router_friends
+from routers.users_router import router as router_users
+from routers.posts_router import router as router_posts
 
 from config import LOGGING_CONFIG
 import logging.config
@@ -29,6 +31,8 @@ app = FastAPI(title="WishFlick API")
 app.include_router(router_wishes, prefix="/api/wishes", tags=["wishes"])
 app.include_router(router_auth, prefix="/api/auth", tags=["wishes"])
 app.include_router(router_friends, prefix="/api/friends", tags=["friends"])
+app.include_router(router_users, prefix="/api/users", tags=["users"])
+app.include_router(router_posts, prefix="/api/posts", tags=["posts"])
 
 origins = [
     "http://localhost:5173",
