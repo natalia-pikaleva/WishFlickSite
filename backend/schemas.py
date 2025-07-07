@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr, HttpUrl, Field, validator
 from typing import Optional, List
 from enum import Enum
-import datetime
+from datetime import datetime
 
 
 class PrivacyEnum(str, Enum):
@@ -233,6 +233,7 @@ class VKAuthRequest(BaseModel):
     code_verifier: str
     device_id: Optional[str] = None
 
+
 class UserOut(BaseModel):
     id: int
     email: str
@@ -246,11 +247,14 @@ class UserOut(BaseModel):
 class PostBase(BaseModel):
     content: str
 
+
 class PostCreate(PostBase):
     pass
 
+
 class PostUpdate(PostBase):
     pass
+
 
 class PostOut(PostBase):
     id: int
