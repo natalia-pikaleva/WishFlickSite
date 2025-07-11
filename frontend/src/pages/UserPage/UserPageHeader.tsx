@@ -1,7 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { UserPlus, MessageCircle, Settings, MapPin, Calendar, Link } from 'lucide-react';
+import {
+	fetchUserProfile,
+	 } from '../../utils/api/userApi'
 
-const UserPageHeader: React.FC = () => {
+import { STATIC_BASE_URL } from '../../config';
+
+interface UserPageHeaderProps {
+  userId: number;
+}
+
+interface UserProfileData {
+  id: number;
+  name: string;
+  email: string;
+  avatarUrl: string;
+  description: string;
+  socialLinks: {
+    facebook?: string;
+    twitter?: string;
+    instagram?: string;
+  };
+  isFriend: boolean;
+}
+
+const getAvatarUrl = (avatarUrl?: string) => {
+  if (!avatarUrl) return '/default-avatar.png';
+  if (avatarUrl.startsWith('http')) return avatarUrl;
+  return `${STATIC_BASE_URL}${avatarUrl}`;
+};
+
+
+const UserPageHeader: React.FC<UserPageHeaderProps> = ({ userId }) => {
+	const [profile, setProfile] = useState<UserProfileData | null>(null);
+
+  useEffect(() => {
+    fetchUserProfile(userId.toString()).then(data => {
+      if (data) {
+        setProfile(data);
+      }
+    });
+  }, [userId]);
+
+  if (!profile) {
+    return <div>Загрузка...</div>; // или любой индикатор загрузки
+  }
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
       {/* Cover Photo */}
@@ -15,7 +59,7 @@ const UserPageHeader: React.FC = () => {
         <div className="relative -mt-16 mb-6">
           <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gradient-to-br from-purple-400 to-teal-300 flex items-center justify-center">
             <img
-              src="https://avatars.mds.yandex.net/i?id=27a07fc7d3d209e395abce88607a0c51b280ad37-4507619-images-thumbs&n=13&w=400"
+              src={getAvatarUrl(profile.avatarUrl)}
               alt="Profile"
               className="w-full h-full object-cover"
             />
@@ -29,7 +73,7 @@ const UserPageHeader: React.FC = () => {
           {/* User Info */}
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-bold text-gray-900">Александра Петрова</h1>
+              <h1 className="text-3xl font-bold text-gray-900">{profile.name}</h1>
               <div className="px-3 py-1 bg-gradient-to-r from-purple-500 to-teal-400 text-white text-sm rounded-full font-medium">
                 Участник.pro
               </div>
@@ -50,7 +94,7 @@ const UserPageHeader: React.FC = () => {
               <div className="flex items-center gap-1">
                 <Link className="w-4 h-4" />
                 <a href="#" className="text-purple-600 hover:text-purple-700 transition-colors">
-                  natalia@pikaleva.com
+                  {profile.email}
                 </a>
               </div>
             </div>
@@ -62,13 +106,14 @@ const UserPageHeader: React.FC = () => {
               <UserPlus className="w-5 h-5" />
               Добавить в друзья
             </button>
-            <button className="flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all duration-200 shadow-sm hover:shadow-md">
+            {/*}<button className="flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all duration-200 shadow-sm hover:shadow-md">
               <MessageCircle className="w-5 h-5" />
               Сообщение
-            </button>
-            <button className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all duration-200 shadow-sm hover:shadow-md">
+            </button>*/}
+            {/* Настройки профиля */}
+            {/*}<button className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all duration-200 shadow-sm hover:shadow-md">
               <Settings className="w-5 h-5" />
-            </button>
+            </button>*/}
           </div>
         </div>
 

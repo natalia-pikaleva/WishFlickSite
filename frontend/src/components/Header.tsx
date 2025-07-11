@@ -14,6 +14,16 @@ import VkAuthWidget from './Header_components/VkAuthWidget';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
 
+import {
+  getUserProfile,
+} from '../utils/api/userApi';
+
+import {
+	registerUser,
+	loginUser,
+	verifyEmail,
+	guestLogin, } from '../utils/api/authApi'
+
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const {
@@ -52,26 +62,16 @@ const Header = () => {
 
   // Загрузка профиля пользователя по токену
   const fetchUserProfile = async (token: string) => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/users/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const user = response.data;
-      setUserAvatar(user.avatar_url || '/default-avatar.png');
-      localStorage.setItem('user_id', user.id.toString());
-    } catch (error) {
-      console.error('Failed to fetch user profile', error);
-      handleLogout();
-    }
-  };
+  try {
+    const user = await getUserProfile(token);
+    setUserAvatar(user.avatar_url || '/default-avatar.png');
+    localStorage.setItem('user_id', user.id.toString());
+  } catch (error) {
+    console.error('Failed to fetch user profile', error);
+    handleLogout();
+  }
+};
 
-  useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      setIsLoggedIn(true);
-      fetchUserProfile(token);
-    }
-  }, []);
 
   // Обработчик изменения полей формы
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -89,120 +89,78 @@ const Header = () => {
 
   // Обработчик отправки формы логина/регистрации
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoginError('');
-    setRegisterError('');
-    setPasswordError('');
+	  e.preventDefault();
+	  setLoginError('');
+	  setRegisterError('');
+	  setPasswordError('');
 
-    if (authMode === 'register' && formData.password !== formData.confirmPassword) {
-      setPasswordError('Пароли не совпадают');
-      return;
-    }
+	  if (authMode === 'register' && formData.password !== formData.confirmPassword) {
+	    setPasswordError('Пароли не совпадают');
+	    return;
+	  }
 
-    setIsLoading(true);
-    try {
-      let response: Response;
-      if (authMode === 'login') {
-        const loginForm = new URLSearchParams();
-        loginForm.append('username', formData.email);
-        loginForm.append('password', formData.password);
+	  setIsLoading(true);
+	  try {
+	    if (authMode === 'login') {
+	      const data = await loginUser(formData.email, formData.password);
+	      localStorage.setItem('access_token', data.access_token);
+	      setIsLoggedIn(true);
+	      closeAuthModal();
+	      await fetchUserProfile(data.access_token);
+	    } else {
+	      await registerUser({
+	        email: formData.email,
+	        password: formData.password,
+	        name: formData.name,
+	        privacy: formData.privacy,
+	      });
+	      setEmailForVerify(formData.email);
+	      setSavedPassword(formData.password);
+	      setStep('verify');
+	    }
+	  } catch (err: any) {
+	    const errorMessage = err.message || 'Неизвестная ошибка';
+	    if (authMode === 'login') setLoginError(errorMessage);
+	    else setRegisterError(errorMessage);
+	  } finally {
+	    setIsLoading(false);
+	  }
+	};
 
-        response = await fetch('/api/auth/token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: loginForm,
-        });
-      } else {
-        response = await fetch('/api/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-            name: formData.name,
-            privacy: formData.privacy,
-          }),
-        });
-      }
-
-      if (!response.ok) {
-        const data = await response.json();
-        const errorMessage = data.detail || 'Ошибка запроса';
-        if (authMode === 'login') setLoginError(errorMessage);
-        else setRegisterError(errorMessage);
-        return;
-      }
-
-      if (authMode === 'register') {
-        setEmailForVerify(formData.email);
-        setSavedPassword(formData.password);
-        setStep('verify');
-      } else {
-        const { access_token } = await response.json();
-        localStorage.setItem('access_token', access_token);
-        setIsLoggedIn(true);
-        closeAuthModal();
-        await fetchUserProfile(access_token);
-      }
-    } catch (err: any) {
-      const errorMessage = err.message || 'Неизвестная ошибка';
-      if (authMode === 'login') setLoginError(errorMessage);
-      else setRegisterError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // Обработка подтверждения email
   const handleVerify = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setVerifyError('');
-    try {
-      const response = await fetch('/api/auth/verify-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailForVerify, code: verificationCode }),
-      });
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || 'Неверный код');
-      }
-      await handleLoginAfterVerify();
-      setEmailVerified(true);
-    } catch (err: any) {
-      setVerifyError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+	  e.preventDefault();
+	  setIsLoading(true);
+	  setVerifyError('');
+	  try {
+	    await verifyEmail(emailForVerify, verificationCode);
+	    await handleLoginAfterVerify();
+	    setEmailVerified(true);
+	  } catch (err: any) {
+	    setVerifyError(err.message);
+	  } finally {
+	    setIsLoading(false);
+	  }
+	};
+
 
   // Автоматический вход после подтверждения email
   const handleLoginAfterVerify = async () => {
-    setIsLoading(true);
-    try {
-      const loginForm = new URLSearchParams();
-      loginForm.append('username', emailForVerify);
-      loginForm.append('password', savedPassword);
+	  setIsLoading(true);
+	  try {
+	    const data = await loginUser(emailForVerify, savedPassword);
+	    localStorage.setItem('access_token', data.access_token);
+	    setIsLoggedIn(true);
+	    closeAuthModal();
+	    await fetchUserProfile(data.access_token);
+	  } catch (err: any) {
+	    alert(err.message);
+	  } finally {
+	    setIsLoading(false);
+	  }
+	};
 
-      const response = await fetch('/api/auth/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: loginForm,
-      });
-      if (!response.ok) throw new Error('Ошибка входа. Попробуйте вручную.');
-
-      const data = await response.json();
-      localStorage.setItem('access_token', data.access_token);
-      setIsLoggedIn(true);
-      closeAuthModal();
-      await fetchUserProfile(data.access_token);
-    } catch (err: any) {
-      alert(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleClose = () => {
     closeAuthModal();
@@ -231,17 +189,17 @@ const Header = () => {
   };
 
   const handleGuestLogin = async () => {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/auth/guest-register`);
-      const { access_token } = response.data;
-      localStorage.setItem('access_token', access_token);
-      setIsLoggedIn(true);
-      closeAuthModal();
-      await fetchUserProfile(access_token);
-    } catch {
-      alert('Failed to login as guest');
-    }
-  };
+	  try {
+	    const data = await guestLogin();
+	    localStorage.setItem('access_token', data.access_token);
+	    setIsLoggedIn(true);
+	    closeAuthModal();
+	    await fetchUserProfile(data.access_token);
+	  } catch {
+	    alert('Failed to login as guest');
+	  }
+	};
+
 
   const handleFakeGoogleLogin = () => {
     localStorage.setItem('access_token', 'fake-google-token');
@@ -249,6 +207,15 @@ const Header = () => {
     closeAuthModal();
     navigate('/profile');
   };
+
+  useEffect(() => {
+	  const token = localStorage.getItem('access_token');
+	  if (token) {
+	    setIsLoggedIn(true);
+	    fetchUserProfile(token);
+	  }
+	}, []);
+
 
   return (
     <>

@@ -21,7 +21,7 @@ from routers.friends_router import router as router_friends
 from routers.users_router import router as router_users
 from routers.posts_router import router as router_posts
 
-from config import LOGGING_CONFIG
+from config import LOGGING_CONFIG, UPLOAD_ROOT
 import logging.config
 
 logger = logging.getLogger(__name__)
@@ -51,7 +51,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-UPLOAD_ROOT = "/var/www/wishflick/uploads"
 UPLOAD_DIR_AVATARS = os.path.join(UPLOAD_ROOT, "avatars")
 UPLOAD_DIR_WISHES = os.path.join(UPLOAD_ROOT, "wishes")
 
@@ -76,25 +75,6 @@ async def api_root():
 def generate_verification_code():
     return f"{random.randint(100000, 999999)}"
 
-
-@app.get("/api/users/me", response_model=schemas.User)
-async def read_users_me(
-        request: Request,
-        current_user: models.User = Depends(auth.get_current_user),
-        db: AsyncSession = Depends(get_db)
-):
-    try:
-        user = await crud.get_user_by_email(db, current_user.email)
-
-        # Формируем абсолютный URL для аватара, если он есть и начинается с '/'
-        if user.avatar_url and user.avatar_url.startswith('/'):
-            base_url = str(request.base_url).rstrip('/')
-            user.avatar_url = f"{base_url}{user.avatar_url}"
-
-        return user
-    except Exception as e:
-        logging.error("Failed to get user info: %s", e)
-        raise HTTPException(status_code=500, detail="Failed to get user info")
 
 
 @app.put("/api/profile", response_model=schemas.UserProfileResponse)

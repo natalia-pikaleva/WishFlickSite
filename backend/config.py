@@ -2,6 +2,13 @@ import os
 from dotenv import load_dotenv
 import logging
 
+# Папка загрузки картинок для сервера
+UPLOAD_ROOT = "/var/www/wishflick/uploads" # Для сервера
+
+# Папка загрузки картинок для локальной разработки
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# UPLOAD_ROOT = os.path.join(BASE_DIR, "uploads")
+
 load_dotenv()
 EMAIL_BEGET_PASSWORD = os.getenv('EMAIL_BEGET_PASSWORD', '')
 VK_CLIENT_ID = os.getenv('VK_CLIENT_ID', '')

@@ -2,6 +2,7 @@ from fastapi import (APIRouter, Depends, status)
 from fastapi.exceptions import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 import logging
+from typing import List
 
 from database import Base, engine, get_db
 import models as models
@@ -45,10 +46,13 @@ async def remove_friend_endpoint(
     return None
 
 
-@router.get("/", response_model=list[schemas.UserOut])
+@router.get("/", response_model=List[schemas.UserOut])
 async def get_friends_list(
         current_user: models.User = Depends(get_current_user),
         db: AsyncSession = Depends(get_db),
 ):
     friends = await crud.get_friends(db, current_user)
+    if friends is None:
+        # Вряд ли случится, но можно обработать
+        raise HTTPException(status_code=404, detail="Друзья не найдены")
     return friends
