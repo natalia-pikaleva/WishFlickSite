@@ -21,11 +21,12 @@ import WishDetails from './pages/WishDetails';
 import PublicInfluencerWishlists from './pages/PublicInfluencerWishlists';
 import UserProfilePage from './pages/UserPage';
 import UserPage from './pages/UserPage/UserPage'
+import ProfilePage from './pages/ProfilePage/ProfilePage'
 import * as VKID from '@vkid/sdk';
 import { VK_CLIENT_ID, VK_REDIRECT_URI } from './config';
 import { useParams } from 'react-router-dom';
 
-const UserProfileWrapper: React.FC = () => {
+const UserPageWrapper: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
 
   if (!userId) {
@@ -38,8 +39,9 @@ const UserProfileWrapper: React.FC = () => {
     return <div className="p-10 text-center text-red-500">Ошибка: неверный ID пользователя</div>;
   }
 
-  return <UserProfilePage userId={userIdNumber} />;
+  return <UserPage userId={userIdNumber} />;
 };
+
 
 function Home() {
   return (
@@ -90,12 +92,11 @@ function App() {
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/community" element={<Community />} />
           <Route path="/campaigns" element={<Campaign />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/oauth-callback" element={<OAuthCallback />} />
           <Route path="/wishes/:wishId" element={<WishDetails />} />
           <Route path="/influencer-wishlists" element={<PublicInfluencerWishlists />} />
-          <Route path="/users/:userId" element={<UserProfileWrapper />}/>
-          <Route path="/users" element={<UserPage />}/>
+          <Route path="/users/:userId" element={<UserPageWrapper />}/>
 
         </Routes>
         <Footer />

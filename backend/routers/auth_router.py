@@ -15,7 +15,8 @@ import models as models
 import schemas as schemas
 
 import services.crud as crud
-from services.auth import create_access_token, verify_password
+from services.auth import (create_access_token, verify_password,
+                           create_refresh_token, decode_refresh_token)
 
 from backend_conf import (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
                           GOOGLE_REDIRECT_URI, FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET,
@@ -296,20 +297,31 @@ async def verify_email(data: schemas.EmailVerificationRequest, db: AsyncSession 
         raise HTTPException(status_code=500, detail="Failed to verify email user")
 
 
-@router.post("/token", response_model=schemas.Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+
+@router.post("/token", response_model=schemas.TokenResponse)
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db),
+):
     try:
         user = await crud.get_user_by_email(db, email=form_data.username)
         if not user or not verify_password(form_data.password, user.hashed_password):
-            raise HTTPException(status_code=401, detail="Incorrect email or password")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
+
         access_token = create_access_token(data={"sub": user.email})
-        return {"access_token": access_token, "token_type": "bearer", "user_id": user.id}
+        refresh_token = create_refresh_token(data={"sub": user.email})
+
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+            "user_id": user.id,
+        }
     except HTTPException:
         raise
     except Exception as e:
         logging.error("Failed to login user: %s", e)
         raise HTTPException(status_code=500, detail="Failed to login user")
-
 
 
 
@@ -358,3 +370,38 @@ async def vk_auth(vk_auth_request: dict, db: AsyncSession = Depends(get_db)):
         # Например:
         # jwt_token = create_jwt_for_user(...)
         return {"access_token": access_token, "token_type": "bearer"}
+
+
+
+@router.post("/refresh-token", response_model=schemas.TokenResponse)
+async def refresh_access_token(
+    token_request: schemas.TokenRefreshRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        # Валидация и декодирование refresh токена
+        payload = decode_refresh_token(token_request.refresh_token)
+        email = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+
+        user = await crud.get_user_by_email(db, email=email)
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+
+        # При необходимости можно проверить, что refresh_token не отозван (реализуйте логику, если нужно)
+
+        # Создаем новые токены
+        access_token = create_access_token(data={"sub": user.email})
+        refresh_token = create_refresh_token(data={"sub": user.email})
+
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error("Failed to refresh token: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to refresh token")

@@ -4,15 +4,11 @@ import WishlistsTab from './tabs/WishlistsTab';
 import PostsTab from './tabs/PostsTab';
 import FriendsTab from './tabs/FriendsTab';
 import CommunitiesTab from './tabs/CommunitiesTab';
-import { getUserWishesById } from '../../utils/api/wishApi';
-import { getUserFriendsById } from '../../utils/api/friendsApi';
+import { getUserWishes } from '../../utils/api/wishApi';
+import { getCurrentUserFriends } from '../../utils/api/friendsApi';
 import { Wish } from '../types';
 
-interface UserPageTabsProps {
-  userId: number;
-}
-
-const UserPageTabs: React.FC<UserPageTabsProps> = ({ userId }) => {
+const ProfilePageTabs: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'wishlists' | 'posts' | 'friends' | 'communities'>('wishlists');
   const [wishes, setWishes] = useState<Wish[]>([]);
   const [friends, setFriends] = useState<UserOut[]>([]);
@@ -21,7 +17,7 @@ const UserPageTabs: React.FC<UserPageTabsProps> = ({ userId }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token'); // ключ под ваш токен
+    const token = localStorage.getItem('access_token');
     if (!token) {
       setError('Токен не найден. Пожалуйста, войдите в систему.');
       return;
@@ -31,10 +27,10 @@ const UserPageTabs: React.FC<UserPageTabsProps> = ({ userId }) => {
       setLoadingWishes(true);
       setError(null);
       try {
-        const data = await getUserWishesById(userId, token);
+        const data = await getUserWishes(token);
         setWishes(data);
       } catch (e: any) {
-        setError(e.message || 'Ошибка при загрузке желаний пользователя');
+        setError(e.message || 'Ошибка при загрузке желаний');
       } finally {
         setLoadingWishes(false);
       }
@@ -44,7 +40,7 @@ const UserPageTabs: React.FC<UserPageTabsProps> = ({ userId }) => {
       setLoadingFriends(true);
       setError(null);
       try {
-        const data = await getUserFriendsById(userId, token);
+        const data = await getCurrentUserFriends(token);
         setFriends(data);
       } catch (e: any) {
         setError(e.message || 'Ошибка при загрузке друзей пользователя');
@@ -55,7 +51,7 @@ const UserPageTabs: React.FC<UserPageTabsProps> = ({ userId }) => {
 
     fetchWishes();
     fetchFriends();
-  }, [userId]);
+  }, []);
 
   const tabs = [
     { id: 'wishlists', label: 'Желания', icon: Heart, count: wishes.length },
@@ -69,7 +65,7 @@ const UserPageTabs: React.FC<UserPageTabsProps> = ({ userId }) => {
       case 'wishlists':
         if (loadingWishes) return <p>Загрузка желаний...</p>;
         if (error) return <p className="text-red-500">{error}</p>;
-        return <WishlistsTab wishes={wishes} userId={userId} />;
+        return <WishlistsTab wishes={wishes} />;
       case 'posts':
         return <PostsTab />;
       case 'friends':
@@ -77,7 +73,7 @@ const UserPageTabs: React.FC<UserPageTabsProps> = ({ userId }) => {
       case 'communities':
         return <CommunitiesTab />;
       default:
-        return <WishlistsTab wishes={wishes} userId={userId} />;
+        return <WishlistsTab wishes={wishes} />;
     }
   };
 
@@ -113,4 +109,4 @@ const UserPageTabs: React.FC<UserPageTabsProps> = ({ userId }) => {
   );
 };
 
-export default UserPageTabs;
+export default ProfilePageTabs;

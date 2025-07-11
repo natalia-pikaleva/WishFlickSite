@@ -71,6 +71,16 @@ class TokenData(BaseModel):
     email: Optional[str] = None
 
 
+class TokenRefreshRequest(BaseModel):
+    refresh_token: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+
+
 class UserProfileUpdate(BaseModel):
     name: Optional[str]
     email: Optional[EmailStr]
@@ -239,6 +249,8 @@ class UserOut(BaseModel):
     email: str
     name: Optional[str]
     avatar_url: Optional[str]
+    mutualFriends: int
+    wishlistsCount: int
 
     class Config:
         orm_mode = True
