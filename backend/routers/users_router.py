@@ -1,6 +1,6 @@
 from fastapi import (APIRouter, Depends, Request, status)
 from fastapi.exceptions import HTTPException
-from sqlalchemy import select, func, and_
+from sqlalchemy import select, func, and_, case, literal_column
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from typing import List
@@ -60,8 +60,8 @@ async def get_user_wishes_by_id(
 
 @router.get("/{user_id}/friends", response_model=List[schemas.UserOut])
 async def get_user_friends(
-    user_id: int,
-    db: AsyncSession = Depends(get_db),
+        user_id: int,
+        db: AsyncSession = Depends(get_db),
 ):
     friends = await crud.get_friends_by_user_id(db, user_id)
     if friends is None:
@@ -69,12 +69,11 @@ async def get_user_friends(
     return friends
 
 
-
 @router.get("/{user_id}", response_model=schemas.UserOut)
 async def get_user_by_id(
-    user_id: int,
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+        user_id: int,
+        current_user: User = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db)
 ):
     try:
         user = await db.get(User, user_id)
@@ -100,3 +99,65 @@ async def get_user_by_id(
     except Exception as e:
         logging.error(f"Failed to get user {user_id}: {e}")
         raise HTTPException(status_code=500, detail="Failed to get user")
+
+
+@router.get("/", response_model=list[schemas.UserOutWithFriend])
+async def get_users_list(
+        current_user: User = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db)
+):
+    try:
+        # Подзапрос для подсчёта wishlistsCount
+        wishlists_subq = (
+            select(Wish.owner_id, func.count(Wish.id).label("wishlists_count"))
+            .group_by(Wish.owner_id)
+            .subquery()
+        )
+
+        # Подзапрос для друзей текущего пользователя
+        friends_subq = (
+            select(friend_association.c.friend_id)
+            .filter(friend_association.c.user_id == current_user.id)
+            .subquery()
+        )
+
+        # Основной запрос: выбираем пользователей с wishlistsCount и isFriend
+        stmt = (
+            select(
+                User.id,
+                User.email,
+                User.name,
+                User.avatar_url,
+                func.coalesce(wishlists_subq.c.wishlists_count, 0).label("wishlistsCount"),
+                literal_column("0").label("mutualFriends"),  # можно добавить логику позже
+                case(
+                    (User.id.in_(select(friends_subq.c.friend_id)), True),
+                    else_=False
+                ).label("isFriend")
+            )
+            .outerjoin(wishlists_subq, User.id == wishlists_subq.c.owner_id)
+            .filter(User.id != current_user.id)  # исключаем текущего пользователя
+            .order_by(User.name)
+        )
+
+        result = await db.execute(stmt)
+        rows = result.all()
+
+        users_list = [
+            schemas.UserOutWithFriend(
+                id=row.id,
+                email=row.email,
+                name=row.name,
+                avatar_url=row.avatar_url,
+                wishlistsCount=row.wishlistsCount,
+                mutualFriends=row.mutualFriends,
+                isFriend=row.isFriend,
+            )
+            for row in rows
+        ]
+
+        return users_list
+
+    except Exception as e:
+        logging.error(f"Failed to get users list: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get users list")

@@ -255,6 +255,8 @@ class UserOut(BaseModel):
     class Config:
         orm_mode = True
 
+class UserOutWithFriend(UserOut):
+    isFriend: bool
 
 class PostBase(BaseModel):
     content: str
