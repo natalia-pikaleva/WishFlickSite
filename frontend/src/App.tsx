@@ -22,6 +22,8 @@ import PublicInfluencerWishlists from './pages/PublicInfluencerWishlists';
 import UserProfilePage from './pages/UserPage';
 import UserPage from './pages/UserPage/UserPage'
 import ProfilePage from './pages/ProfilePage/ProfilePage'
+import UsersListPage from './pages/UsersPage'
+
 import * as VKID from '@vkid/sdk';
 import { VK_CLIENT_ID, VK_REDIRECT_URI } from './config';
 import { useParams } from 'react-router-dom';
@@ -97,6 +99,7 @@ function App() {
           <Route path="/wishes/:wishId" element={<WishDetails />} />
           <Route path="/influencer-wishlists" element={<PublicInfluencerWishlists />} />
           <Route path="/users/:userId" element={<UserPageWrapper />}/>
+          <Route path="/users" element={<UsersListPage />} />
 
         </Routes>
         <Footer />

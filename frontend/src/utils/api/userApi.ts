@@ -88,3 +88,24 @@ export const uploadUserAvatar = async (formData: FormData): Promise<UpdatedProfi
     throw new Error(error.response?.data?.detail || 'Ошибка загрузки аватара');
   }
 };
+
+// Интерфейс пользователя из списка
+export interface UserListItem {
+  id: number;
+  email: string;
+  name?: string | null;
+  avatar_url?: string | null;
+  mutualFriends: number;
+  wishlistsCount: number;
+  isFriend: boolean;
+}
+
+// Функция получения списка пользователей
+export const getUsersList = async (): Promise<UserListItem[]> => {
+  try {
+    const response = await api.get<UserListItem[]>(`/users/`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.detail || 'Ошибка при загрузке списка пользователей');
+  }
+};
