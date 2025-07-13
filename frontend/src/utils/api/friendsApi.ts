@@ -26,3 +26,12 @@ export const getUserFriendsById = async (userId: number): Promise<UserOut[]> => 
     throw new Error(error.response?.data?.detail || 'Ошибка при загрузке друзей пользователя');
   }
 };
+
+// Добавить пользователя в друзья по friend_id
+export const addFriend = async (friendId: number): Promise<void> => {
+  try {
+    await api.post(`/friends/${friendId}`);
+  } catch (error: any) {
+    throw new Error(error.response?.data?.detail || 'Ошибка при добавлении друга');
+  }
+};

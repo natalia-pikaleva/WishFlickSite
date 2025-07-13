@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 from fastapi import (Depends, UploadFile, File,
                      Form, HTTPException, status, APIRouter)
 
@@ -12,9 +11,10 @@ import logging
 
 from database import get_db
 import models as models
-import schemas as schemas
-
-import services.crud as crud
+from schemas.wish_schemas import Wish, WishCreate, WishWithOwner, WishUpdate
+from schemas.comment_schemas import CommentResponse
+import services.crud.wish_crud as wish_crud
+import services.crud.other_crud as other_crud
 import services.auth as auth
 
 from backend_conf import API_URL
@@ -34,7 +34,7 @@ os.makedirs(UPLOAD_DIR_WISHES, exist_ok=True)
 
 
 @router.post("/",
-             response_model=schemas.Wish,
+             response_model=Wish,
              status_code=status.HTTP_201_CREATED,
              )
 async def create_wish_endpoint(
@@ -64,7 +64,7 @@ async def create_wish_endpoint(
             relative_path = f"/uploads/wishes/{filename}"
             final_image_url = f"{API_URL}{relative_path}"
 
-        wish_create = schemas.WishCreate(
+        wish_create = WishCreate(
             title=title,
             description=description,
             image_url=final_image_url,
@@ -72,7 +72,7 @@ async def create_wish_endpoint(
             is_public=is_public,
         )
 
-        wish = await crud.create_wish(db, wish_create, owner=current_user)
+        wish = await wish_crud.create_wish(db, wish_create, owner=current_user)
         return wish
     except Exception as e:
         logging.error("Failed to create wish: %s", e)
@@ -80,14 +80,14 @@ async def create_wish_endpoint(
 
 
 @router.get("/",
-            response_model=List[schemas.Wish],
+            response_model=List[Wish],
             )
 async def get_user_wishes(
         current_user: models.User = Depends(auth.get_current_user),
         db: AsyncSession = Depends(get_db)
 ):
     try:
-        wishes = await crud.get_wishes_by_owner(db, owner_id=current_user.id)
+        wishes = await wish_crud.get_wishes_by_owner(db, owner_id=current_user.id)
         return wishes
     except Exception as e:
         logging.error("Failed to get user wishes: %s", e)
@@ -103,13 +103,13 @@ async def delete_wish(
         db: AsyncSession = Depends(get_db)
 ):
     try:
-        wish = await crud.get_wish_by_id(db, wish_id)
+        wish = await wish_crud.get_wish_by_id(db, wish_id)
         if not wish:
             raise HTTPException(status_code=404, detail="Wish not found")
         if wish.owner_id != current_user.id:
             raise HTTPException(status_code=403, detail="Not authorized to delete this wish")
 
-        await crud.delete_wish(db, wish)
+        await wish_crud.delete_wish(db, wish)
         return None
     except Exception as e:
         logging.error("Failed to delete wish: %s", e)
@@ -117,11 +117,11 @@ async def delete_wish(
 
 
 @router.get("/{wish_id}/comments",
-            response_model=List[schemas.CommentResponse],
+            response_model=List[CommentResponse],
             )
 async def get_comments(wish_id: int, db: AsyncSession = Depends(get_db)):
     try:
-        comments = await crud.get_comments_by_wish(db, wish_id)
+        comments = await other_crud.get_comments_by_wish(db, wish_id)
         return comments
     except Exception as e:
         logging.error("Failed to get comments: %s", e)
@@ -132,7 +132,7 @@ async def get_comments(wish_id: int, db: AsyncSession = Depends(get_db)):
             )
 async def get_likes_count_endpoint(wish_id: int, db: AsyncSession = Depends(get_db)):
     try:
-        count = await crud.get_likes_count(db, wish_id)
+        count = await other_crud.get_likes_count(db, wish_id)
         return {"count": count}
     except Exception as e:
         logging.error("Failed to get count likes: %s", e)
@@ -140,13 +140,13 @@ async def get_likes_count_endpoint(wish_id: int, db: AsyncSession = Depends(get_
 
 
 @router.get("/influencer",
-            response_model=List[schemas.WishWithOwner],
+            response_model=List[WishWithOwner],
             )
 async def get_public_influencer_wishes(
         db: AsyncSession = Depends(get_db),
 ):
     try:
-        wishes = await crud.get_influencer_wishes(db,
+        wishes = await wish_crud.get_influencer_wishes(db,
                                                   public=True,
                                                   influencer=True
                                                   )
@@ -157,11 +157,11 @@ async def get_public_influencer_wishes(
 
 
 @router.get("/{wish_id}",
-            response_model=schemas.Wish,
+            response_model=Wish,
             )
 async def get_wish(wish_id: int, db: AsyncSession = Depends(get_db)):
     try:
-        wish = await crud.get_wish_by_id(db, wish_id)
+        wish = await wish_crud.get_wish_by_id(db, wish_id)
         if not wish:
             raise HTTPException(status_code=404, detail="Wish not found")
         return wish
@@ -171,7 +171,7 @@ async def get_wish(wish_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.patch("/{wish_id}",
-              response_model=schemas.Wish,
+              response_model=Wish,
               )
 async def update_wish(
         wish_id: int,
@@ -185,7 +185,7 @@ async def update_wish(
         db: AsyncSession = Depends(get_db),
 ):
     try:
-        wish = await crud.get_wish_by_id(db, wish_id)
+        wish = await wish_crud.get_wish_by_id(db, wish_id)
         if not wish:
             raise HTTPException(status_code=404, detail="Wish not found")
         if wish.owner_id != current_user.id:
@@ -218,8 +218,8 @@ async def update_wish(
         if final_image_url is not None:
             update_data['image_url'] = final_image_url
 
-        wish_update_obj = schemas.WishUpdate(**update_data)
-        updated_wish = await crud.update_wish(db, wish, wish_update_obj)
+        wish_update_obj = WishUpdate(**update_data)
+        updated_wish = await wish_crud.update_wish(db, wish, wish_update_obj)
         return updated_wish
     except Exception as e:
         logging.error("Failed to update wish: %s", e)

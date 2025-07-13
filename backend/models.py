@@ -202,6 +202,7 @@ class ActivityLike(Base):
         UniqueConstraint('user_id', 'activity_id', name='uq_user_activity_like'),
     )
 
+
 class Post(Base):
     __tablename__ = "posts"
 
@@ -214,3 +215,24 @@ class Post(Base):
 
     # relationships
     owner = relationship("User", back_populates="posts")
+
+
+class NotificationType(PyEnum):
+    friend_request = "friend_request"
+    message = "message"
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    recipient_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # Кому адресовано уведомление
+    sender_id = Column(Integer, ForeignKey("users.id"),
+                       nullable=True)  # Кто инициировал событие (например, кто отправил запрос в друзья)
+    type = Column(Enum(NotificationType), nullable=False)
+    message = Column(Text, nullable=False)  # Текст уведомления, можно формировать динамически
+    is_read = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    recipient = relationship("User", foreign_keys=[recipient_id])
+    sender = relationship("User", foreign_keys=[sender_id])

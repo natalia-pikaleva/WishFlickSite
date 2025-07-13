@@ -12,9 +12,10 @@ import httpx
 
 from database import Base, engine, get_db
 import models as models
-import schemas as schemas
-
-import services.crud as crud
+from schemas.user_schemas import UserCreate, User
+from schemas.auth_schemas import TokenResponse, FacebookToken, EmailVerificationRequest, TokenRefreshRequest
+import services.crud.user_crud as user_crud
+import services.crud.auth_crud as auth_crud
 from services.auth import (create_access_token, verify_password,
                            create_refresh_token, decode_refresh_token)
 
@@ -89,17 +90,17 @@ async def google_oauth_callback(
             raise HTTPException(status_code=400, detail="Email not available from Google")
 
         # Создаём или получаем пользователя из БД
-        user = await crud.get_user_by_email(db, email=email)
+        user = await user_crud.get_user_by_email(db, email=email)
         if not user:
             # Создаём нового пользователя с дефолтным паролем или без пароля
-            user_create = models.UserCreate(
+            user_create = UserCreate(
                 email=email,
                 name=name,
                 avatar_url=avatar_url,
                 password=os.urandom(16).hex(),
                 privacy="public",
             )
-            user = await crud.create_user(db, user_create)
+            user = await user_crud.create_user(db, user_create)
 
         # Создаём JWT токен
         access_token = create_access_token(data={"sub": user.email})
@@ -174,16 +175,16 @@ async def facebook_oauth_callback(
             raise HTTPException(status_code=400, detail="Email not available from Facebook")
 
         # Создаём или получаем пользователя из БД
-        user = await crud.get_user_by_email(db, email=email)
+        user = await user_crud.get_user_by_email(db, email=email)
         if not user:
-            user_create = models.UserCreate(
+            user_create = UserCreate(
                 email=email,
                 name=name,
                 avatar_url=avatar_url,
                 password=os.urandom(16).hex(),
                 privacy="public",
             )
-            user = await crud.create_user(db, user_create)
+            user = await user_crud.create_user(db, user_create)
 
         access_token_jwt = create_access_token(data={"sub": user.email})
 
@@ -195,7 +196,7 @@ async def facebook_oauth_callback(
 
 
 @router.post("/facebook/token", tags=["auth"])
-async def facebook_token_login(token_data: schemas.FacebookToken, db: AsyncSession = Depends(get_db)):
+async def facebook_token_login(token_data: FacebookToken, db: AsyncSession = Depends(get_db)):
     try:
         access_token = token_data.access_token
 
@@ -213,16 +214,16 @@ async def facebook_token_login(token_data: schemas.FacebookToken, db: AsyncSessi
         if not email:
             raise HTTPException(status_code=400, detail="Email not provided by Facebook")
 
-        user = await crud.get_user_by_email(db, email=email)
+        user = await user_crud.get_user_by_email(db, email=email)
         if not user:
-            user_create = models.UserCreate(
+            user_create = UserCreate(
                 email=email,
                 name=userinfo.get("name"),
                 avatar_url=userinfo.get("picture", {}).get("data", {}).get("url"),
                 password="random_generated_password",  # OAuth, пароль не нужен
                 privacy="public",
             )
-            user = await crud.create_user(db, user_create)
+            user = await user_crud.create_user(db, user_create)
 
         jwt_token = create_access_token(data={"sub": user.email})
 
@@ -232,25 +233,25 @@ async def facebook_token_login(token_data: schemas.FacebookToken, db: AsyncSessi
         raise HTTPException(status_code=500, detail="Failed to get token with facebook")
 
 
-@router.post("/register", response_model=schemas.User)
+@router.post("/register", response_model=User)
 async def register(
-        user_create: schemas.UserCreate,
+        user_create: UserCreate,
         db: AsyncSession = Depends(get_db)
 ):
     try:
-        db_user = await crud.get_user_by_email(db, email=user_create.email)
+        db_user = await user_crud.get_user_by_email(db, email=user_create.email)
         if db_user:
             raise HTTPException(status_code=400, detail="Email already registered")
-        user = await crud.create_user(db, user_create)
+        user = await user_crud.create_user(db, user_create)
         logger.info("user created")
 
-        user = await crud.get_user_by_email(db, user.email)
+        user = await user_crud.get_user_by_email(db, user.email)
         logger.info("got user by email")
 
         # Генерируем код и сохраняем его
         code = generate_verification_code()
         # Сохраняем код в отдельной таблице EmailVerification
-        await crud.create_email_verification(db, user_id=user.id, code=code)
+        await auth_crud.create_email_verification(db, user_id=user.id, code=code)
         logger.info("email verification created")
 
         # Отправляем письмо с кодом
@@ -267,27 +268,27 @@ async def register(
 
 
 @router.post("/verify-email")
-async def verify_email(data: schemas.EmailVerificationRequest, db: AsyncSession = Depends(get_db)):
+async def verify_email(data: EmailVerificationRequest, db: AsyncSession = Depends(get_db)):
     """
     Проверяет код подтверждения email.
     Если код верный — делает пользователя подтверждённым.
     """
     try:
         # Найти пользователя по email
-        user = await crud.get_user_by_email(db, email=data.email)
+        user = await user_crud.get_user_by_email(db, email=data.email)
         if not user:
             raise HTTPException(status_code=404, detail="Пользователь не найден")
 
         # Найти запись о подтверждении email
-        verification = await crud.get_email_verification(db, user_id=user.id, code=data.code)
+        verification = await auth_crud.get_email_verification(db, user_id=user.id, code=data.code)
         if not verification:
             raise HTTPException(status_code=400, detail="Неверный код")
 
         # Сделать пользователя подтверждённым
-        await crud.mark_user_email_verified(db, user.id)
+        await auth_crud.mark_user_email_verified(db, user.id)
 
         # (Необязательно) удалить запись о подтверждении, чтобы код нельзя было использовать повторно
-        await crud.delete_email_verification(db, verification.id)
+        await auth_crud.delete_email_verification(db, verification.id)
 
         return {"detail": "Email успешно подтвержден"}
     except HTTPException:
@@ -298,13 +299,13 @@ async def verify_email(data: schemas.EmailVerificationRequest, db: AsyncSession 
 
 
 
-@router.post("/token", response_model=schemas.TokenResponse)
+@router.post("/token", response_model=TokenResponse)
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        user = await crud.get_user_by_email(db, email=form_data.username)
+        user = await user_crud.get_user_by_email(db, email=form_data.username)
         if not user or not verify_password(form_data.password, user.hashed_password):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
 
@@ -373,9 +374,9 @@ async def vk_auth(vk_auth_request: dict, db: AsyncSession = Depends(get_db)):
 
 
 
-@router.post("/refresh-token", response_model=schemas.TokenResponse)
+@router.post("/refresh-token", response_model=TokenResponse)
 async def refresh_access_token(
-    token_request: schemas.TokenRefreshRequest,
+    token_request: TokenRefreshRequest,
     db: AsyncSession = Depends(get_db),
 ):
     try:
@@ -385,7 +386,7 @@ async def refresh_access_token(
         if email is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
 
-        user = await crud.get_user_by_email(db, email=email)
+        user = await user_crud.get_user_by_email(db, email=email)
         if user is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
 
