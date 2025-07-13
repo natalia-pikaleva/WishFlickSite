@@ -1,4 +1,5 @@
 import api from './apiClient';
+import { ProfileData, UpdatedProfileData, UserListItem } from '../../types';
 
 // Получить данные профиля пользователя по его id
 export async function fetchUserProfile(userId: string) {
@@ -16,7 +17,7 @@ export async function fetchUserProfile(userId: string) {
         twitter: data.social_twitter,
         instagram: data.social_instagram,
       },
-      isFriend: data.is_friend,
+      isFriend: data.isFriend,
     };
   } catch (e) {
     alert('Ошибка при загрузке профиля');
@@ -34,19 +35,7 @@ export const getUserProfile = async () => {
   }
 };
 
-// Интерфейс данных профиля
-export interface ProfileData {
-  id: number;
-  name: string;
-  email: string;
-  avatar_url?: string;
-  description?: string;
-  social_facebook?: string;
-  social_twitter?: string;
-  social_instagram?: string;
-  privacy?: 'public' | 'friends' | 'private';
-  is_influencer?: boolean;
-}
+
 
 // Изменение данных профиля
 export const updateUserProfile = async (formData: FormData) => {
@@ -62,18 +51,7 @@ export const updateUserProfile = async (formData: FormData) => {
   }
 };
 
-export interface UpdatedProfileData {
-  id: number;
-  name: string;
-  email: string;
-  avatar_url?: string;
-  description?: string;
-  social_facebook?: string;
-  social_twitter?: string;
-  social_instagram?: string;
-  privacy?: 'public' | 'friends' | 'private';
-  is_influencer?: boolean;
-}
+
 
 // Загрузка аватара пользователя
 export const uploadUserAvatar = async (formData: FormData): Promise<UpdatedProfileData> => {
@@ -89,16 +67,7 @@ export const uploadUserAvatar = async (formData: FormData): Promise<UpdatedProfi
   }
 };
 
-// Интерфейс пользователя из списка
-export interface UserListItem {
-  id: number;
-  email: string;
-  name?: string | null;
-  avatar_url?: string | null;
-  mutualFriends: number;
-  wishlistsCount: number;
-  isFriend: boolean;
-}
+
 
 // Функция получения списка пользователей
 export const getUsersList = async (): Promise<UserListItem[]> => {

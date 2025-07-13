@@ -4,18 +4,13 @@ import { updateUserProfile, uploadUserAvatar, getUserProfile } from '../../utils
 import { STATIC_BASE_URL } from '../../config';
 import ProfileAvatar from './ProfileAvatar';
 import ProfileEditForm from './ProfileEditForm';
+import { ProfileData, UserOut, Wish } from '../types';
 
-interface ProfileData {
-  id: number;
-  name: string;
-  email: string;
-  avatar_url?: string;
-  description?: string;
-  social_facebook?: string;
-  social_twitter?: string;
-  social_instagram?: string;
-  privacy?: 'public' | 'friends' | 'private';
-  is_influencer?: boolean;
+
+
+interface ProfilePageHeaderProps {
+  friends: UserOut[];
+  wishes: Wish[];
 }
 
 const getAvatarUrl = (avatarUrl?: string) => {
@@ -24,12 +19,13 @@ const getAvatarUrl = (avatarUrl?: string) => {
   return `${STATIC_BASE_URL}${avatarUrl}`;
 };
 
-const ProfilePageHeader: React.FC = () => {
+const ProfilePageHeader: React.FC = ({ wishes, friends }) => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
@@ -202,11 +198,11 @@ const ProfilePageHeader: React.FC = () => {
 	          {/* Stats */}
 	          <div className="flex flex-nowrap justify-center gap-6 mt-8 pt-6 border-t border-gray-100 overflow-x-auto">
 	            <div className="text-center min-w-[70px] sm:min-w-[120px]">
-	              <div className="text-sm sm:text-2xl font-bold text-purple-600">127</div>
+	              <span className="text-sm sm:text-2xl font-bold text-purple-600">{ wishes.length }</span>
 	              <div className="text-xs sm:text-sm text-gray-500">Желаний</div>
 	            </div>
 	            <div className="text-center min-w-[70px] sm:min-w-[120px]">
-	              <div className="text-sm sm:text-2xl font-bold text-teal-500">1.2K</div>
+	              <div className="text-sm sm:text-2xl font-bold text-teal-500">{ friends.length }</div>
 	              <div className="text-xs sm:text-sm text-gray-500">Друзей</div>
 	            </div>
 	            <div className="text-center min-w-[70px] sm:min-w-[120px]">

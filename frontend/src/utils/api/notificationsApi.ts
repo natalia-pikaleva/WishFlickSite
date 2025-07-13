@@ -1,25 +1,7 @@
 import api from './apiClient';
+import { NotificationType, Notification, GetNotificationsParams } from '../../types';
 
-export interface NotificationType {
-  friend_request: 'friend_request';
-  message: 'message';
-  // Добавьте другие типы по необходимости
-}
 
-export interface Notification {
-  id: number;
-  recipient_id: number;
-  sender_id?: number | null;
-  type: string; // или конкретный enum, если хотите
-  message: string;
-  is_read: boolean;
-  created_at: string; // ISO дата
-}
-
-interface GetNotificationsParams {
-  readFilter?: boolean;
-  limit?: number;
-}
 
 // Универсальная функция для получения уведомлений с опциональным фильтром и лимитом
 export const getNotifications = async ({

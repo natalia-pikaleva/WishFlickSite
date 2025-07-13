@@ -15,7 +15,6 @@ import { AuthModalProvider, useAuthModal } from './contexts/AuthModalContext';
 import Community from './pages/Community';
 import Wishlist from './pages/Wishlist';
 import Campaign from './pages/Campaign';
-import Profile from './pages/Profile';
 import OAuthCallback from "./pages/OAuthCallback";
 import WishDetails from './pages/WishDetails';
 import PublicInfluencerWishlists from './pages/PublicInfluencerWishlists';

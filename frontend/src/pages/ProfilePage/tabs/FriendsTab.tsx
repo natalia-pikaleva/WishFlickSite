@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { UserPlus, MessageCircle, Users, Gift } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { STATIC_BASE_URL } from '../../../config';
@@ -21,6 +22,7 @@ interface FriendsTabProps {
 }
 
 const FriendsTab: React.FC<FriendsTabProps> = ({ friends }) => {
+  const navigate = useNavigate();
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('ru-RU', {
       style: 'currency',
@@ -62,11 +64,18 @@ const FriendsTab: React.FC<FriendsTabProps> = ({ friends }) => {
     return `${STATIC_BASE_URL}${avatarUrl}`;
   };
 
+  const handleFindFriendsClick = () => {
+    navigate('/users');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900">Друзья</h3>
-        <button className="px-4 py-2 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200">
+        <button
+          onClick={handleFindFriendsClick}
+          className="px-4 py-2 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200"
+        >
           Найти друзей
         </button>
       </div>
@@ -97,7 +106,7 @@ const FriendsTab: React.FC<FriendsTabProps> = ({ friends }) => {
                   {friend.name}
                 </Link>
                 <p className="text-sm text-gray-500">
-                  {friend.mutualFriends} общие {getPluralForm(friend.mutualFriends, ['друг', 'друга', 'друзей'])}
+                  {friend.mutualFriends} общих {getPluralForm(friend.mutualFriends, ['друг', 'друга', 'друзей'])}
                 </p>
               </div>
             </div>
@@ -117,15 +126,17 @@ const FriendsTab: React.FC<FriendsTabProps> = ({ friends }) => {
               </div>
               <div className="bg-teal-50 rounded-lg p-2">
                 <div className="font-semibold text-teal-600">
-                  {formatCurrency(friend.totalContributions)}
+                  {/*{formatCurrency(friend.totalContributions)}*/}
+                  Инфо о друге 1
                 </div>
-                <div className="text-xs text-gray-500">Собрано</div>
+                {/*<div className="text-xs text-gray-500">Собрано</div>*/}
               </div>
               <div className="bg-pink-50 rounded-lg p-2">
                 <div className="font-semibold text-pink-600">
-                  {getTimeAgo(friend.joinDate)}
+                  {/*{getTimeAgo(friend.joinDate)}*/}
+                  Инфо о друге 2
                 </div>
-                <div className="text-xs text-gray-500">Присоединился</div>
+                {/*<div className="text-xs text-gray-500">Присоединился</div>*/}
               </div>
             </div>
 

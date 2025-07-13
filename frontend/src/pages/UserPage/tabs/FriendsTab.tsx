@@ -137,9 +137,6 @@ const FriendsTab: React.FC<FriendsTabProps> = ({ friends }) => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900">Друзья</h3>
-        <button className="px-4 py-2 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200">
-          Найти друзей
-        </button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -167,7 +164,7 @@ const FriendsTab: React.FC<FriendsTabProps> = ({ friends }) => {
                 >
                   {friend.name}
                 </Link>
-                <p className="text-sm text-gray-500">{friend.mutualFriends} общие друзья</p>
+                <p className="text-sm text-gray-500">общих друзей {friend.mutualFriends}</p>
               </div>
             </div>
 
@@ -186,15 +183,17 @@ const FriendsTab: React.FC<FriendsTabProps> = ({ friends }) => {
               </div>
               <div className="bg-teal-50 rounded-lg p-2">
                 <div className="font-semibold text-teal-600">
-                  {formatCurrency(friend.totalContributions)}
+                  {/*{formatCurrency(friend.totalContributions)}*/}
+                    Инфо о друге 1
                 </div>
-                <div className="text-xs text-gray-500">Собрано</div>
+                {/*<div className="text-xs text-gray-500">Собрано</div>*/}
               </div>
               <div className="bg-pink-50 rounded-lg p-2">
                 <div className="font-semibold text-pink-600">
-                  {getTimeAgo(friend.joinDate)}
+                  {/*{getTimeAgo(friend.joinDate)}*/}
+                  Инфо о друге 2
                 </div>
-                <div className="text-xs text-gray-500">Присоединился</div>
+                {/*<div className="text-xs text-gray-500">Присоединился</div>*/}
               </div>
             </div>
 

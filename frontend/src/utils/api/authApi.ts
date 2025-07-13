@@ -1,12 +1,6 @@
 import api from './apiClient';
+import { RegisterData } from '../../types';
 
-// Тип данных для регистрации
-interface RegisterData {
-  email: string;
-  password: string;
-  name: string;
-  privacy: string;
-}
 
 // Регистрация пользователя
 export const registerUser = async (data: RegisterData) => {
