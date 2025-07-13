@@ -51,7 +51,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
         raise credentials_exception
     result = await db.execute(
         select(User)
-        .options(selectinload(User.wishes))
+        .options(
+            selectinload(User.wishes),
+            selectinload(User.friends)
+        )
         .filter(User.email == email)
     )
 

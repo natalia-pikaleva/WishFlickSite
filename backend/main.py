@@ -13,13 +13,19 @@ import logging
 
 from database import Base, engine, get_db
 import models as models
-import schemas as schemas
-from services import auth as auth, crud as crud
+from schemas.user_schemas import UserProfileResponse, PrivacyEnum
+from schemas.other_schemas import LikeResponse, LikeCreate, ActivityResponse
+from schemas.wish_schemas import WishWithStats
+from schemas.comment_schemas import CommentResponse, CommentCreate
+import services.crud.user_crud as user_crud
+import services.crud.other_crud as other_crud
+import services.auth as auth
 from routers.wishes_router import router as router_wishes
 from routers.auth_router import router as router_auth
 from routers.friends_router import router as router_friends
 from routers.users_router import router as router_users
 from routers.posts_router import router as router_posts
+from routers.notifications_router import router as router_notifications
 
 from config import LOGGING_CONFIG, UPLOAD_ROOT
 import logging.config
@@ -33,6 +39,7 @@ app.include_router(router_auth, prefix="/api/auth", tags=["wishes"])
 app.include_router(router_friends, prefix="/api/friends", tags=["friends"])
 app.include_router(router_users, prefix="/api/users", tags=["users"])
 app.include_router(router_posts, prefix="/api/posts", tags=["posts"])
+app.include_router(router_notifications, prefix="/api/notifications", tags=["notifications"])
 
 origins = [
     "http://localhost:5173",
@@ -76,8 +83,7 @@ def generate_verification_code():
     return f"{random.randint(100000, 999999)}"
 
 
-
-@app.put("/api/profile", response_model=schemas.UserProfileResponse)
+@app.put("/api/profile", response_model=UserProfileResponse)
 async def update_profile(
         request: Request,
         name: Optional[str] = Form(None),
@@ -93,7 +99,7 @@ async def update_profile(
         db: AsyncSession = Depends(get_db),
 ):
     try:
-        user = await crud.update_user_profile(
+        user = await user_crud.update_user_profile(
             db,
             current_user,
             UPLOAD_DIR=UPLOAD_DIR_AVATARS,
@@ -119,15 +125,15 @@ async def update_profile(
         raise HTTPException(status_code=500, detail="Failed to update profile user")
 
 
-@app.post("/api/comments", response_model=schemas.CommentResponse)
+@app.post("/api/comments", response_model=CommentResponse)
 async def post_comment(
-        comment_create: schemas.CommentCreate,
+        comment_create: CommentCreate,
         current_user: models.User = Depends(auth.get_current_user),
         db: AsyncSession = Depends(get_db)
 ):
     try:
-        comment = await crud.create_comment(db, current_user.id, comment_create.wish_id, comment_create.content)
-        await crud.create_activity(db, current_user.id, models.ActivityType.comment, target_type="wish",
+        comment = await other_crud.create_comment(db, current_user.id, comment_create.wish_id, comment_create.content)
+        await other_crud.create_activity(db, current_user.id, models.ActivityType.comment, target_type="wish",
                                    target_id=comment_create.wish_id)
         return comment
     except Exception as e:
@@ -135,15 +141,15 @@ async def post_comment(
         raise HTTPException(status_code=500, detail="Failed to create comment")
 
 
-@app.post("/api/likes", response_model=schemas.LikeResponse)
+@app.post("/api/likes", response_model=LikeResponse)
 async def post_like(
-        like_create: schemas.LikeCreate,
+        like_create: LikeCreate,
         current_user: models.User = Depends(auth.get_current_user),
         db: AsyncSession = Depends(get_db)
 ):
     try:
-        like = await crud.create_like(db, current_user.id, like_create.wish_id)
-        await crud.create_activity(db, current_user.id, models.ActivityType.like, target_type="wish",
+        like = await other_crud.create_like(db, current_user.id, like_create.wish_id)
+        await other_crud.create_activity(db, current_user.id, models.ActivityType.like, target_type="wish",
                                    target_id=like_create.wish_id)
         return like
     except Exception as e:
@@ -151,10 +157,10 @@ async def post_like(
         raise HTTPException(status_code=500, detail="Failed to create like")
 
 
-@app.get("/api/activities", response_model=List[schemas.ActivityResponse])
+@app.get("/api/activities", response_model=List[ActivityResponse])
 async def get_activities_feed(db: AsyncSession = Depends(get_db)):
     try:
-        activities = await crud.get_activities(db)
+        activities = await other_crud.get_activities(db)
         return activities
     except Exception as e:
         logging.error("Failed to get activities: %s", e)
@@ -170,7 +176,7 @@ async def like_activity_endpoint(
 ):
     try:
         # Вызываем функцию из crud
-        await crud.like_activity(db, activity_id, current_user.id)
+        await other_crud.like_activity(db, activity_id, current_user.id)
         return {"message": "Activity liked successfully"}
 
     except HTTPException as e:
@@ -184,7 +190,7 @@ async def like_activity_endpoint(
 
 
 @app.get("/api/community/wishes",
-         response_model=List[schemas.WishWithStats])
+         response_model=List[WishWithStats])
 async def get_public_wishes(db: AsyncSession = Depends(get_db)):
     try:
         # Алиасы для подсчёта лайков и комментариев
@@ -211,7 +217,7 @@ async def get_public_wishes(db: AsyncSession = Depends(get_db)):
             .outerjoin(likes_subq, likes_subq.c.wish_id == models.Wish.id)
             .outerjoin(comments_subq, comments_subq.c.wish_id == models.Wish.id)
             .where(models.Wish.is_public == True)
-            .where(models.User.privacy != schemas.PrivacyEnum.private)
+            .where(models.User.privacy != PrivacyEnum.private)
             .order_by(models.Wish.created_at.desc())
         )
 

@@ -3,6 +3,7 @@ import { UserPlus, MessageCircle, Settings, MapPin, Calendar, Link } from 'lucid
 import {
 	fetchUserProfile,
 	 } from '../../utils/api/userApi'
+import { createNotification } from '../../utils/api/notificationsApi';
 
 import { STATIC_BASE_URL } from '../../config';
 
@@ -32,7 +33,12 @@ const getAvatarUrl = (avatarUrl?: string) => {
 
 
 const UserPageHeader: React.FC<UserPageHeaderProps> = ({ userId }) => {
-	const [profile, setProfile] = useState<UserProfileData | null>(null);
+  const [profile, setProfile] = useState<UserProfileData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const currentUserId = Number(localStorage.getItem('user_id'));
+  const currentUserName = localStorage.getItem('name') || 'Пользователь';
 
   useEffect(() => {
     fetchUserProfile(userId.toString()).then(data => {
@@ -42,9 +48,33 @@ const UserPageHeader: React.FC<UserPageHeaderProps> = ({ userId }) => {
     });
   }, [userId]);
 
+  const handleAddFriend = async () => {
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+    if (!currentUserId) {
+      alert('Пользователь не авторизован');
+      return;
+    }
+    try {
+      await createNotification({
+        recipient_id: userId,
+        sender_id: currentUserId,
+        type: 'friend_request',
+        message: `${currentUserName} хочет добавить вас в друзья.`,
+      });
+      setSuccess(true);
+    } catch (e: any) {
+      setError(e.message || 'Ошибка при отправке запроса в друзья');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!profile) {
-    return <div>Загрузка...</div>; // или любой индикатор загрузки
+    return <div>Загрузка...</div>;
   }
+
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
@@ -102,10 +132,23 @@ const UserPageHeader: React.FC<UserPageHeaderProps> = ({ userId }) => {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3">
-            <button className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-xl font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
-              <UserPlus className="w-5 h-5" />
-              Добавить в друзья
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3">
+		        <button
+		          onClick={handleAddFriend}
+		          disabled={loading}
+		          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium shadow-lg transition-all duration-200 transform hover:scale-105 ${
+		            loading
+		              ? 'bg-gray-400 cursor-not-allowed'
+		              : 'bg-gradient-to-r from-purple-500 to-teal-400 text-white hover:from-purple-600 hover:to-teal-500 hover:shadow-xl'
+		          }`}
+		        >
+		          <UserPlus className="w-5 h-5" />
+		          {loading ? 'Отправка...' : 'Добавить в друзья'}
+		        </button>
+		    </div>
+
+		    {error && <div className="text-red-500 mt-2">{error}</div>}
+		    {success && <div className="text-green-500 mt-2">Запрос отправлен!</div>}
             {/*}<button className="flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all duration-200 shadow-sm hover:shadow-md">
               <MessageCircle className="w-5 h-5" />
               Сообщение

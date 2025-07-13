@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from models import Post
-from schemas import PostCreate, PostUpdate, PostOut
+from schemas.other_schemas import PostCreate, PostUpdate, PostOut
 from database import get_db
 from services.auth import get_current_user
 
