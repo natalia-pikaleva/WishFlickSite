@@ -4,58 +4,28 @@ import WishlistsTab from './tabs/WishlistsTab';
 import PostsTab from './tabs/PostsTab';
 import FriendsTab from './tabs/FriendsTab';
 import CommunitiesTab from './tabs/CommunitiesTab';
-import { getUserWishes } from '../../utils/api/wishApi';
-import { getCurrentUserFriends } from '../../utils/api/friendsApi';
 import { Wish } from '../types';
 
-const ProfilePageTabs: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'wishlists' | 'posts' | 'friends' | 'communities'>('wishlists');
-  const [wishes, setWishes] = useState<Wish[]>([]);
-  const [friends, setFriends] = useState<UserOut[]>([]);
-  const [loadingWishes, setLoadingWishes] = useState(false);
-  const [loadingFriends, setLoadingFriends] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+interface ProfilePageTabsProps {
+  wishes: Wish[];
+  friends: UserOut[];
+  loadingWishes?: boolean;
+  loadingFriends?: boolean;
+  error?: string | null;
+}
 
-  useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      setError('Токен не найден. Пожалуйста, войдите в систему.');
-      return;
-    }
-
-    const fetchWishes = async () => {
-      setLoadingWishes(true);
-      setError(null);
-      try {
-        const data = await getUserWishes(token);
-        setWishes(data);
-      } catch (e: any) {
-        setError(e.message || 'Ошибка при загрузке желаний');
-      } finally {
-        setLoadingWishes(false);
-      }
-    };
-
-    const fetchFriends = async () => {
-      setLoadingFriends(true);
-      setError(null);
-      try {
-        const data = await getCurrentUserFriends(token);
-        setFriends(data);
-      } catch (e: any) {
-        setError(e.message || 'Ошибка при загрузке друзей пользователя');
-      } finally {
-        setLoadingFriends(false);
-      }
-    };
-
-    fetchWishes();
-    fetchFriends();
-  }, []);
+const ProfilePageTabs: React.FC<ProfilePageTabsProps> = ({
+  wishes,
+  friends,
+  loadingWishes = false,
+  loadingFriends = false,
+  error = null,
+}) => {
+  const [activeTab, setActiveTab] = React.useState<'wishlists' | 'posts' | 'friends' | 'communities'>('wishlists');
 
   const tabs = [
     { id: 'wishlists', label: 'Желания', icon: Heart, count: wishes.length },
-    { id: 'posts', label: 'Посты', icon: MessageSquare, count: 89 },
+    // { id: 'posts', label: 'Посты', icon: MessageSquare, count: 89 },
     { id: 'friends', label: 'Друзья', icon: Users, count: friends.length },
     { id: 'communities', label: 'Сообщества', icon: Shield, count: 23 },
   ];
@@ -69,6 +39,8 @@ const ProfilePageTabs: React.FC = () => {
       case 'posts':
         return <PostsTab />;
       case 'friends':
+        if (loadingFriends) return <p>Загрузка друзей...</p>;
+        if (error) return <p className="text-red-500">{error}</p>;
         return <FriendsTab friends={friends} />;
       case 'communities':
         return <CommunitiesTab />;

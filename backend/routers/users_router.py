@@ -2,7 +2,8 @@ from fastapi import (APIRouter, Depends, Request, status)
 from fastapi.exceptions import HTTPException
 from sqlalchemy import select, func, and_, case, literal_column
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
+
 from typing import List
 
 import logging
@@ -72,7 +73,7 @@ async def get_user_friends(
     return friends
 
 
-@router.get("/{user_id}", response_model=UserOut)
+@router.get("/{user_id}", response_model=UserOutWithFriend)
 async def get_user_by_id(
         user_id: int,
         current_user: User = Depends(get_current_user),
@@ -91,13 +92,16 @@ async def get_user_by_id(
         # Подсчёт mutualFriends через crud
         mutual_friends_count = await friend_crud.count_mutual_friends(db, current_user.id, user_id)
 
-        return UserOut(
+        is_friend = (user in current_user.friends)
+
+        return UserOutWithFriend(
             id=user.id,
             email=user.email,
             name=user.name,
             avatar_url=user.avatar_url,
             mutualFriends=mutual_friends_count,
             wishlistsCount=wishlists_count,
+            isFriend=is_friend
         )
     except Exception as e:
         logging.error(f"Failed to get user {user_id}: {e}")

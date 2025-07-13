@@ -11,6 +11,7 @@ from schemas.user_schemas import UserOut
 
 logger = logging.getLogger(__name__)
 
+
 async def add_friend(db: AsyncSession, user: User, friend: User):
     if friend not in user.friends:
         user.friends.append(friend)
@@ -24,11 +25,17 @@ async def add_friend(db: AsyncSession, user: User, friend: User):
 
 
 async def remove_friend(db: AsyncSession, user: User, friend: User):
+    # Удаляем запись где user -> friend
     if friend in user.friends:
         user.friends.remove(friend)
-        await db.commit()
-        await db.refresh(user)
+    # Удаляем запись где friend -> user
+    if user in friend.friends:
+        friend.friends.remove(user)
+    await db.commit()
+    await db.refresh(user)
+    await db.refresh(friend)
     return user
+
 
 
 async def get_friends(db: AsyncSession, user: User) -> List[UserOut]:
@@ -106,6 +113,7 @@ async def get_friends_by_user_id(db: AsyncSession, user_id: int) -> List[UserOut
         )
 
     return friends_out
+
 
 async def count_mutual_friends(db: AsyncSession, user_id_1: int, user_id_2: int) -> int:
     # Получаем друзей первого пользователя

@@ -10,56 +10,33 @@ import { Wish } from '../types';
 
 interface UserPageTabsProps {
   userId: number;
+  wishes: Wish[];
+  friends: UserOut[];
+  loadingWishes?: boolean;
+  loadingFriends?: boolean;
+  error?: string | null;
 }
 
-const UserPageTabs: React.FC<UserPageTabsProps> = ({ userId }) => {
+const UserPageTabs: React.FC<UserPageTabsProps> = ({
+	userId,
+	wishes,
+    friends,
+    loadingWishes = false,
+    loadingFriends = false,
+    error = null,}) => {
   const [activeTab, setActiveTab] = useState<'wishlists' | 'posts' | 'friends' | 'communities'>('wishlists');
-  const [wishes, setWishes] = useState<Wish[]>([]);
-  const [friends, setFriends] = useState<UserOut[]>([]);
-  const [loadingWishes, setLoadingWishes] = useState(false);
-  const [loadingFriends, setLoadingFriends] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token'); // ключ под ваш токен
+    const token = localStorage.getItem('access_token');
     if (!token) {
       setError('Токен не найден. Пожалуйста, войдите в систему.');
       return;
     }
-
-    const fetchWishes = async () => {
-      setLoadingWishes(true);
-      setError(null);
-      try {
-        const data = await getUserWishesById(userId, token);
-        setWishes(data);
-      } catch (e: any) {
-        setError(e.message || 'Ошибка при загрузке желаний пользователя');
-      } finally {
-        setLoadingWishes(false);
-      }
-    };
-
-    const fetchFriends = async () => {
-      setLoadingFriends(true);
-      setError(null);
-      try {
-        const data = await getUserFriendsById(userId, token);
-        setFriends(data);
-      } catch (e: any) {
-        setError(e.message || 'Ошибка при загрузке друзей пользователя');
-      } finally {
-        setLoadingFriends(false);
-      }
-    };
-
-    fetchWishes();
-    fetchFriends();
   }, [userId]);
 
   const tabs = [
     { id: 'wishlists', label: 'Желания', icon: Heart, count: wishes.length },
-    { id: 'posts', label: 'Посты', icon: MessageSquare, count: 89 },
+//     { id: 'posts', label: 'Посты', icon: MessageSquare, count: 89 },
     { id: 'friends', label: 'Друзья', icon: Users, count: friends.length },
     { id: 'communities', label: 'Сообщества', icon: Shield, count: 23 },
   ];
@@ -70,8 +47,8 @@ const UserPageTabs: React.FC<UserPageTabsProps> = ({ userId }) => {
         if (loadingWishes) return <p>Загрузка желаний...</p>;
         if (error) return <p className="text-red-500">{error}</p>;
         return <WishlistsTab wishes={wishes} userId={userId} />;
-      case 'posts':
-        return <PostsTab />;
+      {/*case 'posts':
+        return <PostsTab />;*/}
       case 'friends':
         return <FriendsTab friends={friends} />;
       case 'communities':

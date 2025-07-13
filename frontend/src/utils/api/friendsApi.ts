@@ -1,11 +1,5 @@
 import api from './apiClient';
-
-export interface UserOut {
-  id: number;
-  email: string;
-  name?: string | null;
-  avatar_url?: string | null;
-}
+import { UserOut } from '../../types';
 
 // Получить список друзей текущего пользователя
 export const getCurrentUserFriends = async (): Promise<UserOut[]> => {
@@ -33,5 +27,14 @@ export const addFriend = async (friendId: number): Promise<void> => {
     await api.post(`/friends/${friendId}`);
   } catch (error: any) {
     throw new Error(error.response?.data?.detail || 'Ошибка при добавлении друга');
+  }
+};
+
+// Удалить пользователя из друзей по friendId
+export const removeFriend = async (friendId: number): Promise<void> => {
+  try {
+    await api.delete(`/friends/${friendId}`);
+  } catch (error: any) {
+    throw new Error(error.response?.data?.detail || 'Ошибка при удалении друга');
   }
 };

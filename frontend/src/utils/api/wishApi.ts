@@ -1,16 +1,6 @@
 import api from './apiClient';
+import { Wish } from '../../types';
 
-// Тип описания желания (пример)
-export interface Wish {
-  id: number;
-  title: string;
-  description?: string | null;
-  image_url?: string | null;
-  goal: number;
-  raised: number;
-  owner_id: number;
-  is_public: boolean;
-}
 
 // Получить список желаний текущего пользователя
 export const getUserWishes = async (): Promise<Wish[]> => {
