@@ -14,6 +14,8 @@ const WishlistsTab: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingWish, setEditingWish] = useState<Wish | null>(null);
 
+  const isGuest = localStorage.getItem('isGuest') === 'true';
+
   const [formData, setFormData] = useState<{
     title: string;
     description: string;
@@ -134,12 +136,16 @@ const WishlistsTab: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900">Желания</h3>
-        <button
-          onClick={openCreateForm}
-          className="px-4 py-2 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200"
-        >
-          Добавить новое
-        </button>
+        <>
+        {!isGuest && (
+	        <button
+	          onClick={openCreateForm}
+	          className="px-4 py-2 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200"
+	        >
+	          Добавить новое
+	        </button>
+	    )}
+		</>
       </div>
 
       {isFormOpen && (
@@ -275,20 +281,24 @@ const WishlistsTab: React.FC = () => {
               </div>
 
               <div className="flex gap-2">
-				  <button
-				    onClick={() => openEditForm(wish)}
-				    className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200 text-sm"
-				  >
-				    Редактировать
-				  </button>
-				  <button
-				    onClick={() => handleRemove(wish.id)}
-				    className="px-3 py-2 bg-gradient-to-r from-red-500 to-red-700 text-white rounded-lg font-medium hover:from-red-600 hover:to-red-800 transition-all duration-200 text-sm"
-				  >
-				    Удалить
-				  </button>
-				</div>
 
+                  {!isGuest && (
+					  <>
+					  <button
+					    onClick={() => openEditForm(wish)}
+					    className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200 text-sm"
+					  >
+					    Редактировать
+					  </button>
+					  <button
+					    onClick={() => handleRemove(wish.id)}
+					    className="px-3 py-2 bg-gradient-to-r from-red-500 to-red-700 text-white rounded-lg font-medium hover:from-red-600 hover:to-red-800 transition-all duration-200 text-sm"
+					  >
+					    Удалить
+					  </button>
+					  </>
+				   )}
+			  </div>
             </div>
           </div>
         ))}

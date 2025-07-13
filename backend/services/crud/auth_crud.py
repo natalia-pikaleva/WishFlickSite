@@ -3,13 +3,14 @@ from sqlalchemy.future import select
 from typing import Optional, List
 import logging
 import secrets
-
+import uuid
 
 from models import (User, Wish, Comment, Activity, ActivityType, Like,
                     ActivityLike, EmailVerification, friend_association)
 from services.auth import get_password_hash
 
 logger = logging.getLogger(__name__)
+
 
 async def create_email_verification(db: AsyncSession, user_id: int, code: str):
     logger.info("start create_email_verification")
@@ -75,7 +76,8 @@ async def create_user_from_vk(
         name=name,
         avatar_url=avatar_url,
         hashed_password=get_password_hash(fake_password),
-        is_verified=True  # считаем email подтверждённым через ВК
+        is_verified=True,
+        is_guest=False
     )
     db.add(user)
     await db.commit()
@@ -90,3 +92,20 @@ async def link_vk_to_user(db: AsyncSession, user_id: int, vk_id: int) -> User:
         await db.commit()
         await db.refresh(user)
     return user
+
+
+async def create_guest_user(db: AsyncSession):
+    # Создаем уникальный email для гостя, например, с префиксом guest и uuid
+    guest_email = f"guest_{uuid.uuid4()}@example.com"
+    guest_user = User(
+        email=guest_email,
+        hashed_password=get_password_hash(uuid.uuid4().hex),
+        name="Гость",
+        is_guest=True,
+        is_verified=True
+    )
+    db.add(guest_user)
+    await db.commit()
+    await db.refresh(guest_user)
+    # Возвращайте нужные данные, например, токен или id
+    return guest_user

@@ -46,6 +46,8 @@ class User(Base):
     social_twitter = Column(String, nullable=True)
     social_instagram = Column(String, nullable=True)
 
+    is_guest = Column(Boolean, default=False, nullable=False)
+
     # relationships
     wishes = relationship("Wish", back_populates="owner", lazy="selectin")
     email_verifications = relationship(

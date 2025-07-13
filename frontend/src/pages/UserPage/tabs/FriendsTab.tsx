@@ -135,10 +135,6 @@ const FriendsTab: React.FC<FriendsTabProps> = ({ friends }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">Друзья</h3>
-      </div>
-
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {friends.map((friend) => (
           <div key={friend.id} className="bg-white border border-gray-100 rounded-xl p-6 hover:shadow-lg transition-all duration-200 group">

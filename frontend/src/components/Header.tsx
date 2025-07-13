@@ -195,7 +195,7 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('access_token');
+    localStorage.clear();
     setIsLoggedIn(false);
     setUserAvatar('/default-avatar.png');
   };

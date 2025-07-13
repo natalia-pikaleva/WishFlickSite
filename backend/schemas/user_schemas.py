@@ -21,6 +21,7 @@ class UserBase(BaseModel):
     social_facebook: Optional[HttpUrl] = None
     social_twitter: Optional[HttpUrl] = None
     social_instagram: Optional[HttpUrl] = None
+    is_guest: Optional[bool] = None
 
     @validator('social_facebook', 'social_twitter', 'social_instagram', pre=True, always=True)
     def empty_str_to_none(cls, v):
@@ -50,6 +51,7 @@ class Wish(BaseModel):
 
 class User(UserBase):
     id: int
+    is_guest: Optional[bool] = None
     wishes: List[Wish] = []
 
     class Config:
@@ -58,6 +60,7 @@ class User(UserBase):
 
 class UserResponse(UserBase):
     id: int
+    is_guest: Optional[bool] = None
 
     class Config:
         orm_mode = True
@@ -72,6 +75,7 @@ class UserProfileUpdate(BaseModel):
     social_twitter: Optional[HttpUrl]
     social_instagram: Optional[HttpUrl]
     is_influencer: Optional[bool] = False
+    is_guest: Optional[bool] = None
 
 
 class UserProfileResponse(UserProfileUpdate):
@@ -102,6 +106,7 @@ class UserOut(BaseModel):
     avatar_url: Optional[str]
     mutualFriends: int
     wishlistsCount: int
+    is_guest: Optional[bool] = None
 
     class Config:
         orm_mode = True

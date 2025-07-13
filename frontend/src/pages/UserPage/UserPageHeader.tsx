@@ -32,6 +32,11 @@ const UserPageHeader: React.FC<UserPageHeaderProps> = ({ userId, wishes, friends
   const currentUserName = localStorage.getItem('name') || 'Пользователь';
 
   const [isFriend, setIsFriend] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
+
+  useEffect(() => {
+	  setIsGuest(localStorage.getItem('isGuest') === 'true');
+	}, []);
 
   useEffect(() => {
     fetchUserProfile(userId.toString())
@@ -147,37 +152,32 @@ const UserPageHeader: React.FC<UserPageHeaderProps> = ({ userId, wishes, friends
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex flex-col sm:flex-row gap-3">
-		        {isFriend ? (
-		          <div className="flex items-center gap-3">
-		            <span className="text-green-600 font-semibold">В друзьях</span>
-		            <button
-		              onClick={handleRemoveFriend}
-		              disabled={loading}
-		              className="px-3 py-2 rounded-xl bg-gradient-to-r from-gray-500 to-teal-400 text-white hover:bg-red-600 transition"
-		            >
-		              {loading ? 'Удаление...' : 'Удалить из друзей'}
-		            </button>
-		          </div>
-		        ) : (
-		          <button
-		            onClick={handleAddFriend}
-		            disabled={loading}
-		            className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-teal-400 text-white hover:from-purple-600 hover:to-teal-500 transition"
-		          >
-		            {loading ? 'Отправка...' : 'Добавить в друзья'}
-		          </button>
-		        )}
-		      </div>
-
-		      {error && <div className="text-red-500 mt-2">{error}</div>}
-		      {success && <div className="text-green-500 mt-2">Запрос отправлен</div>}
-
-            {/*}<button className="flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all duration-200 shadow-sm hover:shadow-md">
-              <MessageCircle className="w-5 h-5" />
-              Сообщение
-            </button>*/}
-
+               {!isGuest && (
+				  <div className="flex flex-col sm:flex-row gap-3">
+				    {isFriend ? (
+				      <div className="flex items-center gap-3">
+				        <span className="text-green-600 font-semibold">В друзьях</span>
+				        <button
+				          onClick={handleRemoveFriend}
+				          disabled={loading}
+				          className="px-3 py-2 rounded-xl bg-gradient-to-r from-gray-500 to-teal-400 text-white hover:bg-red-600 transition"
+				        >
+				          {loading ? 'Удаление...' : 'Удалить из друзей'}
+				        </button>
+				      </div>
+				    ) : (
+				      <button
+				        onClick={handleAddFriend}
+				        disabled={loading}
+				        className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-teal-400 text-white hover:from-purple-600 hover:to-teal-500 transition"
+				      >
+				        {loading ? 'Отправка...' : 'Добавить в друзья'}
+				      </button>
+				    )}
+				    {error && <div className="text-red-500 mt-2">{error}</div>}
+				    {success && <div className="text-green-500 mt-2">Запрос отправлен</div>}
+				  </div>
+				)}
           </div>
         </div>
 
@@ -196,7 +196,6 @@ const UserPageHeader: React.FC<UserPageHeaderProps> = ({ userId, wishes, friends
 	          <div className="text-xs sm:text-sm text-gray-500">Сообществ</div>
 	        </div>
         </div>
-
       </div>
     </div>
   );

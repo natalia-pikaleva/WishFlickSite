@@ -26,15 +26,24 @@ export const addFriend = async (friendId: number): Promise<void> => {
   try {
     await api.post(`/friends/${friendId}`);
   } catch (error: any) {
-    throw new Error(error.response?.data?.detail || 'Ошибка при добавлении друга');
+    if (error.response?.status === 403) {
+      alert('Для выполнения этого действия необходимо зарегистрироваться');
+    } else {
+      throw new Error(error.response?.data?.detail || 'Ошибка при добавлении друга');
+    }
   }
 };
+
 
 // Удалить пользователя из друзей по friendId
 export const removeFriend = async (friendId: number): Promise<void> => {
   try {
     await api.delete(`/friends/${friendId}`);
   } catch (error: any) {
+    if (error.response?.status === 403) {
+      alert('Для выполнения этого действия необходимо зарегистрироваться');
+    } else {
     throw new Error(error.response?.data?.detail || 'Ошибка при удалении друга');
+    }
   }
 };

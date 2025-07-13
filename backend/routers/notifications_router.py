@@ -43,8 +43,11 @@ async def get_notifications(
 async def create_notification(
         notification: NotificationCreate,
         db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(get_current_user),
 ):
     try:
+        if current_user.is_guest:
+            raise HTTPException(status_code=403, detail="Для данного действия необходимо зарегистрироваться")
         # Можно добавить проверку прав, например, что sender_id существует
         new_notification = await notification_crud.create_notification(
             db,
@@ -56,7 +59,7 @@ async def create_notification(
         return new_notification
     except Exception as e:
         logging.error(f"Failed to create notification: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to create notification {e}")
+        raise HTTPException(status_code=500, detail="Failed to create notification")
 
 
 @router.put("/{notification_id}/read", status_code=status.HTTP_204_NO_CONTENT)
@@ -65,11 +68,18 @@ async def mark_notification_read(
         current_user: User = Depends(get_current_user),
         db: AsyncSession = Depends(get_db),
 ):
-    notification = await notification_crud.get_notification(db, notification_id)
-    if not notification or notification.recipient_id != current_user.id:
-        raise HTTPException(status_code=404, detail="Notification not found")
+    try:
+        if current_user.is_guest:
+            raise HTTPException(status_code=403, detail="Для данного действия необходимо зарегистрироваться")
+        notification = await notification_crud.get_notification(db, notification_id)
+        if not notification or notification.recipient_id != current_user.id:
+            raise HTTPException(status_code=404, detail="Notification not found")
 
-    success = await notification_crud.mark_notification_as_read(db, notification_id)
-    if not success:
-        raise HTTPException(status_code=500, detail="Failed to mark notification as read")
-    return None
+        success = await notification_crud.mark_notification_as_read(db, notification_id)
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to mark notification as read")
+        return None
+    except Exception as e:
+        logging.error(f"Failed to mark read notification: {e}")
+        raise HTTPException(status_code=500, detail="Failed to mark read notification")
+
