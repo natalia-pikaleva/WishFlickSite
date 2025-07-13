@@ -48,6 +48,9 @@ async def create_wish_endpoint(
         db: AsyncSession = Depends(get_db)
 ):
     try:
+        if current_user.is_guest:
+            raise HTTPException(status_code=403, detail="Гостям запрещено создавать желания")
+
         # Если загружен файл, сохраняем и получаем URL
         final_image_url = image_url
         if image_file:
@@ -103,6 +106,9 @@ async def delete_wish(
         db: AsyncSession = Depends(get_db)
 ):
     try:
+        if current_user.is_guest:
+            raise HTTPException(status_code=403, detail="Гостям запрещено создавать желания")
+
         wish = await wish_crud.get_wish_by_id(db, wish_id)
         if not wish:
             raise HTTPException(status_code=404, detail="Wish not found")
@@ -119,8 +125,13 @@ async def delete_wish(
 @router.get("/{wish_id}/comments",
             response_model=List[CommentResponse],
             )
-async def get_comments(wish_id: int, db: AsyncSession = Depends(get_db)):
+async def get_comments(wish_id: int,
+                       db: AsyncSession = Depends(get_db),
+                       current_user: models.User = Depends(auth.get_current_user)):
     try:
+        if current_user.is_guest:
+            raise HTTPException(status_code=403, detail="Гостям запрещено комментировать желания")
+
         comments = await other_crud.get_comments_by_wish(db, wish_id)
         return comments
     except Exception as e:
@@ -130,8 +141,13 @@ async def get_comments(wish_id: int, db: AsyncSession = Depends(get_db)):
 
 @router.get("/{wish_id}/likes/count",
             )
-async def get_likes_count_endpoint(wish_id: int, db: AsyncSession = Depends(get_db)):
+async def get_likes_count_endpoint(wish_id: int,
+                                   db: AsyncSession = Depends(get_db),
+                                   current_user: models.User = Depends(auth.get_current_user)):
     try:
+        if current_user.is_guest:
+            raise HTTPException(status_code=403, detail="Гостям запрещено ставить лайки")
+
         count = await other_crud.get_likes_count(db, wish_id)
         return {"count": count}
     except Exception as e:
@@ -185,6 +201,9 @@ async def update_wish(
         db: AsyncSession = Depends(get_db),
 ):
     try:
+        if current_user.is_guest:
+            raise HTTPException(status_code=403, detail="Гостям запрещено обновлять желания")
+
         wish = await wish_crud.get_wish_by_id(db, wish_id)
         if not wish:
             raise HTTPException(status_code=404, detail="Wish not found")

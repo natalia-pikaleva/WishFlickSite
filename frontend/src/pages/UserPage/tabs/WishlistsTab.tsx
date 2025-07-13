@@ -55,16 +55,6 @@ const WishlistsTab: React.FC<WishlistsTabProps> = ({ userId }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">Желания</h3>
-        <button
-          className="px-4 py-2 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200"
-          onClick={() => navigate('/create-wish')}
-        >
-          Создать новое
-        </button>
-      </div>
-
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {wishlists.map((wish) => (
           <div

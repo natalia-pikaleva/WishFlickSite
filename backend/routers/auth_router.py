@@ -24,6 +24,7 @@ from backend_conf import (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
                           FACEBOOK_REDIRECT_URI)
 from services.other_helpers import send_email_async
 from config import VK_CLIENT_ID, VK_CLIENT_SECRET, VK_REDIRECT_URI
+from datetime import timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -99,6 +100,7 @@ async def google_oauth_callback(
                 avatar_url=avatar_url,
                 password=os.urandom(16).hex(),
                 privacy="public",
+                is_guest=False
             )
             user = await user_crud.create_user(db, user_create)
 
@@ -183,6 +185,7 @@ async def facebook_oauth_callback(
                 avatar_url=avatar_url,
                 password=os.urandom(16).hex(),
                 privacy="public",
+                is_guest=False
             )
             user = await user_crud.create_user(db, user_create)
 
@@ -222,6 +225,7 @@ async def facebook_token_login(token_data: FacebookToken, db: AsyncSession = Dep
                 avatar_url=userinfo.get("picture", {}).get("data", {}).get("url"),
                 password="random_generated_password",  # OAuth, пароль не нужен
                 privacy="public",
+                is_guest=False
             )
             user = await user_crud.create_user(db, user_create)
 
@@ -406,3 +410,22 @@ async def refresh_access_token(
     except Exception as e:
         logging.error("Failed to refresh token: %s", e)
         raise HTTPException(status_code=500, detail="Failed to refresh token")
+
+
+
+@router.post("/guest-register", status_code=status.HTTP_201_CREATED)
+async def guest_register(db: AsyncSession = Depends(get_db)):
+    guest_user = await auth_crud.create_guest_user(db)
+
+    access_token = create_access_token(
+        data={"sub": str(guest_user.email)}
+    )
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": guest_user.id,
+            "name": guest_user.name,
+            "is_guest": guest_user.is_guest
+        }
+    }

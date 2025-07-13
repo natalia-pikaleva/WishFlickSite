@@ -49,13 +49,24 @@ export async function createWish(data: {
     formData.append('image_url', data.image);
   }
 
-  const response = await api.post(`/wishes`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-  return response.data;
+  try {
+    const response = await api.post(`/wishes`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.status === 403) {
+      // Специфическая обработка ошибки гостевого доступа
+      alert('Для создания желания необходимо зарегистрироваться');
+      throw new Error('Гостям запрещено создавать желания');
+    }
+    // Для остальных ошибок пробрасываем дальше
+    throw new Error(error.response?.data?.detail || 'Ошибка при создании желания');
+  }
 }
+
 
 // Обновить желание
 export async function updateWish(
@@ -77,15 +88,35 @@ export async function updateWish(
     formData.append('image_url', data.image);
   }
 
-  const response = await api.put(`/wishes/${id}`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-  return response.data;
+  try {
+    const response = await api.put(`/wishes/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+	if (error.response?.status === 403) {
+	// Специфическая обработка ошибки гостевого доступа
+    alert('Для создания желания необходимо зарегистрироваться');
+    throw new Error('Гостям запрещено обновлять желания');
+    }
+    // Для остальных ошибок пробрасываем дальше
+    throw new Error(error.response?.data?.detail || 'Ошибка при обновлении желания');
+  }
 }
 
 // Удалить желание
 export async function deleteWish(id: number): Promise<void> {
-  await api.delete(`/wishes/${id}`);
+  try {
+    await api.delete(`/wishes/${id}`);
+  } catch (error: any) {
+	if (error.response?.status === 403) {
+	// Специфическая обработка ошибки гостевого доступа
+    alert('Для создания желания необходимо зарегистрироваться');
+    throw new Error('Гостям запрещено удалять желания');
+    }
+    // Для остальных ошибок пробрасываем дальше
+    throw new Error(error.response?.data?.detail || 'Ошибка при удалении желания');
+  }
 }

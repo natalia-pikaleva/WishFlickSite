@@ -49,6 +49,8 @@ export const verifyEmail = async (email: string, code: string) => {
 export const guestLogin = async () => {
   try {
     const response = await api.post('/auth/guest-register');
+    localStorage.setItem('access_token', response.data.access_token);
+    localStorage.setItem('isGuest', 'true');
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.detail || 'Ошибка гостевого входа');

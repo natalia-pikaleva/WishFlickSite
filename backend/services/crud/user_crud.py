@@ -27,11 +27,13 @@ async def get_user_by_email(db: AsyncSession, email: str):
 
     return result.scalars().first()
 
+
 async def get_user_by_id(db: AsyncSession, user_id: int) -> User | None:
     result = await db.execute(
         select(User).options(selectinload(User.friends)).where(User.id == user_id)
     )
     return result.scalars().first()
+
 
 async def create_user(db: AsyncSession, user_create):
     logger.info("start create_user")
@@ -111,10 +113,9 @@ async def get_users_list_with_is_friend(
         db: AsyncSession,
         current_user: User
 ):
-    # Подзапрос для друзей текущего пользователя
     friends_subq = (
         select(friend_association.c.friend_id)
-        .filter(friend_association.c.user_id == current_user.id)
+        .where(friend_association.c.user_id == current_user.id)
     ).subquery()
 
     stmt = (
@@ -124,11 +125,14 @@ async def get_users_list_with_is_friend(
             User.name,
             User.avatar_url,
             case(
-                (User.id.in_(select(friends_subq.c.friend_id)), True),
+                (User.id.in_(friends_subq), True),
                 else_=False
             ).label("isFriend")
         )
-        .filter(User.id != current_user.id)
+        .where(
+            User.id != current_user.id,
+            User.is_guest.is_(False)
+        )
         .order_by(User.name)
     )
 
