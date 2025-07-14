@@ -94,23 +94,24 @@ const Hero: React.FC = () => {
 
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 pt-8">
-		        <div className="text-center">
-		          <div className="text-2xl font-bold">{wishesCount.toLocaleString()}+</div>
-		          <div className="text-purple-200 text-sm">Сбывшихся Желаний</div>
-		        </div>
-		        <div className="text-center">
-		          <div className="text-2xl font-bold">{usersCount.toLocaleString()}+</div>
-		          <div className="text-purple-200 text-sm">Активных Пользователей</div>
-		        </div>
-		        <div className="text-center">
-		          <div className="text-2xl font-bold">
-		            {totalSum.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 })}
-		            +
-		          </div>
-		          <div className="text-purple-200 text-sm">Выросли Вместе</div>
-		        </div>
-             </div>
+            <div className="grid grid-cols-3 gap-4 pt-6">
+			  <div className="text-center">
+			    <div className="text-xl sm:text-2xl font-bold">{wishesCount.toLocaleString()}+</div>
+			    <div className="text-purple-200 text-xs sm:text-sm">Сбывшихся Желаний</div>
+			  </div>
+			  <div className="text-center">
+			    <div className="text-xl sm:text-2xl font-bold">{usersCount.toLocaleString()}+</div>
+			    <div className="text-purple-200 text-xs sm:text-sm">Активных Пользователей</div>
+			  </div>
+			  <div className="text-center">
+			    <div className="text-xl sm:text-2xl font-bold">
+			      {totalSum.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 })}
+			      +
+			    </div>
+			    <div className="text-purple-200 text-xs sm:text-sm">Выросли Вместе</div>
+			  </div>
+			</div>
+
           </div>
 
           {/* Visual */}
