@@ -1,13 +1,47 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Play, Users, Heart } from 'lucide-react';
 import { useAuthModal } from '../contexts/AuthModalContext';
 import { useNavigate } from 'react-router-dom';
+
+function useAnimatedNumber(to: number, duration = 1200) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    let start = 0;
+    const startTime = performance.now();
+    function animate(now: number) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      setValue(Math.floor(progress * to));
+      if (progress < 1) requestAnimationFrame(animate);
+      else setValue(to);
+    }
+    requestAnimationFrame(animate);
+    // eslint-disable-next-line
+  }, [to]);
+  return value;
+}
 
 const Hero: React.FC = () => {
   const { openAuthModal } = useAuthModal();
   const navigate = useNavigate();
 
   const isLoggedIn = Boolean(localStorage.getItem('access_token'));
+  const wishesCount = useAnimatedNumber(10000);
+  const usersCount = useAnimatedNumber(50000);
+  const totalSum = useAnimatedNumber(2000000);
+
+  const activities = [
+	  { user: "Александр", text: 'поддержал твое желание', comment: 'Надеюсь, ты получишь эту камеру! 📸' },
+	  { user: "Мария", text: 'отправила тебе подарок', comment: 'Пусть мечта сбудется!' },
+	  { user: "Иван", text: 'добавил тебя в друзья', comment: 'Вместе веселее!' },
+		];
+
+  const [activityIndex, setActivityIndex] = useState(0);
+	useEffect(() => {
+	  const id = setInterval(() => setActivityIndex(i => (i + 1) % activities.length), 3500);
+	  return () => clearInterval(id);
+	}, []);
+	const activity = activities[activityIndex];
 
   const handleGetStartedClick = () => {
     if (isLoggedIn) {
@@ -18,7 +52,7 @@ const Hero: React.FC = () => {
   };
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-[#B48DFE] via-[#6A49C8] to-[#98E2D5] text-white">
+	<section className="relative overflow-hidden bg-gradient-to-br from-[#B48DFE] via-[#6A49C8] to-[#98E2D5] text-white">
 	 {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10 pointer-events-none">
         <div className="absolute top-10 left-10 w-20 h-20 border-2 border-white rounded-full animate-pulse"></div>
@@ -61,19 +95,22 @@ const Hero: React.FC = () => {
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 pt-8">
-              <div className="text-center">
-                <div className="text-2xl font-bold">10K+</div>
-                <div className="text-purple-200 text-sm">Сбывшихся Желаний</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold">50K+</div>
-                <div className="text-purple-200 text-sm">Активных Пользователей</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold">$2M+</div>
-                <div className="text-purple-200 text-sm">Выросли Вместе</div>
-              </div>
-            </div>
+		        <div className="text-center">
+		          <div className="text-2xl font-bold">{wishesCount.toLocaleString()}+</div>
+		          <div className="text-purple-200 text-sm">Сбывшихся Желаний</div>
+		        </div>
+		        <div className="text-center">
+		          <div className="text-2xl font-bold">{usersCount.toLocaleString()}+</div>
+		          <div className="text-purple-200 text-sm">Активных Пользователей</div>
+		        </div>
+		        <div className="text-center">
+		          <div className="text-2xl font-bold">
+		            {totalSum.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 })}
+		            +
+		          </div>
+		          <div className="text-purple-200 text-sm">Выросли Вместе</div>
+		        </div>
+             </div>
           </div>
 
           {/* Visual */}
@@ -81,11 +118,12 @@ const Hero: React.FC = () => {
             <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
               <div className="space-y-6">
                 {/* Mock Wishlist Item */}
-                <div className="bg-white/15 rounded-2xl p-6 backdrop-blur-sm">
+                <div className="bg-white/15 rounded-2xl p-6 backdrop-blur-sm transform transition-transform hover:scale-105">
                   <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-12 h-12 bg-[#98E2D5] rounded-full flex items-center justify-center">
-                      <Heart className="w-6 h-6 text-white" />
-                    </div>
+                    <div className="w-12 h-12 bg-[#98E2D5] rounded-full flex items-center justify-center animate-bounce">
+					  <Heart className="w-6 h-6 text-white" />
+					</div>
+
                     <div>
                       <div className="font-semibold">Отпуск мечты</div>
                       <div className="text-sm text-purple-200">от Анны М.</div>
@@ -108,17 +146,16 @@ const Hero: React.FC = () => {
                 </div>
 
                 {/* Mock Social Activity */}
-                <div className="bg-white/15 rounded-2xl p-6 backdrop-blur-sm">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <div className="w-8 h-8 bg-[#B48DFE] rounded-full"></div>
-                    <div className="text-sm">
-                      <span className="font-semibold">Александр</span> поддержал твое желание
-                    </div>
-                  </div>
-                  <div className="text-sm text-purple-200">
-                    "Надеюсь, ты получишь эту камеру! 📸"
-                  </div>
-                </div>
+                <div className="bg-white/15 rounded-2xl p-6 backdrop-blur-sm transition-all duration-500">
+				  <div className="flex items-center space-x-3 mb-3">
+				    <div className="w-8 h-8 bg-[#B48DFE] rounded-full"></div>
+				    <div className="text-sm">
+				      <span className="font-semibold">{activity.user}</span> {activity.text}
+				    </div>
+				  </div>
+				  <div className="text-sm text-purple-200">{activity.comment}</div>
+				</div>
+
               </div>
             </div>
           </div>
