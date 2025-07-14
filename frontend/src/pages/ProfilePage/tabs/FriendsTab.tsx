@@ -106,7 +106,7 @@ const FriendsTab: React.FC<FriendsTabProps> = ({ friends }) => {
                   {friend.name}
                 </Link>
                 <p className="text-sm text-gray-500">
-                  {friend.mutualFriends} общих {getPluralForm(friend.mutualFriends, ['друг', 'друга', 'друзей'])}
+                  общих друзей {friend.mutualFriends}
                 </p>
               </div>
             </div>
