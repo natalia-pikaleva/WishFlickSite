@@ -128,13 +128,14 @@ const UsersListPage: React.FC = () => {
 				  <>
                   {!isGuest && (
 					  <button
-					    onClick={() => handleAddFriendClick(user.id)}
-					    disabled={loadingAddFriend}
-					    className="inline-flex items-center self-center px-3 py-1 max-h-10 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200 ml-4"
-						>
-					    <UserPlus className="w-5 h-5" />
-					    {loadingAddFriend ? 'Отправка...' : 'Добавить в друзья'}
-					  </button>
+					  onClick={() => handleAddFriendClick(user.id)}
+					  disabled={loadingAddFriend}
+					  className="inline-flex items-center self-center px-3 py-1 max-h-10 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200 ml-4
+					    text-xs sm:text-base"
+					>
+					  <UserPlus className="w-5 h-5" />
+					  {loadingAddFriend ? 'Отправка...' : 'Добавить в друзья'}
+					</button>
 					  )}
 				  </>
 				)}
