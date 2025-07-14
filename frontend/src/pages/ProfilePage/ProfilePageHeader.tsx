@@ -19,6 +19,14 @@ const getAvatarUrl = (avatarUrl?: string) => {
   return `${STATIC_BASE_URL}${avatarUrl}`;
 };
 
+function pluralize(count: number, one: string, few: string, many: string) {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 === 1 && mod100 !== 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few;
+  return many;
+}
+
 const ProfilePageHeader: React.FC = ({ wishes, friends }) => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -199,15 +207,21 @@ const ProfilePageHeader: React.FC = ({ wishes, friends }) => {
 	          <div className="flex flex-nowrap justify-center gap-6 mt-8 pt-6 border-t border-gray-100 overflow-x-auto">
 	            <div className="text-center min-w-[70px] sm:min-w-[120px]">
 	              <span className="text-sm sm:text-2xl font-bold text-purple-600">{ wishes.length }</span>
-	              <div className="text-xs sm:text-sm text-gray-500">Желаний</div>
+	              <div className="text-xs sm:text-sm text-gray-500">
+	                {pluralize(wishes.length, 'желание', 'желания', 'желаний')}
+	              </div>
 	            </div>
 	            <div className="text-center min-w-[70px] sm:min-w-[120px]">
 	              <div className="text-sm sm:text-2xl font-bold text-teal-500">{ friends.length }</div>
-	              <div className="text-xs sm:text-sm text-gray-500">Друзей</div>
+	              <div className="text-xs sm:text-sm text-gray-500">
+		              {pluralize(friends.length, 'друг', 'друга', 'друзей')}
+	              </div>
 	            </div>
 	            <div className="text-center min-w-[70px] sm:min-w-[120px]">
 	              <div className="text-sm sm:text-2xl font-bold text-orange-500">23</div>
-	              <div className="text-xs sm:text-sm text-gray-500">Сообществ</div>
+	              <div className="text-xs sm:text-sm text-gray-500">
+		              {pluralize(23, 'сообщество', 'сообщества', 'сообществ')}
+	              </div>
 	            </div>
 	          </div>
 	        </div>
