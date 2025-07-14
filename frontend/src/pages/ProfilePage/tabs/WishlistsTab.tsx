@@ -20,7 +20,7 @@ const WishlistsTab: React.FC = () => {
     title: string;
     description: string;
     image: string;
-    goal: number | '';
+    goal: string;
     is_public: boolean;
   }>({
     title: '',
@@ -63,49 +63,85 @@ const WishlistsTab: React.FC = () => {
   };
 
   const openEditForm = (wish: Wish) => {
-    setEditingWish(wish);
-    setFormData({
-      title: wish.title,
-      description: wish.description,
-      image: wish.image_url || '',
-      goal: wish.goal,
-      is_public: wish.is_public,
-    });
-    setIsFormOpen(true);
-  };
+	  setEditingWish(wish);
+	  setFormData({
+	    title: wish.title,
+	    description: wish.description,
+	    image: wish.image_url || '',
+	    goal: wish.goal.toString(),
+	    is_public: wish.is_public,
+	  });
+	  setIsFormOpen(true);
+	};
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : (name === 'goal' ? Number(value) : value),
-    }));
-  };
+	  const { name, value, type, checked } = e.target;
+	  setFormData(prev => ({
+	    ...prev,
+	    [name]: type === 'checkbox' ? checked : value,
+	  }));
+	};
+
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    try {
-      const token = localStorage.getItem('access_token');
-      if (!token) throw new Error('Пользователь не авторизован');
+	  console.log('Submit clicked')
+	  e.preventDefault();
+	  setLoading(true);
+	  setError(null);
 
-      if (editingWish) {
-        const updatedWish = await updateWish(token, editingWish.id, formData);
-        setWishlists(prev =>
-          prev.map(w => (w.id === editingWish.id ? updatedWish : w))
-        );
-      } else {
-        const newWish = await createWish(token, formData);
-        setWishlists(prev => [...prev, newWish]);
-      }
-      setIsFormOpen(false);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+	  console.log('formData.goal:', formData.goal);
+	  const goalNumber = Number(formData.goal);
+	  console.log('goalNumber:', goalNumber);
+
+
+	  if (isNaN(goalNumber) || goalNumber <= 0) {
+	    setError('Поле "Цель" должно быть положительным числом');
+	    setLoading(false);
+	    return;
+	  }
+
+	  try {
+	    const token = localStorage.getItem('access_token');
+	    if (!token) throw new Error('Пользователь не авторизован');
+
+	    const formDataToSend = new FormData();
+	    formDataToSend.append('title', formData.title);
+	    formDataToSend.append('description', formData.description);
+	    formDataToSend.append('goal', goalNumber.toString());
+	    formDataToSend.append('is_public', formData.is_public ? 'true' : 'false');
+
+	    if (formData.image) {
+	      formDataToSend.append('image_url', formData.image);
+	    }
+
+	    let resultWish;
+	    if (editingWish) {
+	      resultWish = await updateWish(token, editingWish.id, formDataToSend);
+	      setWishlists(prev =>
+	        prev.map(w => (w.id === editingWish.id ? resultWish : w))
+	      );
+	    } else {
+	      resultWish = await createWish(token, formDataToSend);
+	      setWishlists(prev => [...prev, resultWish]);
+	    }
+
+	    setIsFormOpen(false);
+	    setFormData({
+	      title: '',
+	      description: '',
+	      image: '',
+	      goal: '',
+	      is_public: false,
+	    });
+	  } catch (e: any) {
+	    setError(e.message);
+	  } finally {
+	    setLoading(false);
+	  }
+	};
+
+
 
   const handleRemove = async (id: number) => {
     if (!window.confirm('Вы уверены, что хотите удалить это желание?')) return;
@@ -144,7 +180,7 @@ const WishlistsTab: React.FC = () => {
 	        >
 	          Добавить новое
 	        </button>
-	    )}
+	      )}
 		</>
       </div>
 
@@ -171,14 +207,15 @@ const WishlistsTab: React.FC = () => {
             />
           </label>
           <label className="block mb-2 font-medium">
-            Ссылка на картинку
-            <input
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-              className="w-full border border-gray-300 px-2 py-1 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-          </label>
+			  Ссылка на картинку
+			  <input
+			    name="image"
+			    value={formData.image}
+			    onChange={handleChange}
+			    className="w-full border border-gray-300 px-2 py-1 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-purple-500"
+			  />
+		  </label>
+
           <label className="block mb-2 font-medium">
             Цель (₽)
             <input
