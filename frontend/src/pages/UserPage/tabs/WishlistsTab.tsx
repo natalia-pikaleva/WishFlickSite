@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, Users, Calendar, ExternalLink } from 'lucide-react';
 import { getUserWishesById, Wish } from '../../../utils/api/wishApi';
+import {
+  likeWish,
+  unlikeWish,
+  getWishLikes,
+} from "../../../utils/api/likeApi";
+
 import { useNavigate } from 'react-router-dom';
 
 interface WishlistsTabProps {
@@ -11,6 +17,9 @@ const WishlistsTab: React.FC<WishlistsTabProps> = ({ userId }) => {
   const [wishlists, setWishlists] = useState<Wish[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [likeState, setLikeState] = useState<{ [wishId: number]: boolean }>({});
+  const [likesCount, setLikesCount] = useState<{ [wishId: number]: number }>({});
+
 
   useEffect(() => {
     const fetchWishes = async () => {
@@ -33,6 +42,30 @@ const WishlistsTab: React.FC<WishlistsTabProps> = ({ userId }) => {
     fetchWishes();
   }, [userId]);
 
+  useEffect(() => {
+	  const fetchLikes = async () => {
+	    const token = localStorage.getItem("access_token");
+	    if (!token) return;
+	    try {
+	      // Для всех желаний запрашиваем список user_id кто лайкнул
+	      const myId = Number(localStorage.getItem('user_id')); // ваш способ определения id текущего юзера
+	      let likeObj: { [wishId: number]: boolean } = {};
+	      let countObj: { [wishId: number]: number } = {};
+	      for (let wish of wishlists) {
+	        const userIds = await getWishLikes(wish.id);
+	        likeObj[wish.id] = userIds.includes(myId);
+	        countObj[wish.id] = userIds.length;
+	      }
+	      setLikeState(likeObj);
+	      setLikesCount(countObj);
+	    } catch (error) {
+	      // не важно, можно опустить ошибку
+	    }
+	  };
+	  if (wishlists.length > 0) fetchLikes();
+	}, [wishlists]);
+
+
   const getProgressPercentage = (raised: number, goal: number) => {
     return Math.min((raised / goal) * 100, 100);
   };
@@ -45,9 +78,35 @@ const WishlistsTab: React.FC<WishlistsTabProps> = ({ userId }) => {
     }).format(amount);
   };
 
-  // В модели нет deadline, itemCount, contributors, category, поэтому убираем или заменяем
-  // Для image используем image_url из API, если нет — плейсхолдер
-  // Для isPublic используем is_public
+  const handleLike = async (wishId: number) => {
+	  const token = localStorage.getItem("access_token");
+	  if (!token) return;
+	  try {
+
+		console.info('token')
+
+	    await likeWish(token, wishId);
+	    setLikeState(state => ({ ...state, [wishId]: true }));
+	    setLikesCount(c =>
+	      ({ ...c, [wishId]: (c[wishId] ?? 0) + 1 })
+	    );
+	  } catch {}
+	};
+
+	const handleUnlike = async (wishId: number) => {
+	  const token = localStorage.getItem("access_token");
+	  if (!token) return;
+	  try {
+	    await unlikeWish(token, wishId);
+	    setLikeState(state => ({ ...state, [wishId]: false }));
+	    setLikesCount(c =>
+	      ({ ...c, [wishId]: Math.max((c[wishId] ?? 1) - 1, 0) })
+	    );
+	  } catch {}
+	};
+
+
+
 
   if (loading) return <div>Загрузка желаний...</div>;
   if (error) return <div className="text-red-600">Ошибка: {error}</div>;
@@ -102,9 +161,30 @@ const WishlistsTab: React.FC<WishlistsTabProps> = ({ userId }) => {
               {/* Статистика — в API нет, можно убрать или заменить */}
               <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
                 <div className="flex items-center gap-1">
-                  <Heart className="w-4 h-4" />
-                  <span>{/* Можно показать количество желаемых предметов, если есть */}</span>
-                </div>
+				  <button
+				    className={`p-1 rounded-full transition hover:bg-gray-100
+				      ${likeState[wish.id] ? "text-pink-500" : "text-gray-400"}
+				    `}
+				    aria-label={likeState[wish.id] ? "Убрать лайк" : "Поставить лайк"}
+				    onClick={() =>
+				      likeState[wish.id]
+				        ? handleUnlike(wish.id)
+				        : handleLike(wish.id)
+				    }
+				  >
+				    <Heart
+				      className={`w-5 h-5 transition
+				        ${likeState[wish.id] ? "fill-pink-500" : ""}
+				      `}
+				      fill={likeState[wish.id] ? "#ec4899" : "none"}
+				      strokeWidth={2}
+				    />
+				  </button>
+				  <span>
+				    {likesCount[wish.id] ?? 0}
+				  </span>
+				</div>
+
                 <div className="flex items-center gap-1">
                   <Users className="w-4 h-4" />
                   <span>{/* Кол-во участников — нет в API */}</span>
