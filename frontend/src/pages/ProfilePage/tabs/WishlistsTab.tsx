@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, Users, Calendar, ExternalLink } from 'lucide-react';
 import { getUserWishes, Wish, createWish, updateWish, deleteWish } from '../../../utils/api/wishApi';
+import {
+  likeWish,
+  unlikeWish,
+  getWishLikes,
+} from '../../../utils/api/likeApi';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -15,6 +20,10 @@ const WishlistsTab: React.FC = () => {
   const [editingWish, setEditingWish] = useState<Wish | null>(null);
 
   const isGuest = localStorage.getItem('isGuest') === 'true';
+
+  const [likeState, setLikeState] = useState<{ [wishId: number]: boolean }>({});
+  const [likesCount, setLikesCount] = useState<{ [wishId: number]: number }>({});
+
 
   const [formData, setFormData] = useState<{
     title: string;
@@ -82,6 +91,48 @@ const WishlistsTab: React.FC = () => {
 	    [name]: type === 'checkbox' ? checked : value,
 	  }));
 	};
+
+  useEffect(() => {
+	  const fetchLikes = async () => {
+	    const token = localStorage.getItem('access_token');
+	    if (!token) return;
+	    try {
+	      const myId = Number(localStorage.getItem('user_id'));
+	      let likeObj: { [wishId: number]: boolean } = {};
+	      let countObj: { [wishId: number]: number } = {};
+	      for (let wish of wishlists) {
+	        const userIds = await getWishLikes(wish.id);
+	        likeObj[wish.id] = userIds.includes(myId);
+	        countObj[wish.id] = userIds.length;
+	      }
+	      setLikeState(likeObj);
+	      setLikesCount(countObj);
+	    } catch {}
+	  };
+	  if (wishlists.length > 0) fetchLikes();
+	}, [wishlists]);
+
+  const handleLike = async (wishId: number) => {
+	  const token = localStorage.getItem("access_token");
+	  if (!token) return;
+	  try {
+	    await likeWish(token, wishId);
+	    setLikeState(state => ({ ...state, [wishId]: true }));
+	    setLikesCount(c => ({ ...c, [wishId]: (c[wishId] ?? 0) + 1 }));
+	  } catch {}
+	};
+
+  const handleUnlike = async (wishId: number) => {
+	  const token = localStorage.getItem("access_token");
+	  if (!token) return;
+	  try {
+	    await unlikeWish(token, wishId);
+	    setLikeState(state => ({ ...state, [wishId]: false }));
+	    setLikesCount(c => ({ ...c, [wishId]: Math.max((c[wishId] ?? 1) - 1, 0) }));
+	  } catch {}
+	};
+
+
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -304,9 +355,31 @@ const WishlistsTab: React.FC = () => {
 
               <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
                 <div className="flex items-center gap-1">
-                  <Heart className="w-4 h-4" />
-                  <span>{/* Можно показать количество желаемых предметов */}</span>
-                </div>
+				  <button
+				    className={`p-1 rounded-full transition hover:bg-gray-100
+				      ${likeState[wish.id] ? "text-pink-500" : "text-gray-400"}
+				    `}
+				    aria-label={likeState[wish.id] ? "Убрать лайк" : "Поставить лайк"}
+				    onClick={() =>
+				      likeState[wish.id]
+				        ? handleUnlike(wish.id)
+				        : handleLike(wish.id)
+				    }
+				    disabled={isGuest}
+				  >
+				    <Heart
+				      className={`w-5 h-5 transition
+				        ${likeState[wish.id] ? "fill-pink-500" : ""}
+				      `}
+				      fill={likeState[wish.id] ? "#ec4899" : "none"}
+				      strokeWidth={2}
+				    />
+				  </button>
+				  <span>
+				    {likesCount[wish.id] ?? 0}
+				  </span>
+				</div>
+
                 <div className="flex items-center gap-1">
                   <Users className="w-4 h-4" />
                   <span>{/* Кол-во участников */}</span>

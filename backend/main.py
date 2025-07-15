@@ -26,6 +26,7 @@ from routers.friends_router import router as router_friends
 from routers.users_router import router as router_users
 from routers.posts_router import router as router_posts
 from routers.notifications_router import router as router_notifications
+from routers.likes_router import router as router_likes
 
 from config import LOGGING_CONFIG, UPLOAD_ROOT
 import logging.config
@@ -40,6 +41,7 @@ app.include_router(router_friends, prefix="/api/friends", tags=["friends"])
 app.include_router(router_users, prefix="/api/users", tags=["users"])
 app.include_router(router_posts, prefix="/api/posts", tags=["posts"])
 app.include_router(router_notifications, prefix="/api/notifications", tags=["notifications"])
+app.include_router(router_likes, prefix="/api/likes", tags=["likes"])
 
 origins = [
     "http://localhost:5173",
