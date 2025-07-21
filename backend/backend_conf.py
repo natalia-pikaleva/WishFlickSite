@@ -3,7 +3,7 @@ import os
 
 load_dotenv()
 
-API_URL = "http://80.78.243.30:8000"
+API_URL = "https://wishflick.ru"
 # API_URL = "http://localhost:8000"
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
