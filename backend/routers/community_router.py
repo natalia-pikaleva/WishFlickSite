@@ -14,12 +14,12 @@ from schemas.community_schemas import (Community, CommunityCreate, CommunityUpda
 import services.crud.community_crud as community_crud
 import services.auth as auth
 from backend_conf import API_URL
+from config import UPLOAD_DIR
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-UPLOAD_DIR = "uploads"
 UPLOAD_DIR_COMMUNITIES = os.path.join(UPLOAD_DIR, "community_images")
 os.makedirs(UPLOAD_DIR_COMMUNITIES, exist_ok=True)
 
