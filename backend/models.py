@@ -1,8 +1,9 @@
 from sqlalchemy import (Column, Integer, String, Text, Enum, ForeignKey, Float,
                         DateTime, UniqueConstraint, func, Boolean, BigInteger,
-                        Table)
+                        Table, Enum)
 from sqlalchemy.orm import relationship
 from database import Base
+import enum
 from enum import Enum as PyEnum
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import Enum as SqlEnum
@@ -102,6 +103,7 @@ class Wish(Base):
     is_influencer_public = Column(Boolean, default=False)
     duration_days = Column(Integer, default=30)
     category = Column(String, nullable=True)
+    community_id = Column(Integer, ForeignKey("communities.id"), nullable=True)
 
     # relationships
     owner = relationship("User", back_populates="wishes")
@@ -222,6 +224,7 @@ class Post(Base):
 class NotificationType(PyEnum):
     friend_request = "friend_request"
     message = "message"
+    join_request = "join_request"
 
 
 class Notification(Base):
@@ -236,5 +239,69 @@ class Notification(Base):
     is_read = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
+    community_id = Column(Integer, ForeignKey("communities.id"), nullable=True)
     recipient = relationship("User", foreign_keys=[recipient_id])
     sender = relationship("User", foreign_keys=[sender_id])
+
+
+# Enum для ролей в сообществе
+class CommunityRole(enum.Enum):
+    admin = "admin"
+    moderator = "moderator"
+    member = "member"
+
+
+# Ассоциация между пользователями и сообществами + роль
+class CommunityMember(Base):
+    __tablename__ = "community_members"
+    id = Column(Integer, primary_key=True)
+    community_id = Column(Integer, ForeignKey("communities.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    role = Column(Enum(CommunityRole), default=CommunityRole.member, nullable=False)
+    joined_at = Column(DateTime, default=datetime.utcnow)
+    # Чтобы учитывать вклад в сообщество (например, сумма пожертвований)
+    contributions = Column(Float, default=0)
+    is_online = Column(Boolean, default=False)
+
+    user = relationship("User", lazy="selectin")
+    community = relationship("Community", back_populates="memberships", lazy='selectin')
+
+
+class Community(Base):
+    __tablename__ = "communities"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    image_url = Column(String, nullable=True)
+    category = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    rules = Column(Text, nullable=True)  # Храним в JSON или в одной строке через разделитель
+
+    # связи
+    memberships = relationship("CommunityMember", back_populates="community", lazy="selectin",
+                               cascade="all, delete-orphan")
+    wishes = relationship("Wish", backref="community", lazy="selectin")
+    # если нужно чат-сообщения
+    chat_messages = relationship("CommunityChatMessage", back_populates="community", lazy="selectin",
+                                 cascade="all, delete-orphan")
+
+    @property
+    def total_members(self):
+        return len(self.memberships)
+
+    @property
+    def admins(self):
+        return [m for m in self.memberships if m.role == CommunityRole.admin]
+
+
+class CommunityChatMessage(Base):
+    __tablename__ = "community_chat_messages"
+    id = Column(Integer, primary_key=True)
+    community_id = Column(Integer, ForeignKey("communities.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    message = Column(Text, nullable=False)
+    sent_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User")
+    community = relationship("Community", back_populates="chat_messages")

@@ -13,6 +13,7 @@ interface UserPageHeaderProps {
   userId: number;
   friends: UserOut[];
   wishes: Wish[];
+  communities: Community[];
 }
 
 
@@ -30,7 +31,7 @@ function pluralize(count: number, one: string, few: string, many: string) {
   return many;
 }
 
-const UserPageHeader: React.FC<UserPageHeaderProps> = ({ userId, wishes, friends }) => {
+const UserPageHeader: React.FC<UserPageHeaderProps> = ({ userId, wishes, friends, communities }) => {
   const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -136,7 +137,7 @@ const UserPageHeader: React.FC<UserPageHeaderProps> = ({ userId, wishes, friends
               </div>
             </div>
             <p className="text-gray-600 text-lg mb-4">
-              ✨ Коллекционер грез и исполнитель желаний | Исполняйте волшебство по одному желанию за раз 🌟
+              {profile.description || ' '}
             </p>
 
             <div className="flex flex-wrap gap-4 text-sm text-gray-500">
@@ -203,9 +204,9 @@ const UserPageHeader: React.FC<UserPageHeaderProps> = ({ userId, wishes, friends
               </div>
             </div>
             <div className="text-center min-w-[70px] sm:min-w-[120px]">
-              <div className="text-sm sm:text-2xl font-bold text-orange-500">23</div>
+              <div className="text-sm sm:text-2xl font-bold text-orange-500">{ communities.length }</div>
               <div className="text-xs sm:text-sm text-gray-500">
-	              {pluralize(23, 'сообщество', 'сообщества', 'сообществ')}
+	              {pluralize(communities.length, 'сообщество', 'сообщества', 'сообществ')}
               </div>
             </div>
         </div>

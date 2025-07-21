@@ -27,6 +27,8 @@ from routers.users_router import router as router_users
 from routers.posts_router import router as router_posts
 from routers.notifications_router import router as router_notifications
 from routers.likes_router import router as router_likes
+from routers.community_router import router as router_community
+from routers.community_chat_router import router as router_community_chat
 
 from config import LOGGING_CONFIG, UPLOAD_ROOT
 import logging.config
@@ -42,6 +44,8 @@ app.include_router(router_users, prefix="/api/users", tags=["users"])
 app.include_router(router_posts, prefix="/api/posts", tags=["posts"])
 app.include_router(router_notifications, prefix="/api/notifications", tags=["notifications"])
 app.include_router(router_likes, prefix="/api/likes", tags=["likes"])
+app.include_router(router_community, prefix="/api/communities", tags=["communities"])
+app.include_router(router_community_chat, prefix="/api/community-chat", tags=["community chat"])
 
 origins = [
     "http://localhost:5173",
@@ -136,7 +140,7 @@ async def post_comment(
     try:
         comment = await other_crud.create_comment(db, current_user.id, comment_create.wish_id, comment_create.content)
         await other_crud.create_activity(db, current_user.id, models.ActivityType.comment, target_type="wish",
-                                   target_id=comment_create.wish_id)
+                                         target_id=comment_create.wish_id)
         return comment
     except Exception as e:
         logging.error("Failed to create comment: %s", e)
@@ -152,7 +156,7 @@ async def post_like(
     try:
         like = await other_crud.create_like(db, current_user.id, like_create.wish_id)
         await other_crud.create_activity(db, current_user.id, models.ActivityType.like, target_type="wish",
-                                   target_id=like_create.wish_id)
+                                         target_id=like_create.wish_id)
         return like
     except Exception as e:
         logging.error("Failed to create like: %s", e)

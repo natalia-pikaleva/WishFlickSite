@@ -4,21 +4,25 @@ import WishlistsTab from './tabs/WishlistsTab';
 import PostsTab from './tabs/PostsTab';
 import FriendsTab from './tabs/FriendsTab';
 import CommunitiesTab from './tabs/CommunitiesTab';
-import { Wish } from '../types';
+import { Wish, UserOut, Community } from '../types';
 
 interface ProfilePageTabsProps {
   wishes: Wish[];
   friends: UserOut[];
+  communities: Community[];
   loadingWishes?: boolean;
   loadingFriends?: boolean;
+  loadingCommunities?: boolean;
   error?: string | null;
 }
 
 const ProfilePageTabs: React.FC<ProfilePageTabsProps> = ({
   wishes,
   friends,
+  communities,
   loadingWishes = false,
   loadingFriends = false,
+  loadingCommunities = false,
   error = null,
 }) => {
   const [activeTab, setActiveTab] = React.useState<'wishlists' | 'posts' | 'friends' | 'communities'>('wishlists');
@@ -27,7 +31,7 @@ const ProfilePageTabs: React.FC<ProfilePageTabsProps> = ({
     { id: 'wishlists', label: 'Желания', icon: Heart, count: wishes.length },
     // { id: 'posts', label: 'Посты', icon: MessageSquare, count: 89 },
     { id: 'friends', label: 'Друзья', icon: Users, count: friends.length },
-    { id: 'communities', label: 'Сообщества', icon: Shield, count: 23 },
+    { id: 'communities', label: 'Сообщества', icon: Shield, count: communities.length },
   ];
 
   const renderTabContent = () => {
@@ -43,7 +47,9 @@ const ProfilePageTabs: React.FC<ProfilePageTabsProps> = ({
         if (error) return <p className="text-red-500">{error}</p>;
         return <FriendsTab friends={friends} />;
       case 'communities':
-        return <CommunitiesTab />;
+		if (loadingCommunities) return <p>Загрузка сообществ...</p>;
+        if (error) return <p className="text-red-500">{error}</p>;
+        return <CommunitiesTab communities={communities}/>;
       default:
         return <WishlistsTab wishes={wishes} />;
     }
@@ -57,20 +63,18 @@ const ProfilePageTabs: React.FC<ProfilePageTabsProps> = ({
           const Icon = tab.icon;
           return (
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-6 py-4 font-medium transition-all duration-200 whitespace-nowrap ${
-                activeTab === tab.id
-                  ? 'text-purple-600 border-b-2 border-purple-500 bg-purple-50'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              <Icon className="w-5 h-5" />
-              <span>{tab.label}</span>
-              <span className="bg-gray-100 text-gray-600 text-sm px-2 py-1 rounded-full">
-                {tab.count}
-              </span>
-            </button>
+			  key={tab.id}
+			  onClick={() => setActiveTab(tab.id)}
+			  className={`flex items-center gap-2 px-6 py-4 font-medium transition-all duration-200 whitespace-nowrap ${
+			    activeTab === tab.id
+			      ? 'text-purple-600 border-b-2 border-purple-500 bg-purple-50'
+			      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+			  }`}
+			>
+			  <Icon className="w-5 h-5" />
+			  <span className="hidden sm:inline">{tab.label}</span>
+			  <span className="bg-gray-100 text-gray-600 text-sm px-2 py-1 rounded-full">{tab.count}</span>
+			</button>
           );
         })}
       </div>

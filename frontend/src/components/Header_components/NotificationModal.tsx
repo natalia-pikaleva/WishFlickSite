@@ -15,6 +15,10 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
   onNotificationClick,
   onFriendRequestAccept,
   onFriendRequestReject,
+  onJoinRequestAccept,
+  onJoinRequestReject
+//   onJoinRequestAccept?: (notification: Notification) => void;
+//   onJoinRequestReject?: (notification: Notification) => void;
 }) => {
   if (!open) return null;
 
@@ -102,6 +106,31 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                         </button>
                       </div>
                     )}
+
+				    {/* Кнопки для join_request */}
+				    {n.type === 'join_request' && (
+					  <div className="flex space-x-2 ml-4 ml-auto">
+					    <button
+					      className="ml-2 px-4 py-1 ml-auto rounded-full font-semibold text-white bg-gradient-to-r from-[#6A49C8] to-[#98E2D5] shadow-md hover:from-[#B48DFE] hover:to-[#6A49C8] transition-all duration-200 text-sm"
+					      onClick={(e) => {
+					        e.stopPropagation();
+					        onJoinRequestAccept && onJoinRequestAccept(n);
+					      }}
+					    >
+					      Принять
+					    </button>
+					    <button
+					      className="ml-2 px-4 py-1 ml-auto rounded-full font-semibold text-white bg-gradient-to-r from-[#DB7093] to-[#FFB6C1] shadow-md hover:from-[#B48DFE] hover:to-[#6A49C8] transition-all duration-200 text-sm"
+					      onClick={(e) => {
+					        e.stopPropagation();
+					        onJoinRequestReject && onJoinRequestReject(n);
+					      }}
+					    >
+					      Отклонить
+					    </button>
+					  </div>
+					)}
+
                   </div>
                 </li>
               ))}

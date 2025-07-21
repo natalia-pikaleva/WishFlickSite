@@ -31,6 +31,7 @@ async def get_notifications(
             sender_id=notification.sender_id,
             type=notification.type,
             message=notification.message,
+            community_id=notification.community_id if notification.community_id else None,
             is_read=notification.is_read,
             created_at=notification.created_at,
             avatar_url=notification.sender.avatar_url if notification.sender else None
@@ -54,6 +55,7 @@ async def create_notification(
             recipient_id=notification.recipient_id,
             sender_id=notification.sender_id,
             type=notification.type,
+            community_id=notification.community_id if notification.community_id else None,
             message=notification.message,
         )
         return new_notification

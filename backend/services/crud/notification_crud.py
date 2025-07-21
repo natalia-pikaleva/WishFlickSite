@@ -11,10 +11,13 @@ async def create_notification(
     type: str,
     message: str,
     sender_id: Optional[int] = None,
+    community_id: Optional[int] = None,
+
 ) -> Notification:
     new_notification = Notification(
         recipient_id=recipient_id,
         sender_id=sender_id,
+        community_id=community_id,
         type=type,
         message=message,
         is_read=False,

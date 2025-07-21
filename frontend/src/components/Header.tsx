@@ -19,7 +19,7 @@ import {
   getUserProfile,
 } from '../utils/api/userApi';
 import { addFriend } from '../utils/api/friendsApi';
-
+import { addCommunityMember } from '../utils/api/communityApi'
 import {
 	registerUser,
 	loginUser,
@@ -327,6 +327,51 @@ const Header = () => {
     setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
   };
 
+  const handleJoinRequestAccept = async (notification: Notification) => {
+	  try {
+	    const token = localStorage.getItem('access_token');
+	    if (!token) throw new Error('Нет токена авторизации');
+	    if (!notification.community_id || !notification.sender_id) {
+	      throw new Error('В уведомлении отсутствует id сообщества или отправителя');
+	    }
+
+	    // Добавление участника в сообщество через API
+	    await addCommunityMember(
+	      token,
+	      notification.community_id,
+	      notification.sender_id,  // добавляем именно отправителя как участника
+	      'member'                 // роль по умолчанию
+	    );
+
+	    // Пометить уведомление как прочитанное
+	    await markNotificationAsRead(notification.id);
+
+	    // Удалить уведомление из списка (можете просто так)
+	    setNotifications((prev) =>
+	      prev.filter((n) => n.id !== notification.id)
+	    );
+
+	    alert('Пользователь добавлен в сообщество!');
+	  } catch (error: any) {
+	    alert(error.message || 'Ошибка при добавлении участника');
+	  }
+	};
+
+  const handleJoinRequestReject = async (notification: Notification) => {
+	  try {
+	    // Можно просто пометить как прочитанное
+	    await markNotificationAsRead(notification.id);
+
+	    setNotifications((prev) =>
+	      prev.filter((n) => n.id !== notification.id)
+	    );
+	  } catch (error: any) {
+	    alert(error.message || 'Ошибка при отклонении заявки');
+	  }
+	};
+
+
+
   return (
     <>
       <header className="bg-white shadow sticky top-0 z-50 overflow-x-hidden">
@@ -404,6 +449,8 @@ const Header = () => {
 		  onClose={handleCloseNotifications}
 		  onFriendRequestAccept={onFriendRequestAccept}
           onFriendRequestReject={onFriendRequestReject}
+          onJoinRequestAccept={handleJoinRequestAccept}
+          onJoinRequestReject={handleJoinRequestReject}
 		  onNotificationClick={(notification) => {
 		    // Можно также помечать отдельное уведомление прочитанным при клике
 		    setNotificationModalOpen(false);
