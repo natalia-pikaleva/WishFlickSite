@@ -13,10 +13,13 @@ from models import Post, User, friend_association, Wish
 from schemas.user_schemas import UserOut, UserResponse, UserOutWithFriend
 from schemas.wish_schemas import WishOut
 from schemas.other_schemas import PostOut
+from schemas.community_schemas import Community
 import services.crud.user_crud as user_crud
 import services.crud.wish_crud as wish_crud
 import services.crud.friend_crud as friend_crud
+import services.crud.community_crud as community_crud
 from services.auth import get_current_user, verify_password
+from backend_conf import API_URL
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +74,38 @@ async def get_user_friends(
     if friends is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
     return friends
+
+
+@router.get("/{user_id}/communities", response_model=List[Community])
+async def get_user_communities(
+        user_id: int,
+        db: AsyncSession = Depends(get_db),
+):
+    try:
+        communities = await community_crud.get_communities_by_user_id(db, user_id)
+        if communities is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+        response = []
+        for community in communities:
+            community_response = Community(
+                id=community.id,
+                name=community.name,
+                description=community.description,
+                category=community.category,
+                rules=community.rules,
+                created_at=community.created_at,
+                members_count=len(community.memberships),
+                wishes_count=len(community.wishes)
+            )
+            if community.image_url and not community.image_url.startswith('http'):
+                community_response.image_url = f'{API_URL}{community.image_url}'
+            else:
+                community_response.image_url = community.image_url
+            response.append(community_response)
+        return response
+    except Exception as e:
+        logging.error(f"Failed to get communities by user id: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get user communities")
 
 
 @router.get("/{user_id}", response_model=UserOutWithFriend)

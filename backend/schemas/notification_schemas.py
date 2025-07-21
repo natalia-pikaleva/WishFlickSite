@@ -7,7 +7,7 @@ from enum import Enum
 class NotificationType(str, Enum):
     friend_request = "friend_request"
     message = "message"
-    # Добавьте другие типы по необходимости
+    join_request = "join_request"
 
 
 class NotificationBase(BaseModel):
@@ -15,6 +15,7 @@ class NotificationBase(BaseModel):
     sender_id: Optional[int] = None
     type: NotificationType
     message: str
+    community_id: Optional[int] = None
 
 
 class NotificationCreate(NotificationBase):

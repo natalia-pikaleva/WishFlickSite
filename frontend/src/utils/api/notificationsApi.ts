@@ -30,6 +30,7 @@ export const getNotifications = async ({
 export const createNotification = async (notification: {
   recipient_id: number;
   sender_id?: number;
+  community_id?: number;
   type: string;
   message: string;
 }): Promise<Notification> => {

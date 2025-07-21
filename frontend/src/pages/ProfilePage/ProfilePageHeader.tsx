@@ -4,13 +4,14 @@ import { updateUserProfile, uploadUserAvatar, getUserProfile } from '../../utils
 import { STATIC_BASE_URL } from '../../config';
 import ProfileAvatar from './ProfileAvatar';
 import ProfileEditForm from './ProfileEditForm';
-import { ProfileData, UserOut, Wish } from '../types';
+import { ProfileData, UserOut, Wish, Community } from '../types';
 
 
 
 interface ProfilePageHeaderProps {
   friends: UserOut[];
   wishes: Wish[];
+  communities: Community[];
 }
 
 const getAvatarUrl = (avatarUrl?: string) => {
@@ -27,7 +28,7 @@ function pluralize(count: number, one: string, few: string, many: string) {
   return many;
 }
 
-const ProfilePageHeader: React.FC = ({ wishes, friends }) => {
+const ProfilePageHeader: React.FC = ({ wishes, friends, communities }) => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -171,7 +172,7 @@ const ProfilePageHeader: React.FC = ({ wishes, friends }) => {
 	                </div>
 	              </div>
 	              <p className="text-gray-600 text-lg mb-4">
-	                {profile.description || '✨ Коллекционер грез и исполнитель желаний | Исполняйте волшебство по одному желанию за раз 🌟'}
+	                {profile.description || ' '}
 	              </p>
 
 	              <div className="flex flex-wrap gap-4 text-sm text-gray-500">
@@ -218,9 +219,9 @@ const ProfilePageHeader: React.FC = ({ wishes, friends }) => {
 	              </div>
 	            </div>
 	            <div className="text-center min-w-[70px] sm:min-w-[120px]">
-	              <div className="text-sm sm:text-2xl font-bold text-orange-500">23</div>
+	              <div className="text-sm sm:text-2xl font-bold text-orange-500">{ communities.length }</div>
 	              <div className="text-xs sm:text-sm text-gray-500">
-		              {pluralize(23, 'сообщество', 'сообщества', 'сообществ')}
+		              {pluralize(communities.length, 'сообщество', 'сообщества', 'сообществ')}
 	              </div>
 	            </div>
 	          </div>

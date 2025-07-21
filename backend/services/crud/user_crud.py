@@ -10,7 +10,6 @@ import os
 import uuid
 from models import (User, Wish, Comment, Activity, ActivityType, Like,
                     ActivityLike, EmailVerification, friend_association)
-from schemas.user_schemas import UserOutWithFriend
 from services.auth import get_password_hash
 
 logger = logging.getLogger(__name__)

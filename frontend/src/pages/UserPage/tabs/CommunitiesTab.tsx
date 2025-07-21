@@ -1,86 +1,33 @@
 import React from 'react';
 import { Users, Crown, MessageCircle, TrendingUp, Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { STATIC_BASE_URL } from '../../../config';
 
-const CommunitiesTab: React.FC = () => {
-  const communities = [
-    {
-      id: 1,
-      name: 'Любители фотографии',
-      description: 'Сообщество увлеченных фотографов, делящихся своим снаряжением, пожеланиями и советами',
-      avatar: 'https://avatars.mds.yandex.net/i?id=3be8cb7c15f5307fa7b522ead776f222_l-5554842-images-thumbs&n=13&w=400',
-      members: 12500,
-      role: 'Администратор',
-      activeWishlists: 45,
-      totalRaised: 25000,
-      joinDate: '2023-01-10',
-      isActive: true,
-      category: 'Фотография'
-    },
-    {
-      id: 2,
-      name: 'Коллектив цифрового искусства',
-      description: 'Художники поддерживают творческие поездки друг друга и приобретение инструментов',
-      avatar: 'https://avatars.mds.yandex.net/i?id=a384a635a2aa6f8b96a8c574d0834fec_l-5220021-images-thumbs&n=13&w=400',
-      members: 8200,
-      role: 'Модератор',
-      activeWishlists: 32,
-      totalRaised: 18500,
-      joinDate: '2023-02-15',
-      isActive: true,
-      category: 'Искусство'
-    },
-    {
-      id: 3,
-      name: 'Путешественники-искатели приключений',
-      description: 'Исследователи, помогающие друг другу финансировать удивительные путешествия',
-      avatar: 'https://avatars.mds.yandex.net/i?id=809317af397205976392a6c83b5e410c_l-9180497-images-thumbs&n=13&w=400',
-      members: 15800,
-      role: 'Участник',
-      activeWishlists: 67,
-      totalRaised: 42000,
-      joinDate: '2023-03-20',
-      isActive: true,
-      category: 'Путешествия'
-    },
-    {
-      id: 4,
-      name: 'Технические новаторы',
-      description: 'Энтузиасты технологий делятся передовыми гаджетами и финансируют их',
-      avatar: 'https://www.m24.ru/b/d/nBkSUhL2hFggnMewI76BrNOp2Z318Ji-mifGnuWR9mOBdDebBizCnTY8qdJf6ReJ58vU9meMMok3Ee2nhSR6ISeO9G1N_wjJ=OJVOlwo3B0uiUxkQsaiW_g.jpg&w=400',
-      members: 9500,
-      role: 'Участник',
-      activeWishlists: 28,
-      totalRaised: 35000,
-      joinDate: '2023-04-05',
-      isActive: false,
-      category: 'Техника'
-    },
-    {
-      id: 5,
-      name: 'Воины фитнеса',
-      description: 'Сообщество любителей здоровья и фитнеса поддерживает оборудование и цели тренировок',
-      avatar: 'https://avatars.mds.yandex.net/i?id=af05d6f995e2fc117e05f90899d6745b_l-3690429-images-thumbs&n=13&w=400',
-      members: 6300,
-      role: 'Участник',
-      activeWishlists: 23,
-      totalRaised: 12000,
-      joinDate: '2023-05-12',
-      isActive: true,
-      category: 'Фитнес'
-    },
-    {
-      id: 6,
-      name: 'Создатели музыки',
-      description: 'Музыканты помогают друг другу приобретать инструменты и студийное оборудование',
-      avatar: 'https://avatars.mds.yandex.net/i?id=1b20220bf89c4e7fc5726adacb0d69c3-5271179-images-thumbs&ref=rim&n=33&w=338&h=225&w=400',
-      members: 4800,
-      role: 'Участник',
-      activeWishlists: 19,
-      totalRaised: 8500,
-      joinDate: '2023-06-18',
-      isActive: true,
-      category: 'Музыка'
-    }
+const getImageUrl = (imageUrl?: string) => {
+  if (!imageUrl) return '/default-avatar.png';
+  if (imageUrl.startsWith('http')) return imageUrl;
+  return `${STATIC_BASE_URL}${imageUrl}`;
+};
+
+function pluralize(count: number, one: string, few: string, many: string) {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 === 1 && mod100 !== 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few;
+  return many;
+}
+
+const CommunitiesTab: React.FC<FriendsTabProps> = ({ communities }) => {
+  const navigate = useNavigate();
+
+  const categories = [
+    { id: 'all', name: 'Все категории' },
+    { id: 'tech', name: 'Технологии' },
+    { id: 'fashion', name: 'Мода' },
+    { id: 'travel', name: 'Путешествия' },
+    { id: 'books', name: 'Книги' },
+    { id: 'health', name: 'Здоровье' },
+    { id: 'art', name: 'Искусство' }
   ];
 
   const formatNumber = (num: number) => {
@@ -138,7 +85,7 @@ const CommunitiesTab: React.FC = () => {
             <div className="flex items-start gap-4 mb-4">
               <div className="relative">
                 <img
-                  src={community.avatar}
+                  src={getImageUrl(community.image_url)}
                   alt={community.name}
                   className="w-16 h-16 rounded-xl object-cover"
                 />
@@ -162,7 +109,9 @@ const CommunitiesTab: React.FC = () => {
                     {community.role}
                   </span>
                   <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
-                    {community.category}
+                    {
+					  categories.find(cat => cat.id === community.category)?.name || community.category
+					  }
                   </span>
                 </div>
               </div>
@@ -173,16 +122,20 @@ const CommunitiesTab: React.FC = () => {
               <div className="text-center">
                 <div className="flex items-center justify-center gap-1 text-purple-600 mb-1">
                   <Users className="w-4 h-4" />
-                  <span className="font-semibold">{formatNumber(community.members)}</span>
+                  <span className="font-semibold">{formatNumber(community.members_count)}</span>
                 </div>
-                <div className="text-xs text-gray-500">Участников</div>
+                <div className="text-xs text-gray-500">
+                    {pluralize(community.members_count, 'Участник', 'Участника', 'Участников')}
+                </div>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-1 text-teal-600 mb-1">
                   <TrendingUp className="w-4 h-4" />
-                  <span className="font-semibold">{community.activeWishlists}</span>
+                  <span className="font-semibold">{community.wishes_count}</span>
                 </div>
-                <div className="text-xs text-gray-500">Активных листов</div>
+                <div className="text-xs text-gray-500">
+                    {pluralize(community.wishes_count, 'Желание', 'Желания', 'Желаний')}
+                </div>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-1 text-pink-600 mb-1">
@@ -195,7 +148,7 @@ const CommunitiesTab: React.FC = () => {
             {/* Join Date */}
             <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
               <Calendar className="w-4 h-4" />
-              <span>Основано {new Date(community.joinDate).toLocaleDateString('en-US', {
+              <span>Основано: {new Date(community.created_at).toLocaleDateString('ru-RU', {
                 month: 'long', 
                 year: 'numeric' 
               })}</span>
@@ -203,7 +156,9 @@ const CommunitiesTab: React.FC = () => {
 
             {/* Action Buttons */}
             <div className="flex gap-2">
-              <button className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200 text-sm">
+              <button
+                onClick={() => navigate(`/communities/${community.id}`)}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200 text-sm">
                 Детали
               </button>
               <button className="px-3 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">

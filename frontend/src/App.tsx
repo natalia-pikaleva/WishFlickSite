@@ -22,6 +22,8 @@ import UserProfilePage from './pages/UserPage';
 import UserPage from './pages/UserPage/UserPage'
 import ProfilePage from './pages/ProfilePage/ProfilePage'
 import UsersListPage from './pages/UsersPage'
+import Communities from './pages/Communities';
+import CommunityDetail from './pages/CommunityDetail/CommunityDetail'
 
 import * as VKID from '@vkid/sdk';
 import { VK_CLIENT_ID, VK_REDIRECT_URI } from './config';
@@ -93,6 +95,8 @@ function App() {
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/community" element={<Community />} />
           <Route path="/campaigns" element={<Campaign />} />
+          <Route path="/communities" element={<Communities />} />
+          <Route path="/communities/:communityId" element={<CommunityDetail />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/oauth-callback" element={<OAuthCallback />} />
           <Route path="/wishes/:wishId" element={<WishDetails />} />
