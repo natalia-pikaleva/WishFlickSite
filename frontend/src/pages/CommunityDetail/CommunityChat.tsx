@@ -1,6 +1,7 @@
 import { Send } from 'lucide-react';
 
-export default function CommunityChat({ chatMessages, currentUserId, newMessage, setNewMessage, handleSendMessage, token }) {
+export default function CommunityChat({ chatMessages, currentUserId, newMessage,
+	setNewMessage, handleSendMessage, token, messagesEndRef }) {
   return (
     <div className="bg-white rounded-xl shadow-sm h-96 flex flex-col">
       <div className="p-4 border-b">
@@ -18,9 +19,10 @@ export default function CommunityChat({ chatMessages, currentUserId, newMessage,
                   ? 'bg-gradient-to-r from-purple-500 to-teal-500 text-white'
                   : 'bg-gray-100 text-gray-800'
               }`}>
-                {!String(message.user_id) === currentUserId && (
-                  <div className="text-xs font-medium mb-1">{message.user_name}</div>
-                )}
+                {String(message.user_id) !== currentUserId && (
+				  <div className="text-xs font-medium mb-1">{message.user_name}</div>
+				)}
+
                 <div className="text-sm">{message.message}</div>
                 <div className={`text-xs mt-1 ${
                   String(message.user_id) === currentUserId ? 'text-purple-100' : 'text-gray-500'
@@ -50,6 +52,7 @@ export default function CommunityChat({ chatMessages, currentUserId, newMessage,
             <Send className="h-5 w-5" />
           </button>
         </div>
+        <div ref={messagesEndRef} />
       </div>
     </div>
   );

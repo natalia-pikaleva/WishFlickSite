@@ -62,7 +62,7 @@ const CommunityDetail = () => {
 	  if (!communityId) return;
 	  (async () => {
 	    try {
-	      const result = await fetchCommunityMembers(token, communityId);
+	      const result = await fetchCommunityMembers(token, Number(communityId));
 	      setMembers(result);
 	    } catch (e) {
 	      setMembers([]);
@@ -88,7 +88,7 @@ const CommunityDetail = () => {
     const fetchMessages = async () => {
       try {
         setLoading(true);
-        const messages = await getCommunityChatMessages(communityId);
+        const messages = await getCommunityChatMessages(Number(communityId));
         if (!cancelled) setChatMessages(messages);
       } catch (e) {
         // Обработайте ошибку (например, покажите тост)
@@ -105,7 +105,7 @@ const CommunityDetail = () => {
   useEffect(() => {
     // Можно вынести в отдельный хук useInterval
     const interval = setInterval(async () => {
-      const messages = await getCommunityChatMessages(communityId);
+      const messages = await getCommunityChatMessages(Number(communityId));
       setChatMessages(messages);
     }, 10000);
     setPolling(interval);
@@ -124,7 +124,7 @@ const CommunityDetail = () => {
     if (!newMessage.trim()) return;
     try {
       const sent = await sendCommunityChatMessage(token, {
-        community_id: communityId,
+        community_id: Number(communityId),
         message: newMessage
       });
       setChatMessages((msgs) => [...msgs, sent]);
@@ -331,6 +331,7 @@ const CommunityDetail = () => {
 	        setNewMessage={setNewMessage}
 	        handleSendMessage={handleSendMessage}
 	        token={token}
+	        messagesEndRef={messagesEndRef}
 	      />
         )}
 
