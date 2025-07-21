@@ -30,7 +30,7 @@ from routers.likes_router import router as router_likes
 from routers.community_router import router as router_community
 from routers.community_chat_router import router as router_community_chat
 
-from config import LOGGING_CONFIG, UPLOAD_ROOT
+from config import LOGGING_CONFIG, UPLOAD_DIR
 import logging.config
 
 logger = logging.getLogger(__name__)
@@ -64,13 +64,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-UPLOAD_DIR_AVATARS = os.path.join(UPLOAD_ROOT, "avatars")
-UPLOAD_DIR_WISHES = os.path.join(UPLOAD_ROOT, "wishes")
+UPLOAD_DIR_AVATARS = os.path.join(UPLOAD_DIR, "avatars")
+UPLOAD_DIR_WISHES = os.path.join(UPLOAD_DIR, "wishes")
 
 os.makedirs(UPLOAD_DIR_AVATARS, exist_ok=True)
 os.makedirs(UPLOAD_DIR_WISHES, exist_ok=True)
 
-app.mount("/uploads", StaticFiles(directory=UPLOAD_ROOT), name="uploads")
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 
 # Создание таблиц (запускайте один раз)
