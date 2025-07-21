@@ -18,13 +18,12 @@ import services.crud.other_crud as other_crud
 import services.auth as auth
 
 from backend_conf import API_URL
+from config import UPLOAD_DIR
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# UPLOAD_DIR = "/var/www/wishflick/uploads/"
-UPLOAD_DIR = "uploads"
 
 UPLOAD_DIR_AVATARS = os.path.join(UPLOAD_DIR, "avatars")
 UPLOAD_DIR_WISHES = os.path.join(UPLOAD_DIR, "wishes")
