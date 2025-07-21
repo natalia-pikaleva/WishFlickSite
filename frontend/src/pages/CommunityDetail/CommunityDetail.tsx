@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef  } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import { updateCommunity, deleteCommunity, getCommunityById, fetchCommunityMembers } from '../../utils/api/communityApi';
-import { getCommunityChatMessages, sendCommunityChatMessage } from '../../utils/api/communityChatApi';
+import {
+	getCommunityChatMessages,
+	sendCommunityChatMessage,
+	deleteCommunityChatMessage } from '../../utils/api/communityChatApi';
 
 import CommunityHeader from './CommunityHeader';
 import CommunityTabs from './CommunityTabs';
@@ -27,9 +30,11 @@ const CommunityDetail = () => {
   const [activeTab, setActiveTab] = useState<'info' | 'members' | 'wishes' | 'chat'>('info');
   const [community, setCommunity] = useState<any>(null);
   const [members, setMembers] = useState<any[]>([]);
-  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [chatMessages, setChatMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [polling, setPolling] = useState(null);
+  const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -65,14 +70,6 @@ const CommunityDetail = () => {
 	  })();
 	}, [communityId, token]);
 
-
-  useEffect(() => {
-    if (activeTab === 'chat' && communityId) {
-      loadChat();
-    }
-    // eslint-disable-next-line
-  }, [activeTab, communityId]);
-
   useEffect(() => {
     if (showSettingsModal && community) {
       setEditForm({
@@ -84,25 +81,72 @@ const CommunityDetail = () => {
     }
   }, [showSettingsModal, community]);
 
-  const loadChat = async () => {
+  // 1. Загрузка сообщений при монтировании/смене communityId
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchMessages = async () => {
+      try {
+        setLoading(true);
+        const messages = await getCommunityChatMessages(communityId);
+        if (!cancelled) setChatMessages(messages);
+      } catch (e) {
+        // Обработайте ошибку (например, покажите тост)
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchMessages();
+    return () => { cancelled = true; };
+  }, [communityId]);
+
+  // 2. Простое polling (каждые 10 секунд)
+  useEffect(() => {
+    // Можно вынести в отдельный хук useInterval
+    const interval = setInterval(async () => {
+      const messages = await getCommunityChatMessages(communityId);
+      setChatMessages(messages);
+    }, 10000);
+    setPolling(interval);
+    return () => clearInterval(interval);
+  }, [communityId]);
+
+  // 3. Прокрутка вниз при новых сообщениях
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatMessages]);
+
+  // 4. Обработка отправки сообщения
+  const handleSendMessage = async () => {
+    if (!newMessage.trim()) return;
     try {
-      const data = await getCommunityChatMessages(Number(communityId));
-      setChatMessages(data);
+      const sent = await sendCommunityChatMessage(token, {
+        community_id: communityId,
+        message: newMessage
+      });
+      setChatMessages((msgs) => [...msgs, sent]);
+      setNewMessage('');
     } catch (e) {
-      // обработка
+      // Обработайте ошибку
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!newMessage.trim() || !token) return;
-    try {
-      await sendCommunityChatMessage(token, { community_id: Number(communityId), message: newMessage });
-      setNewMessage('');
-      loadChat();
-    } catch (e) {
-      // обработка
+  // 5. Удаление сообщения — если надо
+  const handleDeleteMessage = async (messageId) => {
+    if (window.confirm('Удалить сообщение?')) {
+      try {
+        await deleteCommunityChatMessage(token, messageId);
+        setChatMessages((msgs) => msgs.filter((m) => m.id !== messageId));
+      } catch (e) {
+        // Обработка ошибки
+      }
     }
   };
+
+
 
   if (loading || !community) {
     return <div className="text-center py-12 text-lg text-gray-500">Загрузка...</div>;
@@ -280,14 +324,14 @@ const CommunityDetail = () => {
 		)}
 
         {activeTab === 'chat' && (
-          <CommunityChat
-            chatMessages={chatMessages}
-            currentUserId={currentUserId}
-            newMessage={newMessage}
-            setNewMessage={setNewMessage}
-            handleSendMessage={handleSendMessage}
-            token={token}
-          />
+         <CommunityChat
+	        chatMessages={chatMessages}
+	        currentUserId={String(currentUserId)}
+	        newMessage={newMessage}
+	        setNewMessage={setNewMessage}
+	        handleSendMessage={handleSendMessage}
+	        token={token}
+	      />
         )}
 
         {showSettingsModal && (
