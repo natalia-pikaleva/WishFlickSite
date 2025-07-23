@@ -155,10 +155,11 @@ const CommunitiesTab: React.FC<FriendsTabProps> = ({ communities }) => {
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900">Сообщества</h3>
         <button
-          onClick={() => navigate(`/communities`)}
-          className="px-4 py-2 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200">
-          Поиск сообществ
-        </button>
+		  onClick={() => navigate(`/communities`)}
+		  className="px-3 sm:px-4 py-2 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200 text-sm sm:text-base"
+		>
+		  Поиск сообществ
+		</button>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
