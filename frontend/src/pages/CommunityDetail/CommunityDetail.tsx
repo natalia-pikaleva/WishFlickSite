@@ -1,11 +1,16 @@
 import React, { useEffect, useState, useRef  } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-import { updateCommunity, deleteCommunity, getCommunityById, fetchCommunityMembers } from '../../utils/api/communityApi';
+import {
+	updateCommunity,
+	deleteCommunity,
+	getCommunityById,
+	fetchCommunityMembers } from '../../utils/api/communityApi';
 import {
 	getCommunityChatMessages,
 	sendCommunityChatMessage,
 	deleteCommunityChatMessage } from '../../utils/api/communityChatApi';
+import { createNotification } from '../../utils/api/notificationsApi';
 
 import CommunityHeader from './CommunityHeader';
 import CommunityTabs from './CommunityTabs';
@@ -48,6 +53,10 @@ const CommunityDetail = () => {
   const [settingsError, setSettingsError] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+
+  const [pending, setPending] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
     if (!communityId) return;
@@ -151,13 +160,13 @@ const CommunityDetail = () => {
   };
 
 
-
   if (loading || !community) {
     return <div className="text-center py-12 text-lg text-gray-500">Загрузка...</div>;
   }
 
   const currentMember = members.find((m) => m.id === currentUserId);
   const isAdmin = currentMember?.role === 'admin';
+  const isCommunityMember = Boolean(currentMember);
 
   // Моки для желаний, если нет API
   const wishes: WishCommunity[] = [
@@ -270,6 +279,26 @@ const CommunityDetail = () => {
   const adminMember = members.find(m => m.role === 'admin');
   const adminId = adminMember?.id;
 
+  const handleJoinRequest = async () => {
+	  setPending(true);
+	  setErrorMsg('');
+	  setSuccess(false);
+	  try {
+	    await createNotification({
+	      recipient_id: adminId ?? community.admin_id,
+	      sender_id: Number(currentUserId),
+	      type: 'join_request',
+	      message: `Пользователь хочет вступить в сообщество "${community.name}"`,
+	      community_id: community.id,
+	    });
+	    setSuccess(true);
+	  } catch (e) {
+	    setErrorMsg(e.message);
+	  } finally {
+	    setPending(false);
+	  }
+	};
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-teal-50">
       <CommunityHeader
@@ -282,7 +311,13 @@ const CommunityDetail = () => {
         onBack={() => navigate('/communities')}
         getImageUrl={getImageUrl}
         formatNumber={formatNumber}
-      />
+        showJoinBtn={!isCommunityMember}
+	    onJoinClick={handleJoinRequest}
+	    pending={pending}
+	    success={success}
+	    errorMsg={errorMsg}
+	  />
+
       <CommunityTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-8">
         {activeTab === 'info' && (
@@ -294,7 +329,7 @@ const CommunityDetail = () => {
           adminId={adminId}
            />
         )}
-        {activeTab === 'members' && (
+        {isCommunityMember && activeTab === 'members' && (
           <CommunityMembersList
             members={members}
             getRoleColor={getRoleColor}
@@ -302,7 +337,7 @@ const CommunityDetail = () => {
             formatCurrency={formatCurrency}
           />
         )}
-        {activeTab === 'wishes' && (
+        {isCommunityMember && activeTab === 'wishes' && (
 		  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
 		    {wishes.map((wish) => (
 		      <div key={wish.id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
@@ -327,7 +362,7 @@ const CommunityDetail = () => {
 		  </div>
 		)}
 
-        {activeTab === 'chat' && (
+        {isCommunityMember && activeTab === 'chat' && (
          <CommunityChat
 	        chatMessages={chatMessages}
 	        currentUserId={String(currentUserId)}
@@ -338,6 +373,18 @@ const CommunityDetail = () => {
 	        messagesContainerRef={messagesContainerRef}
 	      />
         )}
+
+		{!isCommunityMember && activeTab !== 'info' && (
+			  <div className="flex flex-col items-center justify-center min-h-[240px]">
+			    <div className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center max-w-md w-full">
+			      <h2 className="text-2xl font-bold mb-2 text-gray-800">Только для участников</h2>
+			      <p className="text-gray-600 text-center">
+			        Эта вкладка доступна только участникам сообщества.<br/>
+			        Чтобы получить доступ — отправьте заявку через кнопку Вступить.
+			      </p>
+			    </div>
+			  </div>
+			)}
 
         {showSettingsModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
