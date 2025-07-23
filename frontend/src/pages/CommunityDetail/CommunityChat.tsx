@@ -1,13 +1,16 @@
 import { Send } from 'lucide-react';
 
 export default function CommunityChat({ chatMessages, currentUserId, newMessage,
-	setNewMessage, handleSendMessage, token, messagesEndRef }) {
+	setNewMessage, handleSendMessage, token, messagesContainerRef }) {
   return (
     <div className="bg-white rounded-xl shadow-sm h-96 flex flex-col">
       <div className="p-4 border-b">
         <h3 className="text-lg font-semibold">Групповой чат</h3>
       </div>
-      <div className="flex-1 p-4 overflow-y-auto space-y-4">
+      <div
+	      ref={messagesContainerRef}
+	      className="flex-1 p-4 overflow-y-auto space-y-4"
+	  >
         {chatMessages.map((message) => (
           <div
             key={message.id}
@@ -33,7 +36,6 @@ export default function CommunityChat({ chatMessages, currentUserId, newMessage,
             </div>
           </div>
         ))}
-	    <div ref={messagesEndRef} />
       </div>
       <div className="p-4 border-t">
         <div className="flex items-center space-x-3">
