@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
-from sqlalchemy import func
+from sqlalchemy import func, or_, and_
 from typing import List
 import logging
 
@@ -35,7 +35,6 @@ async def remove_friend(db: AsyncSession, user: User, friend: User):
     await db.refresh(user)
     await db.refresh(friend)
     return user
-
 
 
 async def get_friends(db: AsyncSession, user: User) -> List[UserOut]:
@@ -128,3 +127,23 @@ async def count_mutual_friends(db: AsyncSession, user_id_1: int, user_id_2: int)
 
     # Возвращаем размер пересечения множеств
     return len(friends_1.intersection(friends_2))
+
+
+async def check_if_friends(db: AsyncSession, user_id: int, friend_id: int) -> bool:
+    """
+    Проверяет, являются ли user_id и friend_id друзьями (в любую сторону).
+    """
+    stmt = select(friend_association).where(
+        or_(
+            and_(
+                friend_association.c.user_id == user_id,
+                friend_association.c.friend_id == friend_id
+            ),
+            and_(
+                friend_association.c.user_id == friend_id,
+                friend_association.c.friend_id == user_id
+            )
+        )
+    )
+    result = await db.execute(stmt)
+    return result.first() is not None
