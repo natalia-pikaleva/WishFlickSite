@@ -18,17 +18,23 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           <X className="w-6 h-6" />
         </button>
         <nav className="mt-10 flex flex-col space-y-4">
-          <Link to="/" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={onClose}>Главная страница</Link>
-          <Link to="/wishlist" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={onClose}>Список желаний</Link>
-          <Link to="/campaigns" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={onClose}>Кампании</Link>
-          <Link to="/community" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={onClose}>Сообщество</Link>
-          <Link to="/influencer-wishlists" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={onClose}>Списки желаний блогеров</Link>
+          <Link to="/" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={onClose}>
+            Главная страница
+          </Link>
+          <Link to="/communities" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={onClose}>
+            Поиск сообществ
+          </Link>
+          <Link to="/users" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={onClose}>
+            Поиск друзей
+          </Link>
 
           {/* Горизонтальная тонкая линия */}
           <hr className="border-t border-gray-300 my-4" />
 
 		  {/* Профиль */}
-		  <Link to="/profile" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={onClose}>Профиль</Link>
+		  <Link to="/profile" className="text-gray-700 hover:text-[#6A49C8] transition-colors" onClick={onClose}>
+		    Мой профиль
+		  </Link>
         </nav>
       </div>
     </div>
