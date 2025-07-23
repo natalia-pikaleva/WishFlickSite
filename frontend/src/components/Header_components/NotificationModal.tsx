@@ -82,56 +82,46 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                     </div>
 				  </div>
 				  <div className="flex items-center space-x-3 ml-auto">
-                    {/* Кнопки для friend_request */}
-                    {n.type === 'friend_request' && (
-                      <div className="flex space-x-2 ml-4 ml-auto">
-                        <button
-                          className="ml-2 px-4 py-1 ml-auto rounded-full font-semibold text-white bg-gradient-to-r from-[#6A49C8] to-[#98E2D5] shadow-md hover:from-[#B48DFE] hover:to-[#6A49C8] transition-all duration-200 text-sm"
-                          onClick={(e) => {
+					  {n.status === 'pending' ? (
+					    <>
+					      {n.type === 'friend_request' && (
+					        <div className="flex space-x-2 ml-4 ml-auto">
+					          <button
+					          className="ml-2 px-4 py-1 ml-auto rounded-full font-semibold text-white bg-gradient-to-r from-[#6A49C8] to-[#98E2D5] shadow-md hover:from-[#B48DFE] hover:to-[#6A49C8] transition-all duration-200 text-sm"
+					          onClick={(e) => {e.stopPropagation(); onFriendRequestAccept && onFriendRequestAccept(n);}}>
+					          Принять
+					          </button>
+					          <button
+					          className="ml-2 px-4 py-1 ml-auto rounded-full font-semibold text-white bg-gradient-to-r from-[#DB7093] to-[#FFB6C1] shadow-md hover:from-[#B48DFE] hover:to-[#6A49C8] transition-all duration-200 text-sm"
+					          onClick={(e) => {e.stopPropagation(); onFriendRequestReject && onFriendRequestReject(n);}}>
+					          Отклонить
+					          </button>
+					        </div>
+					      )}
+					      {n.type === 'join_request' && (
+					        <div className="flex space-x-2 ml-4 ml-auto">
+					          <button
+					          className="ml-2 px-4 py-1 ml-auto rounded-full font-semibold text-white bg-gradient-to-r from-[#6A49C8] to-[#98E2D5] shadow-md hover:from-[#B48DFE] hover:to-[#6A49C8] transition-all duration-200 text-sm"
+					          onClick={(e) => {e.stopPropagation(); onJoinRequestAccept && onJoinRequestAccept(n);}}>
+					          Принять
+					          </button>
+					          <button
+					          className="ml-2 px-4 py-1 ml-auto rounded-full font-semibold text-white bg-gradient-to-r from-[#DB7093] to-[#FFB6C1] shadow-md hover:from-[#B48DFE] hover:to-[#6A49C8] transition-all duration-200 text-sm"
+					          onClick={(e) => {e.stopPropagation(); onJoinRequestReject && onJoinRequestReject(n);}}>
+					          Отклонить
+					          </button>
+					        </div>
+					      )}
+					    </>
+					  ) : (
+					    <span className="ml-4 ml-auto font-medium text-xs select-none">
+					      {n.status === 'accepted' && 'Принято'}
+					      {n.status === 'rejected' && 'Отклонено'}
+					      {n.status === 'dismissed' && 'Скрыто'}
+					    </span>
+					  )}
+					</div>
 
-                            e.stopPropagation();
-                            onFriendRequestAccept && onFriendRequestAccept(n);
-                          }}
-                        >
-                          Принять
-                        </button>
-                        <button
-                          className="ml-2 px-4 py-1 ml-auto rounded-full font-semibold text-white bg-gradient-to-r from-[#DB7093] to-[#FFB6C1] shadow-md hover:from-[#B48DFE] hover:to-[#6A49C8] transition-all duration-200 text-sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onFriendRequestReject && onFriendRequestReject(n);
-                          }}
-                        >
-                          Отклонить
-                        </button>
-                      </div>
-                    )}
-
-				    {/* Кнопки для join_request */}
-				    {n.type === 'join_request' && (
-					  <div className="flex space-x-2 ml-4 ml-auto">
-					    <button
-					      className="ml-2 px-4 py-1 ml-auto rounded-full font-semibold text-white bg-gradient-to-r from-[#6A49C8] to-[#98E2D5] shadow-md hover:from-[#B48DFE] hover:to-[#6A49C8] transition-all duration-200 text-sm"
-					      onClick={(e) => {
-					        e.stopPropagation();
-					        onJoinRequestAccept && onJoinRequestAccept(n);
-					      }}
-					    >
-					      Принять
-					    </button>
-					    <button
-					      className="ml-2 px-4 py-1 ml-auto rounded-full font-semibold text-white bg-gradient-to-r from-[#DB7093] to-[#FFB6C1] shadow-md hover:from-[#B48DFE] hover:to-[#6A49C8] transition-all duration-200 text-sm"
-					      onClick={(e) => {
-					        e.stopPropagation();
-					        onJoinRequestReject && onJoinRequestReject(n);
-					      }}
-					    >
-					      Отклонить
-					    </button>
-					  </div>
-					)}
-
-                  </div>
                 </li>
               ))}
             </ul>

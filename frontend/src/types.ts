@@ -75,7 +75,14 @@ export interface UserListItem {
 export interface NotificationType {
   friend_request: 'friend_request';
   message: 'message';
-  // Добавьте другие типы по необходимости
+  join_request: "join_request";
+}
+
+export interface NotificationStatus {
+    pending: "pending";
+    accepted: "accepted";
+    rejected: "rejected";
+    dismissed: "dismissed";
 }
 
 export interface Notification {
@@ -87,6 +94,7 @@ export interface Notification {
   message: string;
   is_read: boolean;
   created_at: string; // ISO дата
+  status: string
 }
 
 interface GetNotificationsParams {

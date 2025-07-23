@@ -25,7 +25,14 @@ import {
 	loginUser,
 	verifyEmail,
 	guestLogin, } from '../utils/api/authApi'
-import { getNotifications, markNotificationAsRead, Notification  } from '../utils/api/notificationsApi';
+import {
+	getNotifications,
+	markNotificationAsRead,
+	Notification,
+	acceptFriendRequest,
+	rejectFriendRequest,
+	acceptJoinRequest,
+	rejectJoinRequest} from '../utils/api/notificationsApi';
 
 
 const Header = () => {
@@ -303,72 +310,45 @@ const Header = () => {
 	}, [isLoggedIn]);
 
   const onFriendRequestAccept = async (notification: Notification) => {
-
-    console.log('onFriendRequestAccept notification:', notification);
-    try {
-      const friendId = notification.sender_id;
-      if (!friendId) throw new Error('Некорректные данные уведомления');
-
-      await addFriend(friendId);
-
-      // Можно пометить уведомление как прочитанное или удалить из списка
-      setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
-
-      // Если нужно, можно вызвать API для пометки уведомления как прочитанного
-      await markNotificationAsRead(notification.id);
-
-      alert('Друг успешно добавлен!');
-    } catch (error: any) {
-      alert(error.message || 'Ошибка при добавлении друга');
-    }
-  };
-
-  const onFriendRequestReject = async (notification: Notification) => {
+  try {
+    await acceptFriendRequest(notification.id);
     setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
-  };
+    alert('Друг успешно добавлен!');
+  } catch (error: any) {
+    alert(error.message || 'Ошибка при добавлении друга');
+  }
+};
 
-  const handleJoinRequestAccept = async (notification: Notification) => {
-	  try {
-	    const token = localStorage.getItem('access_token');
-	    if (!token) throw new Error('Нет токена авторизации');
-	    if (!notification.community_id || !notification.sender_id) {
-	      throw new Error('В уведомлении отсутствует id сообщества или отправителя');
-	    }
+const onFriendRequestReject = async (notification: Notification) => {
+  try {
+    await rejectFriendRequest(notification.id);
+    setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
+    alert('Заявка отклонена');
+  } catch (error: any) {
+    alert(error.message || 'Ошибка при отклонении заявки');
+  }
+};
 
-	    // Добавление участника в сообщество через API
-	    await addCommunityMember(
-	      token,
-	      notification.community_id,
-	      notification.sender_id,  // добавляем именно отправителя как участника
-	      'member'                 // роль по умолчанию
-	    );
+const handleJoinRequestAccept = async (notification: Notification) => {
+  try {
+    await acceptJoinRequest(notification.id);
+    setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
+    alert('Пользователь добавлен в сообщество!');
+  } catch (error: any) {
+    alert(error.message || 'Ошибка при добавлении участника');
+  }
+};
 
-	    // Пометить уведомление как прочитанное
-	    await markNotificationAsRead(notification.id);
+const handleJoinRequestReject = async (notification: Notification) => {
+  try {
+    await rejectJoinRequest(notification.id);
+    setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
+    alert('Заявка отклонена');
+  } catch (error: any) {
+    alert(error.message || 'Ошибка при отклонении заявки');
+  }
+};
 
-	    // Удалить уведомление из списка (можете просто так)
-	    setNotifications((prev) =>
-	      prev.filter((n) => n.id !== notification.id)
-	    );
-
-	    alert('Пользователь добавлен в сообщество!');
-	  } catch (error: any) {
-	    alert(error.message || 'Ошибка при добавлении участника');
-	  }
-	};
-
-  const handleJoinRequestReject = async (notification: Notification) => {
-	  try {
-	    // Можно просто пометить как прочитанное
-	    await markNotificationAsRead(notification.id);
-
-	    setNotifications((prev) =>
-	      prev.filter((n) => n.id !== notification.id)
-	    );
-	  } catch (error: any) {
-	    alert(error.message || 'Ошибка при отклонении заявки');
-	  }
-	};
 
 
 
