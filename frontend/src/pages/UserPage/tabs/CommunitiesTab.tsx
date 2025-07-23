@@ -71,13 +71,6 @@ const CommunitiesTab: React.FC<FriendsTabProps> = ({ communities }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">Сообщества</h3>
-        <button className="px-4 py-2 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200">
-          Открывайте для себя сообщества
-        </button>
-      </div>
-
       <div className="grid gap-6 md:grid-cols-2">
         {communities.map((community) => (
           <div key={community.id} className="bg-white border border-gray-100 rounded-xl p-6 hover:shadow-lg transition-all duration-200 group">
