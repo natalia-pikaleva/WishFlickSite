@@ -35,24 +35,24 @@ export default function Navigation() {
         Кампании
       </NavLink>*/}
       <NavLink
-        to="/community"
+        to="/communities"
         className={({ isActive }) =>
           isActive
             ? "font-bold text-base text-[#16141D] transition-colors"
             : "font-semibold text-base text-[#1C1C1C] opacity-40 hover:opacity-100 hover:text-[#835FE5] transition"
         }
       >
-        Сообщество
+        Поиск сообществ
       </NavLink>
       <NavLink
-        to="/influencer-wishlists"
+        to="/users"
         className={({ isActive }) =>
           isActive
             ? "font-bold text-base text-[#16141D] transition-colors"
             : "font-semibold text-base text-[#1C1C1C] opacity-40 hover:opacity-100 hover:text-[#835FE5] transition"
         }
       >
-        Списки желаний блогеров
+        Поиск друзей
       </NavLink>
     </nav>
   );
