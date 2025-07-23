@@ -33,6 +33,7 @@ export default function CommunityChat({ chatMessages, currentUserId, newMessage,
             </div>
           </div>
         ))}
+	    <div ref={messagesEndRef} />
       </div>
       <div className="p-4 border-t">
         <div className="flex items-center space-x-3">
@@ -52,7 +53,7 @@ export default function CommunityChat({ chatMessages, currentUserId, newMessage,
             <Send className="h-5 w-5" />
           </button>
         </div>
-        <div ref={messagesEndRef} />
+
       </div>
     </div>
   );
