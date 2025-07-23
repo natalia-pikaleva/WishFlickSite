@@ -112,12 +112,16 @@ const CommunityDetail = () => {
     return () => clearInterval(interval);
   }, [communityId]);
 
+  const messagesContainerRef = useRef(null);
+
   // 3. Прокрутка вниз при новых сообщениях
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [chatMessages]);
+	  const el = messagesContainerRef.current;
+	  if (el) {
+	    el.scrollTop = el.scrollHeight;
+	  }
+	}, [chatMessages]);
+
 
   // 4. Обработка отправки сообщения
   const handleSendMessage = async () => {
@@ -331,7 +335,7 @@ const CommunityDetail = () => {
 	        setNewMessage={setNewMessage}
 	        handleSendMessage={handleSendMessage}
 	        token={token}
-	        messagesEndRef={messagesEndRef}
+	        messagesContainerRef={messagesContainerRef}
 	      />
         )}
 
