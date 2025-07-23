@@ -82,7 +82,7 @@ const FriendsTab: React.FC<FriendsTabProps> = ({ friends }) => {
         <h3 className="text-lg font-semibold text-gray-900">Друзья</h3>
         <button
           onClick={handleFindFriendsClick}
-          className="px-4 py-2 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200"
+		  className="px-3 sm:px-4 py-2 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200 text-sm sm:text-base"
         >
           Найти друзей
         </button>

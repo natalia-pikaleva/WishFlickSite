@@ -227,7 +227,7 @@ const WishlistsTab: React.FC = () => {
         {!isGuest && (
 	        <button
 	          onClick={openCreateForm}
-	          className="px-4 py-2 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200"
+		      className="px-3 sm:px-4 py-2 bg-gradient-to-r from-purple-500 to-teal-400 text-white rounded-lg font-medium hover:from-purple-600 hover:to-teal-500 transition-all duration-200 text-sm sm:text-base"
 	        >
 	          Добавить новое
 	        </button>
