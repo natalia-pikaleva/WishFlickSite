@@ -20,6 +20,14 @@ interface FriendsTabProps {
   friends: Friend[];
 }
 
+function pluralize(count: number, one: string, few: string, many: string) {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 === 1 && mod100 !== 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few;
+  return many;
+}
+
 const FriendsTab: React.FC<FriendsTabProps> = ({ friends }) => {
 //   const friends = [
 //     {
@@ -175,7 +183,9 @@ const FriendsTab: React.FC<FriendsTabProps> = ({ friends }) => {
             <div className="grid grid-cols-3 gap-3 mb-4 text-center">
               <div className="bg-purple-50 rounded-lg p-2">
                 <div className="font-semibold text-purple-600">{friend.wishlistsCount}</div>
-                <div className="text-xs text-gray-500">Желаний</div>
+                <div className="text-xs text-gray-500">
+                  {pluralize(friend.wishlistsCount | 0, 'желание', 'желания', 'желаний')}
+                </div>
               </div>
               <div className="bg-teal-50 rounded-lg p-2">
                 <div className="font-semibold text-teal-600">
