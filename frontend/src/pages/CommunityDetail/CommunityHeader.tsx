@@ -23,6 +23,11 @@ export default function CommunityHeader({
   onBack,
   getImageUrl,
   formatNumber,
+  showJoinBtn,
+  onJoinClick,
+  pending,
+  success,
+  errorMsg,
 }) {
   return (
     <div>
@@ -52,6 +57,15 @@ export default function CommunityHeader({
                 >
                   <Settings className="h-4 w-4" />
                   <span className="hidden xs:inline">Настройки</span>
+                </button>
+              )}
+		      {showJoinBtn && (
+                <button
+                  onClick={onJoinClick}
+                  className="flex items-center gap-1 sm:gap-2 bg-gradient-to-r from-purple-500 to-teal-500 text-white px-2 py-1 sm:px-4 sm:py-2 rounded-lg hover:from-purple-600 hover:to-teal-600 text-xs sm:text-sm font-semibold shadow"
+                  disabled={pending || success}
+                >
+                  {success ? "Заявка отправлена" : pending ? "Отправка..." : "Вступить"}
                 </button>
               )}
             </div>
