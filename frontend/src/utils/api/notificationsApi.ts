@@ -50,3 +50,39 @@ export const markNotificationAsRead = async (notificationId: number): Promise<vo
     throw new Error(error.response?.data?.detail || 'Ошибка при обновлении статуса уведомления');
   }
 };
+
+// Принять заявку в друзья по уведомлению
+export const acceptFriendRequest = async (notificationId: number): Promise<void> => {
+  try {
+    await api.post(`/notifications/${notificationId}/friend-request/accept`);
+  } catch (error: any) {
+    throw new Error(error.response?.data?.detail || 'Ошибка при добавлении друга');
+  }
+};
+
+// Отклонить заявку в друзья по уведомлению
+export const rejectFriendRequest = async (notificationId: number): Promise<void> => {
+  try {
+    await api.post(`/notifications/${notificationId}/friend-request/reject`);
+  } catch (error: any) {
+    throw new Error(error.response?.data?.detail || 'Ошибка при отклонении заявки');
+  }
+};
+
+// Принять заявку на вступление в сообщество по уведомлению
+export const acceptJoinRequest = async (notificationId: number): Promise<void> => {
+  try {
+    await api.post(`/notifications/${notificationId}/join-request/accept`);
+  } catch (error: any) {
+    throw new Error(error.response?.data?.detail || 'Ошибка при добавлении участника');
+  }
+};
+
+// Отклонить заявку на вступление в сообщество по уведомлению
+export const rejectJoinRequest = async (notificationId: number): Promise<void> => {
+  try {
+    await api.post(`/notifications/${notificationId}/join-request/reject`);
+  } catch (error: any) {
+    throw new Error(error.response?.data?.detail || 'Ошибка при отклонении заявки');
+  }
+};

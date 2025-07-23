@@ -226,6 +226,11 @@ class NotificationType(PyEnum):
     message = "message"
     join_request = "join_request"
 
+class NotificationStatus(PyEnum):
+    pending = "pending"        # Можно действовать
+    accepted = "accepted"      # Принято (например, заявка в друзья принята)
+    rejected = "rejected"      # Отклонено
+    dismissed = "dismissed"    # Просто убрали уведомление
 
 class Notification(Base):
     __tablename__ = "notifications"
@@ -235,9 +240,10 @@ class Notification(Base):
     sender_id = Column(Integer, ForeignKey("users.id"),
                        nullable=True)  # Кто инициировал событие (например, кто отправил запрос в друзья)
     type = Column(Enum(NotificationType), nullable=False)
-    message = Column(Text, nullable=False)  # Текст уведомления, можно формировать динамически
+    message = Column(Text, nullable=False)  # Текст уведомления
     is_read = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    status = Column(Enum(NotificationStatus), default=NotificationStatus.pending, nullable=False)
 
     community_id = Column(Integer, ForeignKey("communities.id"), nullable=True)
     recipient = relationship("User", foreign_keys=[recipient_id])
