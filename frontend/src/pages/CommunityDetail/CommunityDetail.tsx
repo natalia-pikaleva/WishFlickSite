@@ -335,6 +335,7 @@ const CommunityDetail = () => {
             getRoleColor={getRoleColor}
             getRoleText={getRoleText}
             formatCurrency={formatCurrency}
+            currentUserId={currentUserId}
           />
         )}
         {isCommunityMember && activeTab === 'wishes' && (
