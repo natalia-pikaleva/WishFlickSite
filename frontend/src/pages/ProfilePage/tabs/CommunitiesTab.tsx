@@ -167,24 +167,31 @@ const CommunitiesTab: React.FC<FriendsTabProps> = ({ communities }) => {
           <div key={community.id} className="bg-white border border-gray-100 rounded-xl p-6 hover:shadow-lg transition-all duration-200 group">
             {/* Community Header */}
             <div className="flex items-start gap-4 mb-4">
-              <div className="relative">
-                <img
-                  src={getImageUrl(community.image_url)}
-                  alt={community.name}
-                  className="w-16 h-16 rounded-xl object-cover"
-                />
-                <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${
-                  community.isActive ? 'bg-green-500' : 'bg-gray-400'
-                }` } />
-              </div>
+              {/* Картинка с навигацией */}
+		        <div className="relative cursor-pointer" onClick={() => navigate(`/communities/${community.id}`)}>
+		          <img
+		            src={getImageUrl(community.image_url)}
+		            alt={community.name}
+		            className="w-16 h-16 rounded-xl object-cover"
+		          />
+		          <div
+		            className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${
+		              community.isActive ? "bg-green-500" : "bg-gray-400"
+		            }`}
+		          />
+		        </div>
               
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">
-                    {community.name}
-                  </h4>
-                  {getRoleIcon(community.role)}
-                </div>
+		          <div className="flex items-center gap-2 mb-1">
+		            {/* Название с навигацией */}
+		            <h4
+		              className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors cursor-pointer"
+		              onClick={() => navigate(`/communities/${community.id}`)}
+		            >
+		              {community.name}
+		            </h4>
+		            {getRoleIcon(community.role)}
+		          </div>
                 <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                   {community.description}
                 </p>
