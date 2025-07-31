@@ -47,6 +47,7 @@ async def get_communities(db: AsyncSession, skip: int = 0, limit: int = 20):
     )
     return result.scalars().all()
 
+
 # Получить список всех сообществ одного пользователя
 async def get_communities_by_user_id(db: AsyncSession, user_id: int):
     result = await db.execute(
@@ -56,6 +57,7 @@ async def get_communities_by_user_id(db: AsyncSession, user_id: int):
         .where(CommunityMember.user_id == user_id)
     )
     return result.scalars().all()
+
 
 # Получить сообщество по id
 async def get_community_by_id(db: AsyncSession, community_id: int):
@@ -151,3 +153,17 @@ async def add_community_member(
         raise HTTPException(status_code=400, detail="Ошибка при добавлении участника")
     await db.refresh(member)
     return member
+
+
+async def is_community_member(
+        db: AsyncSession,
+        community_id: int,
+        user_id: int
+) -> bool:
+    query = select(CommunityMember).where(
+        CommunityMember.community_id == community_id,
+        CommunityMember.user_id == user_id
+    )
+    result = await db.execute(query)
+    member = result.scalar_one_or_none()
+    return member is not None
